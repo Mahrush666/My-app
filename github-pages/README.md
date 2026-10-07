@@ -31,3 +31,7 @@ Picture → listen has four audio choices, a separate selection control, and OK 
 Picture speaking, picture listening, written-word choices and read/recall are all flashcard formats. They share one browser-local schedule per word. Daily queues contain only new/due cards. First-attempt mistakes return after ten minutes and are not erased by an immediate corrected answer. Speech that cannot be graded is not marked correct automatically; a parent/teacher may listen and rate it.
 
 Save & update student QR now creates a fresh configured link. New links store choices in URL query parameters, keep the student book/unit menu within assigned lessons, preserve settings through the home link, and hide disabled panels entirely. Old fragment links remain readable. A teacher can apply the same choices to one unit or all units in a book. Existing printed QR codes keep their old settings; there is still no server to update them remotely. The general app URL is a catalogue, not a configured student assignment.
+
+## Power up Starter picture story
+
+Unit 7 · Reading contains The queen of the river, imported from the teacher’s PPT. Watch & listen is the only activity enabled by default. Ten close-up picture views use the original illustrated page; the original MP3 plays continuously while children change pictures manually. There is no inferred scene timing. Replay resets the audio and returns to the first picture. The final view includes the crown and speech bubble.

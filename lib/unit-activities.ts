@@ -1,4 +1,5 @@
 export const activityOptions = [
+ ['story','🎧','Watch & listen · Story pictures','Pre-readers. Story pictures with the original lesson audio.'],
  ['picture-speak','🎤','Flashcards · Picture → say the word','Ages 3–5. Speaking cards with spaced repetition.'],
  ['picture-listen','🔊','Flashcards · Picture → choose the sound','Ages 3–5. Listening cards with spaced repetition.'],
  ['lesson','✨','Guided lesson','Listening, spelling, sentences and reading.'],
@@ -27,4 +28,4 @@ export function validateSettings(input: unknown, ids: string[]): Settings {
 export function settingsLink(settings: Settings, unit?: string){const url=new URL(location.href);url.hash='';url.searchParams.set('settings',JSON.stringify(settings));url.searchParams.set('student','1');if(unit)url.searchParams.set('unit',unit);else url.searchParams.delete('unit');url.searchParams.set('v','20261007-review');return url.href;}
 export function spokenMatch(transcript: string, expected: string){const normalize=(s:string)=>s.toLowerCase().replace(/[^a-z0-9\s']/g,' ').replace(/\s+/g,' ').trim().replace(/^(?:it's|it is|this is|that is) /,'').replace(/^(?:a|an|the) /,'');return normalize(transcript)===normalize(expected);}
 
-export function configuredActivities(unit: string, shared: Settings, local: Settings, student: boolean): ActivityId[] {return (student?shared[unit]:local[unit])?.activities || (student?[]:allActivities);}
+export function configuredActivities(unit: string, shared: Settings, local: Settings, student: boolean, defaults: ActivityId[]=allActivities): ActivityId[] {return (student?shared[unit]:local[unit])?.activities || (student?[]:defaults);}

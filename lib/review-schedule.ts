@@ -27,3 +27,11 @@ export function sentenceTokens(text: string): string[] {
 export function answerKey(text: string): string {
   return text.toLowerCase().replace(/[’‘]/g, "'").replace(/[^a-z0-9']/g, '');
 }
+
+// Flashcard formats share one schedule per word. Future reviews never fill a daily queue.
+export function reviewCards(vocabulary: Word[], progress: Progress, now: number): Word[] {
+ return vocabulary.filter(word=>{const p=progress[word.id||word.en];return !p||p.due<=now;}).sort((a,b)=>{
+  const left=progress[a.id||a.en],right=progress[b.id||b.en];
+  return (left?.due||Number.MAX_SAFE_INTEGER)-(right?.due||Number.MAX_SAFE_INTEGER);
+ });
+}

@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import ts from 'typescript';
+const context={exports:{}};
+vm.runInNewContext(ts.transpileModule(fs.readFileSync('lib/review-schedule.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,context);
+const {nextReview,reviewCards}=context.exports;
+const now=1_800_000_000_000;
+const words=['cat','dog','fish'].map(en=>({id:'starter-'+en,en}));
+const progress={'starter-cat':nextReview(undefined,true,now),'starter-dog':nextReview(undefined,false,now)};
+assert.equal(reviewCards(words,progress,now).map(w=>w.en).join(','),'fish');
+assert.equal(reviewCards(words,progress,now+600000).map(w=>w.en).join(','),'dog,fish');
+assert.equal(nextReview(progress['starter-dog'],true,now+1000).step,0);
+assert.equal(nextReview(progress['starter-cat'],true,now+1000).due,progress['starter-cat'].due);
+assert.equal(reviewCards(words,progress,now+86400000).length,3);
+assert.equal(nextReview(progress['starter-dog'],true,now+600000).step,1);
+assert.equal(nextReview(progress['starter-cat'],true,now+86400000).step,2);
+console.log('Shared flashcard schedule: future cards excluded, missed cards due after 10 minutes, intervals preserved across formats.');

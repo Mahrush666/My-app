@@ -1,6 +1,6 @@
 import type {PictureStory} from '../lib/picture-story';
 export const queenOfTheRiver: PictureStory={
- title:'The queen of the river',image:'stories/queen-of-the-river/story.png',audio:'stories/queen-of-the-river/story.mp3',width:1486,height:844,
+ title:'The queen of the river',image:'stories/queen-of-the-river/story-mobile.webp',audio:'stories/queen-of-the-river/story-mobile.m4a',width:1486,height:844,
  scenes:[
   {label:'Elephant is king of the animals.',x:36,y:172,width:700,height:225},
   {label:'Elephant talks to Tiger beside the river.',x:47,y:406,width:312,height:210},

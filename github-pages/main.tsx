@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BookOpen } from 'lucide-react';
 import Teacher from './teacher';
@@ -22,4 +22,9 @@ function App() {
  <div className="lesson-menu">{book?lessons.filter(l=>l.book===book).map(l=><button key={l.id} className="lesson-tile" onClick={()=>setUnit(l.id)}><BookOpen size={32}/><strong>{l.title}</strong><span>{l.words.length} words · {l.readings.length} reading paragraphs</span></button>):books.map(b=><button key={b} className="lesson-tile" onClick={()=>setBook(b)}><BookOpen size={32}/><strong>{b}</strong><span>{lessons.filter(l=>l.book===b).length} units 单元</span></button>)}</div></>}
  <footer>Learn a little. Play a little. 每天学一点，玩一点。</footer></main>
 }
-createRoot(document.getElementById('root')!).render(<App/>);
+function Root(){
+ const [route,setRoute]=useState(location.hash);
+ useEffect(()=>{const change=()=>setRoute(location.hash);window.addEventListener('hashchange',change);return()=>window.removeEventListener('hashchange',change)},[]);
+ return <App key={route}/>;
+}
+createRoot(document.getElementById('root')!).render(<Root/>);

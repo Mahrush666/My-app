@@ -1,0 +1,10 @@
+import type { Word, Progress } from '@/app/words';
+export type ReadingPassage={id:string;title:string;text:string;hint:string;level:string};
+export type Lesson={id:string;title:string;book_title:string;words:(Word&{id:string})[];readings:ReadingPassage[];published?:number};
+export type Learner={id:string;name:string;class_id:string;class_name:string};
+export type Review={word_id:string;step:number;due:number;reviewed_at:number;count:number;correct:number};
+export type LearnerState={student:Learner;units:Lesson[];reviews:Review[];syncedAt:number};
+export type Activity={id:string;kind:'review'|'game_answer'|'practice_answer'|'reading'|'lesson_session';unitId:string;wordId?:string;correct?:boolean;occurredAt:number;detail:Record<string,string|number|boolean>};
+export type ActivityDraft=Omit<Activity,'id'|'occurredAt'>;
+export type QueuedActivity=Activity&{studentId:string};
+export const progressFrom=(reviews:Review[]):Progress=>Object.fromEntries(reviews.map(r=>[r.word_id,{step:r.step,due:r.due}]));

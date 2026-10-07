@@ -1,0 +1,5 @@
+import { getChatGPTUser, chatGPTSignInPath } from '@/app/chatgpt-auth';
+import { teacher } from '@/lib/auth';
+import TeacherDashboard from './teacher-dashboard';
+export const dynamic='force-dynamic';
+export default async function TeacherPage(){const user=await getChatGPTUser();if(!user)return <main className="app"><header className="top"><a className="brand" href="/">✦ WordQuest</a></header><section className="empty"><h1>Teacher’s classroom</h1><p>Sign in to manage your lessons and check student activity.</p><a className="button-link primary" href={chatGPTSignInPath('/teacher')} target="_top">Sign in with ChatGPT</a></section></main>;if(!await teacher())return <main className="app"><section className="empty"><h1>Teacher access required</h1><p>This account does not have access to this classroom.</p><a className="button-link" href="/signout-with-chatgpt?return_to=%2Fteacher" target="_top">Use a different account</a><a className="button-link" href="/">Student home</a></section></main>;return <TeacherDashboard teacherName={user.displayName}/>}

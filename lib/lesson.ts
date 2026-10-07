@@ -1,0 +1,5 @@
+import { z } from 'zod';
+export const wordInput=z.object({en:z.string().trim().min(1).max(80),zh:z.string().trim().min(1).max(80),sentence:z.string().trim().max(300).default(''),icon:z.string().trim().max(12).default('📖')});
+export const readingInput=z.object({id:z.string().max(80).optional(),title:z.string().trim().min(1).max(120),text:z.string().trim().min(1).max(1200),hint:z.string().trim().max(500).default(''),level:z.string().trim().max(50).default('Reading 朗读')});
+export const lessonInput=z.object({id:z.string().max(80).optional(),bookTitle:z.string().trim().min(1).max(100),title:z.string().trim().min(1).max(120),published:z.boolean(),words:z.array(wordInput).min(4).max(200),readings:z.array(readingInput).max(10)}).superRefine((v,ctx)=>{const keys=v.words.map(w=>w.en.toLowerCase());if(new Set(keys).size!==keys.length)ctx.addIssue({code:'custom',message:'Use each English word only once per unit.'})});
+export const normalizeWord=(en:string,zh:string)=>`${en.trim().toLowerCase()}\u0000${zh.trim()}`;

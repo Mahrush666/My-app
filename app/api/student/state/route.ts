@@ -1,0 +1,6 @@
+import { student } from '@/lib/auth';
+import { db, json } from '@/lib/db';
+export async function GET(request:Request){try{const s=await student(request);if(!s)return json({error:'Enter your student code first.'},401);const database=db();const units=await database.prepare('SELECT u.id,u.title,u.readings,b.title AS book_title FROM class_units cu JOIN units u ON u.id=cu.unit_id JOIN books b ON b.id=u.book_id WHERE cu.class_id=? AND u.published=1 ORDER BY b.title,u.title').bind(s.class_id).all();
+ const words=await database.prepare('SELECT DISTINCT uw.unit_id,w.id,w.en,w.zh,w.icon,w.category,uw.sentence,uw.position FROM class_units cu JOIN units u ON u.id=cu.unit_id JOIN unit_words uw ON uw.unit_id=u.id JOIN words w ON w.id=uw.word_id WHERE cu.class_id=? AND u.published=1 ORDER BY uw.position').bind(s.class_id).all();
+ const reviews=await database.prepare('SELECT word_id,step,due,reviewed_at,count,correct FROM reviews WHERE student_id=?').bind(s.id).all();return json({student:s,units:units.results.map(u=>({...u,readings:JSON.parse(String(u.readings)),words:words.results.filter(w=>w.unit_id===u.id)})),reviews:reviews.results,syncedAt:Date.now()});
+ }catch(e){console.error('Student load failed',e instanceof Error?e.message:'Storage failure');return json({error:'Could not load your lessons. Please try again. 暂时无法加载课程。'},503)}}

@@ -4,7 +4,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Mic, Square, Volume2, Sparkles } from 'lucide-react';
 import { passages } from './passages';
-import { speak } from './words';
+import { speak, stopSpeaking } from './words';
 import { staticPreview } from '@/lib/public-runtime';
 import { storyIllustration } from '@/lib/story-illustrations';
 type Result={transcript:string;recognized:number;total:number;practice:string[];words:{word:string;recognized:boolean}[]};
@@ -14,14 +14,14 @@ export default function Reading({lessonPassages=passages,unitId,onComplete,onRea
  const recorder=useRef<MediaRecorder|null>(null),stream=useRef<MediaStream|null>(null),chunks=useRef<Blob[]>([]),limit=useRef<ReturnType<typeof setTimeout>|null>(null),mounted=useRef(true),startTime=useRef(0),cancel=useRef<AbortController|null>(null);
  const p=passages.find(x=>x.id===id)||passages[0];
  const position=Math.max(0,passages.findIndex(x=>x.id===p?.id));
- function choose(value:string){window.speechSynthesis?.cancel();setId(value);setBlob(null);setUrl('');setResult(null);setError('')}
+ function choose(value:string){stopSpeaking();setId(value);setBlob(null);setUrl('');setResult(null);setError('')}
  const locked=recording||waiting||checking;
  const illustration=storyIllustration(p?.text||'');
- useEffect(()=>{mounted.current=true;setSupported(typeof navigator.mediaDevices?.getUserMedia==='function'&&typeof window.MediaRecorder!=='undefined');const controller=new AbortController();if(!staticPreview)fetch('/api/reading',{signal:controller.signal}).then(async r=>await r.json() as {available:boolean}).then(d=>{if(mounted.current)setAvailable(d.available===true)}).catch(()=>{});return()=>{mounted.current=false;controller.abort();cancel.current?.abort();if(limit.current)clearTimeout(limit.current);if(recorder.current?.state==='recording')recorder.current.stop();stream.current?.getTracks().forEach(t=>t.stop());window.speechSynthesis?.cancel()}},[]);
+ useEffect(()=>{mounted.current=true;setSupported(typeof navigator.mediaDevices?.getUserMedia==='function'&&typeof window.MediaRecorder!=='undefined');const controller=new AbortController();if(!staticPreview)fetch('/api/reading',{signal:controller.signal}).then(async r=>await r.json() as {available:boolean}).then(d=>{if(mounted.current)setAvailable(d.available===true)}).catch(()=>{});return()=>{mounted.current=false;controller.abort();cancel.current?.abort();if(limit.current)clearTimeout(limit.current);if(recorder.current?.state==='recording')recorder.current.stop();stream.current?.getTracks().forEach(t=>t.stop());stopSpeaking()}},[]);
  useEffect(()=>()=>{if(url)URL.revokeObjectURL(url)},[url]);
  useEffect(()=>{if(!recording)return;const tick=setInterval(()=>setSeconds(Math.floor((Date.now()-startTime.current)/1000)),250);return()=>clearInterval(tick)},[recording]);
  function stop(){if(limit.current)clearTimeout(limit.current);if(recorder.current?.state==='recording')recorder.current.stop();stream.current?.getTracks().forEach(t=>t.stop());setRecording(false)}
- async function start(){setError('');setWaiting(true);window.speechSynthesis?.cancel();try{
+ async function start(){setError('');setWaiting(true);stopSpeaking();try{
  const media=await navigator.mediaDevices.getUserMedia({audio:true});if(!mounted.current){media.getTracks().forEach(t=>t.stop());return}stream.current=media;
  const type=['audio/webm;codecs=opus','audio/mp4','audio/webm','audio/ogg;codecs=opus'].find(t=>MediaRecorder.isTypeSupported(t));const r=new MediaRecorder(media,type?{mimeType:type}:undefined);recorder.current=r;chunks.current=[];
  r.ondataavailable=e=>{if(e.data.size)chunks.current.push(e.data)};r.onstop=()=>{media.getTracks().forEach(t=>t.stop());if(!mounted.current)return;const b=new Blob(chunks.current,{type:r.mimeType});setBlob(b);setUrl(URL.createObjectURL(b));setRecording(false);if(b.size>100){onComplete?.(p);onRead?.(p)}};

@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import ts from 'typescript';
+const manifest=JSON.parse(fs.readFileSync('lib/lesson-audio.json','utf8'));
+for(const file of Object.values(manifest))assert.ok(fs.statSync('public/lesson-audio/'+file).size>1000);
+const events=[],players=[],rejects=[];let speechCalls=0;
+class Audio { constructor(){players.push(this);this.dataset={};this.currentTime=0} pause(){this.paused=true} play(){this.paused=false;return new Promise((_,reject)=>rejects.push(reject))} }
+const window={dispatchEvent:e=>events.push(e),speechSynthesis:{cancel(){},getVoices:()=>[],speak:()=>speechCalls++}};
+const context={exports:{},require:path=>path==='./lesson-audio.json'?manifest:{publicAsset:path=>'./'+path},window,document:{body:{appendChild(){}}},Audio,CustomEvent:class{constructor(type,options){this.type=type;this.detail=options?.detail}},SpeechSynthesisUtterance:class{},setTimeout:()=>{}};
+const source=ts.transpileModule(fs.readFileSync('lib/audio.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText;
+vm.runInNewContext(source,context);const {speak,stopSpeaking,audioSource}=context.exports;
+assert.equal(audioSource(' CAT '),'./lesson-audio/'+manifest.cat);
+assert.ok(audioSource('You are very nice to me.'));
+speak('cat');assert.equal(players.length,1);assert.equal(speechCalls,0);assert.equal(players[0].paused,false);
+speak('dog');assert.equal(players.length,1);assert.equal(players[0].src,'./lesson-audio/'+manifest.dog);
+rejects[0](new Error('Old clip interrupted'));await Promise.resolve();assert.equal(events.filter(e=>e.type==='wordquest-audio-error').length,0);
+rejects[1](new Error('NotAllowedError'));await Promise.resolve();assert.equal(events.at(-1).type,'wordquest-audio-error');assert.ok(events.at(-1).detail.src.endsWith('.m4a'));
+stopSpeaking();assert.equal(players[0].paused,true);assert.equal(players[0].currentTime,0);
+console.log('Passed: '+Object.keys(manifest).length+' bundled recordings, normalized lookup, immediate HTML audio playback, single-player reuse, stale error isolation, blocked-play fallback and cancellation.');

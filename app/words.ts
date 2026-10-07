@@ -5,4 +5,4 @@ export const words:Word[]=[
 export type Progress=Record<string,{step:number;due:number}>;
 export function loadProgress():Progress{try{return JSON.parse(localStorage.getItem('wordquest-progress-v1')||'{}')}catch{return {}}}
 export function saveProgress(p:Progress){try{localStorage.setItem('wordquest-progress-v1',JSON.stringify(p))}catch{}}
-export function speak(text:string){if(typeof window==='undefined'||!window.speechSynthesis)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=.8;window.speechSynthesis.speak(u)}
+export { speak, stopSpeaking } from '@/lib/audio';

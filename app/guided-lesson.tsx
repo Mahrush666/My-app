@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, Headphones, Volume2, Star, BookOpen, Gamepad2 } from 'lucide-react';
 import type { Word, Progress } from './words';
-import { speak } from './words';
+import { speak, stopSpeaking } from './words';
 import Reading from './reading';
 import { shuffle } from '@/lib/random';
 import { answerKey, lessonWords, sentenceTokens } from '@/lib/review-schedule';
@@ -33,7 +33,7 @@ export default function GuidedLesson({ vocabulary, progress, readings, unitId, o
   const sentence = word?.sentence.trim() || word?.en || '';
   useEffect(() => {
     const timer = setInterval(() => { if (document.visibilityState === 'visible' && document.hasFocus() && !saved.current) seconds.current = Math.min(1800, seconds.current + 1); }, 1000);
-    return () => { clearInterval(timer); if (!saved.current && !writing.current && seconds.current >= 5) void report.current(seconds.current, false, counts.current.answers, counts.current.firstTry).catch(() => {}); window.speechSynthesis?.cancel(); };
+    return () => { clearInterval(timer); if (!saved.current && !writing.current && seconds.current >= 5) void report.current(seconds.current, false, counts.current.answers, counts.current.firstTry).catch(() => {}); stopSpeaking(); };
   }, []);
   useEffect(() => {
     setUsed([]); setTyped(''); setCorrect(false); setMistaken(false); setFeedback(''); setShowHint(false);

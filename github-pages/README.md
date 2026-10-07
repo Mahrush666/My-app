@@ -15,3 +15,9 @@ Progress is saved only in this browser, shared by people using the same browser.
 ## Build locally
 
 `npm run build:pages` produces `dist-pages/`. All JavaScript, CSS and illustrations are included locally; no third-party CDN is needed. Relative URLs support both a repository subpath and a custom domain. Keep the lockfile with the source. Never upload `.env`, `.wrangler`, `.sites-runtime`, `node_modules`, local QA data or personal access-code exports.
+
+## Mobile audio and game view
+
+Bundled M4A recordings cover the published words, sentences and readings. Audio plays directly on a Listen tap; a native audio control appears if playback is blocked. Custom text without a bundled clip uses speech synthesis with visible failure feedback. Regenerate bundled recordings on macOS with `python3 scripts/generate-lesson-audio.py`; CI uses the committed assets. Run `node scripts/check-audio.mjs` from the project root to check playback routing.
+
+Word Reactor automatically fills the browser viewport when started. It adapts the arena to portrait or landscape without stretching character sprites. Back, Shrink and Pause remain accessible; drag to move, with no direction-button row. Browser bars may remain visible in WeChat.

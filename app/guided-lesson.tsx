@@ -15,7 +15,7 @@ type Props = {
   onAnswer: (word: Word, correct: boolean, exercise: string) => Promise<void>;
   onRecording: (passage: ReadingPassage) => void;
   onSession: (durationSeconds: number, completed: boolean, answers: number, firstTry: number) => Promise<void>;
-  onPlay: () => void;
+  onPlay?: () => void;
 };
 
 export default function GuidedLesson({ vocabulary, progress, readings, unitId, onAnswer, onRecording, onSession, onPlay }: Props) {
@@ -75,7 +75,7 @@ export default function GuidedLesson({ vocabulary, progress, readings, unitId, o
   return <section className="guided-lesson">
     <div className="section-heading"><div><p className="eyebrow">YOUR LESSON JOURNEY</p><h2>A little English, every day</h2></div><span className="pill">{selected.length} words 单词</span></div>
     <ol className="lesson-steps" aria-label="Lesson stages">{stages.map((s, i) => <li key={s.id} className={stage === 'done' || i < current ? 'finished' : i === current ? 'current' : ''} aria-current={i === current ? 'step' : undefined}><span>{stage === 'done' || i < current ? <Check size={18}/> : i + 1}</span>{s.label}</li>)}</ol>
-    {stage === 'done' ? <div className="lesson-complete"><Star size={44}/><h2>Lesson complete! 完成啦！</h2><p>{firstTry} / {answers} on your first try. Every try helps you learn.</p><p>{sessionSaved ? 'Your practice is saved or waiting to sync. 学习记录已保存或等待同步。' : ''}</p><button className="primary" onClick={onPlay}><Gamepad2 size={20}/>Choose a game 玩游戏</button></div>
+    {stage === 'done' ? <div className="lesson-complete"><Star size={44}/><h2>Lesson complete! 完成啦！</h2><p>{firstTry} / {answers} on your first try. Every try helps you learn.</p><p>{sessionSaved ? 'Your practice is saved or waiting to sync. 学习记录已保存或等待同步。' : ''}</p>{onPlay&&<button className="primary" onClick={onPlay}><Gamepad2 size={20}/>Choose a game 玩游戏</button>}</div>
     : stage === 'read' ? <><Reading lessonPassages={readings} unitId={unitId} onComplete={onRecording} onRead={p => setReadIds(ids => ids.includes(p.id) ? ids : [...ids, p.id])} readIds={readIds}/><div className="lesson-finish"><p>{readings.length ? `${readIds.length} / ${readings.length} paragraphs practised 段落已练习` : 'No story in this unit. You can finish your word practice. 本单元暂无故事。'}</p><button className="primary" disabled={busy || readIds.length < readings.length} onClick={() => void finish()}>{busy ? 'Saving…' : 'Finish lesson 完成课程'}</button><p className="feedback" aria-live="polite">{feedback}</p></div></>
     : !word ? <div className="empty"><BookOpen size={36}/><h2>Ready for reading?</h2><p>Your teacher can add example sentences for sentence-building practice. 老师可以添加例句。</p><button className="primary" onClick={() => { setStage('read'); setRound(0); }}>Read the story 读故事</button></div>
     : <section className="quiz-surface lesson-question"><div className="quiz-top"><h3>{stage === 'listen' ? 'Listen and choose 听音选词' : stage === 'spell' ? 'Spell the word 拼写单词' : 'Build the sentence 组句'}</h3><span>{round + 1} / {pool.length}</span></div>

@@ -21,3 +21,8 @@ Progress is saved only in this browser, shared by people using the same browser.
 Bundled M4A recordings cover the published words, sentences and readings. Audio plays directly on a Listen tap; a native audio control appears if playback is blocked. Custom text without a bundled clip uses speech synthesis with visible failure feedback. Regenerate bundled recordings on macOS with `python3 scripts/generate-lesson-audio.py`; CI uses the committed assets. Run `node scripts/check-audio.mjs` from the project root to check playback routing.
 
 Word Reactor automatically fills the browser viewport when started. It adapts the arena to portrait or landscape without stretching character sprites. Back, Shrink and Pause remain accessible; drag to move, with no direction-button row. Browser bars may remain visible in WeChat.
+
+## Unit activity settings
+The visible Teacher view lets you select book/unit, an age note, presets, and individual activities. Settings are saved only in that browser. Create a student link/QR to carry a unit's settings to another device; later changes require a new link. This is not authentication or a private backend. Browser-local progress has no online reporting.
+
+Picture → listen has four audio choices, a separate selection control, and OK to submit. Picture → speak records up to ten seconds and supports replay. Optional browser speech recognition requires a parent/teacher opt-in, may send audio to the browser provider, and compares the recognized whole phrase; it is not pronunciation scoring. Unsupported/failed recognition never counts as a wrong answer. WeChat speech recognition is not guaranteed. No audio is uploaded to our server or retained by this app after leaving the activity.

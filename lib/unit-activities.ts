@@ -1,4 +1,5 @@
 export const activityOptions = [
+ ['video','🎵','Watch & sing · Lesson video','Pre-readers. Watch the lesson video and sing or chant together.'],
  ['story','🎧','Watch & listen · Story pictures','Pre-readers. Story pictures with the original lesson audio.'],
  ['picture-speak','🎤','Flashcards · Picture → say the word','Ages 3–5. Speaking cards with spaced repetition.'],
  ['picture-listen','🔊','Flashcards · Picture → choose the sound','Ages 3–5. Listening cards with spaced repetition.'],

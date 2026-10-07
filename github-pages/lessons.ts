@@ -25,7 +25,7 @@ const actionWords: Word[] = [
  ['climb','爬','🧗'],['swim','游泳','🏊'],['walk','走','🚶'],['jump','跳','🤸'],['run','跑','🏃'],
 ].map(([en,zh,icon])=>({id:'pu-starter-u7-'+en,en,zh,icon,picture:'lessons/pu-starter-u7-lesson1/'+en+'.webp',category:'Free time',sentence:'I can '+en+'.'}));
 export const lessons: Lesson[] = ([
- {id:'pu-starter-u7-lesson1',book:'Power up Starter',title:'Unit 7 · Lesson 1 · Free time',words:actionWords,readings:[],videos:[{title:'Action chant',src:'lessons/pu-starter-u7-lesson1/action-chant.mp4',poster:'lessons/pu-starter-u7-lesson1/jump.webp'},{title:'Warm-up song',src:'lessons/pu-starter-u7-lesson1/warm-up-song.mp4'}],defaultActivities:['video','picture-listen','picture-speak']},
+ {id:'pu-starter-u7-lesson1',book:'Power up Starter',title:'Unit 7 · Lesson 1 · Free time',words:actionWords,readings:[],videos:[{title:'Action chant',src:'lessons/pu-starter-u7-lesson1/action-chant.mp4',poster:'lessons/pu-starter-u7-lesson1/jump.webp'}],defaultActivities:['video','picture-listen','picture-speak']},
  {id:'pu-starter-u7-reading',book:'Power up Starter',title:'Unit 7 · Reading',words:[],readings:[],story:queenOfTheRiver,defaultActivities:['story']},
  ...['Animals 动物','Food 食物','My world 我的世界','Actions 动作'].map((category,i)=>({id:'starter-'+i,book:'Starter English',title:category,words:words.filter(w=>w.category===category).map(w=>({...w,id:'starter-'+w.en})),readings:[passages[Math.min(i,2)]]})),
  {id:'monkey-shark',book:'Literature · Story lessons',title:'The monkey and the shark',words:vocabulary,readings:illustrations.map((p,i)=>({id:'monkey-paragraph-'+i,title:'The monkey and the shark · '+(i+1),level:'Reading 朗读',text:p.text,hint:''}))},

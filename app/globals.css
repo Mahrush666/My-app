@@ -29,3 +29,5 @@
 
 .picture-prompt img{display:block;width:100%;height:100%;max-height:280px;object-fit:contain}
 .sing-along{background:white;border-radius:28px;padding:clamp(16px,4vw,32px)}.sing-along video{display:block;width:100%;max-height:65vh;aspect-ratio:16/9;background:#15102b;border-radius:18px;margin-top:20px;object-fit:contain}.video-choices{display:flex;gap:12px;flex-wrap:wrap}.video-choices button[aria-pressed="true"]{background:#eee8ff;border-color:#783af5}
+
+.sound-choice button.sound-answer{width:100%;min-width:0;padding:12px;flex-direction:row;gap:12px}.sound-choice button.sound-answer[aria-pressed="true"]{background:#dcf5e9}

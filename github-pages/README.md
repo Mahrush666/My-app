@@ -2,7 +2,7 @@
 
 This is an additional static entry point for the existing WordQuest app. It includes the current archer game, all other games, guided exercises, local spaced review and the illustrated monkey-and-shark lesson. It does not publish student records, codes or credentials.
 
-Progress is saved only in this browser, shared by people using the same browser. There is no teacher login, online reporting, cross-device synchronization or AI analysis in this access-test version. Recording/playback depends on browser microphone support. The server-backed app remains intact for later backend migration.
+Progress is saved only in this browser, shared by people using the same browser. There is no teacher login, online reporting, cross-device synchronization or pronunciation scoring in this access-test version. Optional word recognition requires the separately deployed speech backend. Recording/playback depends on browser microphone support. The server-backed app remains intact for later backend migration.
 
 ## Publish under Mahrush666
 
@@ -25,7 +25,7 @@ Word Reactor automatically fills the browser viewport when started. It adapts th
 ## Unit activity settings
 The visible Teacher view lets you select book/unit, an age note, presets, and individual activities. Settings are saved only in that browser. Create a student link/QR to carry a unit's settings to another device; later changes require a new link. This is not authentication or a private backend. Browser-local progress has no online reporting.
 
-Picture → listen has four audio choices. Tapping a sound both plays and selects it; OK submits the selected answer. Picture → speak records up to ten seconds and supports replay. Optional browser speech recognition requires a parent/teacher opt-in, may send audio to the browser provider, and compares the recognized whole phrase; it is not pronunciation scoring. Unsupported/failed recognition never counts as a wrong answer. WeChat speech recognition is not guaranteed. No audio is uploaded to our server or retained by this app after leaving the activity.
+Picture → listen has four audio choices. Tapping a sound both plays and selects it; OK submits the selected answer. Picture → speak records up to ten seconds and supports replay. Once the separate Cloudflare/Groq speech backend and public endpoint are configured, a parent/teacher can enable automatic word recognition. Stopping a recording uploads it for checking, displays success/retry feedback and updates the shared schedule. Unclear speech or service failure never counts as wrong. Without endpoint setup, the app explicitly offers recording/manual review only. This is not pronunciation scoring. See `speech-backend/README.md` for activation, free-plan limits and processing details.
 
 ## Shared flashcards and restricted student links
 Picture speaking, picture listening, written-word choices and read/recall are all flashcard formats. They share one browser-local schedule per word. Daily queues contain only new/due cards. First-attempt mistakes return after ten minutes and are not erased by an immediate corrected answer. Speech that cannot be graded is not marked correct automatically; a parent/teacher may listen and rate it.

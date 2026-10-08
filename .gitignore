@@ -47,3 +47,6 @@ next-env.d.ts
 /work/
 
 /dist-pages/
+
+# Local Worker secrets
+.dev.vars*

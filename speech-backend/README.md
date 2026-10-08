@@ -38,3 +38,5 @@ node --test speech-backend/worker.test.mjs
 npm run build:pages
 npx wrangler deploy --dry-run --config speech-backend/wrangler.jsonc
 ```
+
+Phone connection checks use the read-only `/health` endpoint, without recordings or a Groq request. Recordings upload as multipart form data without custom headers to avoid an extra CORS preflight. A failed diagnostic does not block an actual recognition attempt. Recognition has a ten-second client wait limit; phone connectivity and real child recognition still require testing.

@@ -56,3 +56,23 @@ test('a real silent WAV is rejected before contacting Groq',async()=>{
  const result=await handleRequest(request({body:bytes,headers:{Origin:origin,'Content-Type':'audio/wav'}}),env,()=>{throw Error('silent audio should not reach the provider')});
  assert.deepEqual(await result.json(),{status:'unclear',transcript:''});
 });
+
+test('read-only health works directly and from the app without audio or provider calls',async()=>{
+ for(const headers of [{},{Origin:origin}]){
+  const result=await handleRequest(new Request('https://speech.example/health',{headers}),env,()=>{throw Error('no provider call')});
+  assert.deepEqual(await result.json(),{status:'ready'});
+  assert.equal(result.headers.get('Access-Control-Allow-Origin'),headers.Origin??null);
+ }
+ assert.equal((await handleRequest(new Request('https://speech.example/health'),{...env,GROQ_API_KEY:''})).status,503);
+ assert.equal((await handleRequest(new Request('https://speech.example/health',{headers:{Origin:'https://untrusted.example'}}),env)).status,403);
+});
+test('multipart audio upload preserves format and enforces size and origin limits',async()=>{
+ const form=()=>{const f=new FormData();f.set('file',new Blob([new Uint8Array(400)],{type:'audio/mp4'}),'recording');return f};
+ const result=await handleRequest(new Request('https://speech.example/transcribe',{method:'POST',headers:{Origin:origin},body:form()}),env,async(url,init)=>{assert.equal(init.body.get('file').type,'audio/mp4');assert.equal(init.body.get('file').size,400);return response(recognized)});
+ assert.deepEqual(await result.json(),{status:'recognized',transcript:'Jump.'});
+ assert.equal((await handleRequest(new Request('https://speech.example/transcribe',{method:'POST',body:form()}),env)).status,403);
+ for(const [file,status] of [[new Blob([new Uint8Array(1024*1024+1)],{type:'audio/mp4'}),413],[new Blob(['bad'],{type:'text/plain'}),415],['not a file',415]]){
+  const f=new FormData();f.set('file',file);
+  assert.equal((await handleRequest(new Request('https://speech.example/transcribe',{method:'POST',headers:{Origin:origin},body:f}),env)).status,status);
+ }
+});

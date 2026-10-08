@@ -19,16 +19,24 @@ export async function checkSpeechConnection(endpoint:string,signal?:AbortSignal)
  const abort=()=>controller.abort();
  signal?.addEventListener('abort',abort,{once:true});
  if(signal?.aborted)controller.abort();
- const timeout=setTimeout(abort,4000);
+ const timeout=setTimeout(abort,8000);
  try {
-  const response=await fetch(endpoint,{method:'OPTIONS',signal:controller.signal});
-  if(!response.ok)throw new Error('connection');
- }catch{throw new Error('connection')}
+  const health=new URL('/health',endpoint);health.searchParams.set('t',String(Date.now()));
+  let response:Response;
+  try {response=await fetch(health.href,{signal:controller.signal})}
+  catch {throw new Error(controller.signal.aborted?'connection_timeout':'connection')}
+  if(!response.ok)throw new Error(response.status===503?'not_configured':'connection_http_'+response.status);
+  const data=await response.json().catch(()=>({}));
+  if(data.status!=='ready')throw new Error('connection_response');
+ }
  finally{clearTimeout(timeout);signal?.removeEventListener('abort',abort)}
 }
 export function speechFailureMessage(error:unknown):string {
  const reason=error instanceof Error?error.message:'';
- if(reason==='connection')return 'Cannot reach the voice checker on this connection. Recording saved; a parent can listen and rate it. 无法连接语音检查服务，录音已保存，请家长听后评价。';
+ if(reason==='connection')return 'The browser could not connect to the voice checker. Try opening this lesson in Safari or Chrome. 浏览器无法连接语音服务，请用 Safari 或 Chrome 打开本课。 [NET]';
+ if(reason==='connection_timeout')return 'The voice checker did not respond within 8 seconds. Please try another connection. 语音服务在 8 秒内没有响应，请尝试其他网络。 [TIME]';
+ if(reason.startsWith('connection_http_'))return 'The voice checker returned an error ('+reason.slice(16)+'). Please tell your teacher. 语音服务返回错误，请告诉老师。';
+ if(reason==='connection_response')return 'The connection returned an unexpected page. Please tell your teacher. 连接返回了非预期页面，请告诉老师。 [PAGE]';
  if(reason==='busy')return 'The checker is busy or its free allowance is used up. Try later. 检查服务繁忙或免费额度已用完，请稍后重试。';
  if(reason==='not_configured')return 'Voice checking needs the teacher to finish its setup. 语音检查需要老师完成设置。';
  if(reason==='invalid_audio')return 'The checker could not read this recording. Try a short recording in another browser. 无法读取录音，请用其他浏览器录一段短语音。';
@@ -37,9 +45,10 @@ export function speechFailureMessage(error:unknown):string {
  return 'The voice service could not check this recording. Recording saved; try later or ask a parent to listen. 语音服务暂时无法检查，录音已保存，请稍后重试或请家长听。';
 }
 export async function checkSpeech(endpoint:string,clip:Blob,signal:AbortSignal):Promise<SpeechCheck> {
- await checkSpeechConnection(endpoint,signal);
+ // Upload directly: the diagnostic test must not prevent a real check.
+ const form=new FormData();form.set('file',clip,'recording');
  let response:Response;
- try {response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':clip.type||'audio/webm'},body:clip,signal})}
+ try {response=await fetch(endpoint,{method:'POST',body:form,signal})}
  catch(error){if(signal.aborted)throw error;throw new Error('network')}
  const data=await response.json().catch(()=>({}));
  if(!response.ok)throw new Error(response.status===429?'busy':response.status===503?'not_configured':[413,415,422].includes(response.status)?'invalid_audio':'unavailable');

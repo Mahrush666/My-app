@@ -23,7 +23,7 @@ Incomplete setup is clearly shown in the app. Failed/unclear checks do not sched
 
 ## Limits and handling
 
-Clips are capped at ten seconds in the UI, one MB while uploading, and twelve seconds in the provider's duration metadata. Speech/silence confidence metadata guards against unclear recordings, but does not guarantee accuracy. The expected answer is never sent as a recognition prompt.
+Clips are capped at ten seconds in the UI, one MB while uploading, and twelve seconds in the provider's duration metadata. The app checks microphone volume locally when Web Audio is supported; PCM WAV silence is also rejected on the backend before transcription. Speech/silence confidence metadata guards against uncertain results. None of these checks guarantees transcription accuracy or distinguishes all background noise from speech. The expected answer is never sent as a recognition prompt.
 
 Allowed origins restrict browsers, not determined callers who spoof headers. The no-login endpoint is public. A best-effort per-IP limiter mitigates repeated requests; Groq's free account quota is the final cap. Shared mobile IPs can hit the limiter. Keep Groq on Free; this Worker does not enforce a global spending limit for paid accounts.
 

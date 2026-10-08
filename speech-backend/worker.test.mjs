@@ -50,3 +50,9 @@ test('provider failures and timeouts never leak credentials or mark answers wron
   assert.deepEqual(await result.json(),{error:'service_unavailable'});
  }
 });
+
+test('a real silent WAV is rejected before contacting Groq',async()=>{
+ const bytes=Buffer.alloc(32044);bytes.write('RIFF');bytes.writeUInt32LE(32036,4);bytes.write('WAVEfmt ',8);bytes.writeUInt32LE(16,16);bytes.writeUInt16LE(1,20);bytes.writeUInt16LE(1,22);bytes.writeUInt32LE(16000,24);bytes.writeUInt32LE(32000,28);bytes.writeUInt16LE(2,32);bytes.writeUInt16LE(16,34);bytes.write('data',36);bytes.writeUInt32LE(32000,40);
+ const result=await handleRequest(request({body:bytes,headers:{Origin:origin,'Content-Type':'audio/wav'}}),env,()=>{throw Error('silent audio should not reach the provider')});
+ assert.deepEqual(await result.json(),{status:'unclear',transcript:''});
+});

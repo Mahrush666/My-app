@@ -23,6 +23,27 @@ async function readClip(request) {
   return bytes;
 }
 
+// Reject genuinely silent PCM WAV clips before asking the transcription model.
+export function silentPcmWav(bytes) {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const label = offset => String.fromCharCode(...bytes.slice(offset, offset + 4));
+  if (bytes.length < 44 || label(0) !== 'RIFF' || label(8) !== 'WAVE') return false;
+  let pcm16 = false;
+  for (let offset = 12; offset + 8 <= bytes.length;) {
+    const size = view.getUint32(offset + 4, true), start = offset + 8;
+    if (start + size > bytes.length) return false;
+    if (label(offset) === 'fmt ' && size >= 16) pcm16 = view.getUint16(start, true) === 1 && view.getUint16(start + 14, true) === 16;
+    if (label(offset) === 'data' && pcm16) {
+      if (size < 2) return true;
+      let sum = 0;
+      for (let i = start; i + 1 < start + size; i += 2) { const x = view.getInt16(i, true) / 32768; sum += x * x; }
+      return Math.sqrt(sum / Math.floor(size / 2)) < 0.003;
+    }
+    offset = start + size + (size % 2);
+  }
+  return false;
+}
+
 export async function handleRequest(request, env, upstreamFetch = fetch) {
   const origin = request.headers.get('Origin');
   const allowed = (env.ALLOWED_ORIGINS || '').split(',').map(x => x.trim()).filter(Boolean);
@@ -45,7 +66,7 @@ export async function handleRequest(request, env, upstreamFetch = fetch) {
   try {
     const bytes = await readClip(request);
     if (!bytes) return reply({error: 'clip_too_large'}, 413);
-    if (bytes.byteLength < 200) return reply({status: 'unclear', transcript: ''});
+    if (bytes.byteLength < 200 || silentPcmWav(bytes)) return reply({status: 'unclear', transcript: ''});
     const form = new FormData();
     form.set('file', new Blob([bytes], {type}), `recording.${extension}`);
     form.set('model', 'whisper-large-v3-turbo');

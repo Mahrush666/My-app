@@ -4,6 +4,7 @@ import { BookOpen } from 'lucide-react';
 import Teacher from './teacher';
 import Classroom from './classroom';
 import ConnectionTest from './connection-test';
+import SupabaseTest from './supabase-test';
 import {studentAccess} from '../lib/student-entry';
 import {validateSettings,type Settings,configuredActivities} from '../lib/unit-activities';
 import Practice from '../app/practice';
@@ -22,6 +23,7 @@ function App() {
  const visibleLessons=student?lessons.filter(l=>Boolean(shared[l.id])):lessons;
  const selected=visibleLessons.find(l=>l.id===unit);
  const books=[...new Set(visibleLessons.map(l=>l.book))];
+ if(query.has('supabase-test'))return <main className="app classroom"><SupabaseTest/></main>;
  if(query.has('connection-test'))return <main className="app classroom"><ConnectionTest/></main>;
  if(online)return <main className="app"><Classroom onExit={()=>{location.href=location.pathname+'#view=teacher'}}/></main>;
  return <main className="app"><header className="top"><a className="brand" href={student?location.pathname+location.search+location.hash:'./'}>✦ Word<span className="brand-accent">Quest</span></a>{!student&&<button onClick={()=>{setTeacher(!teacher);history.replaceState(null,'',teacher?location.pathname:location.pathname+'#view=teacher')}}>{teacher?'Student view 学生页面':'Teacher view 老师设置'}</button>}</header>

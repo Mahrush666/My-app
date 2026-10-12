@@ -10,7 +10,7 @@ import '../app/globals.css';
 function App() {
  const params=new URLSearchParams(location.hash.slice(1));
  const query=new URLSearchParams(location.search);
- const online=params.get('view')==='classroom'||query.has('invite');
+ const online=params.get('view')==='classroom'||query.has('invite')||query.has('claim');
  const student=query.get('student')==='1'||query.has('settings')||params.has('settings');
  const [teacher,setTeacher]=useState(params.get('view')==='teacher');
  const [settings,setSettings]=useState<Settings>(()=>{try{return validateSettings(JSON.parse(localStorage.getItem('wordquest-unit-settings-v1')||'{}'),lessons.map(l=>l.id))}catch{return {}}});

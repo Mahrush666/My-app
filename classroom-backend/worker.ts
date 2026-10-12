@@ -2,6 +2,8 @@ import type {D1Database} from '@cloudflare/workers-types';
 import {lessons} from '../github-pages/lessons';
 import {activityOptions,type ActivityId} from '../lib/unit-activities';
 export type Env={DB:D1Database;ALLOWED_ORIGINS:string;TEACHER_PASSWORD:string};
+const ROSTER_ID='teacher-managed-roster';
+const ROSTER_USERNAME='__teacher_roster__';
 const enc=new TextEncoder();
 const hex=(v:ArrayBuffer|Uint8Array)=>Array.from(new Uint8Array(v),b=>b.toString(16).padStart(2,'0')).join('');
 const random=()=>hex(crypto.getRandomValues(new Uint8Array(32)));
@@ -44,7 +46,7 @@ export async function handle(request:Request,env:Env){
  let accountId:string|null=null;let role='parent';
  if(path==='/teacher-login'){if(!await equal(password,env.TEACHER_PASSWORD))throw new Failure('Incorrect teacher password.',401);role='teacher'}
  else{
- requireValue(/^[a-z0-9_-]{3,40}$/.test(username),'Use a login name with 3–40 letters, numbers, underscores or hyphens.');
+ requireValue(username!==ROSTER_USERNAME&&/^[a-z0-9_-]{3,40}$/.test(username),'Use a login name with 3–40 letters, numbers, underscores or hyphens.');
  const account=await env.DB.prepare('SELECT * FROM accounts WHERE username=?').bind(username).first<{id:string;salt:string;password_hash:string}>();
  if(path==='/register'){
  requireValue(password.length>=10,'Choose a password of at least 10 characters.');requireValue(data.consent===true,'An adult must agree to create a family account.');
@@ -62,7 +64,7 @@ export async function handle(request:Request,env:Env){
  const childAccess=async(id:unknown)=>{const c=await env.DB.prepare('SELECT * FROM children WHERE id=? AND parent_id=?').bind(text(id,80),session.account_id).first<{id:string;group_id:string;approved:number}>();if(!c)throw new Failure('Child profile not found.',404);return c};
  if(path==='/teacher'&&request.method==='GET'){
  teacher();const [groups,children,assignments,reports]=await Promise.all([
- env.DB.prepare('SELECT id,name FROM groups ORDER BY created_at').all(),env.DB.prepare('SELECT c.*,a.username FROM children c JOIN accounts a ON a.id=c.parent_id ORDER BY c.created_at').all(),env.DB.prepare('SELECT * FROM assignments ORDER BY updated_at DESC').all(),
+ env.DB.prepare('SELECT id,name FROM groups ORDER BY created_at').all(),env.DB.prepare("SELECT c.*,CASE WHEN a.id='teacher-managed-roster' THEN NULL ELSE a.username END AS username FROM children c JOIN accounts a ON a.id=c.parent_id ORDER BY c.created_at").all(),env.DB.prepare('SELECT * FROM assignments ORDER BY updated_at DESC').all(),
  env.DB.prepare('SELECT c.id AS child_id,a.id AS assignment_id,a.title,(SELECT COUNT(*) FROM attempts t WHERE t.child_id=c.id AND t.assignment_id=a.id) AS attempts,(SELECT COUNT(*) FROM attempts t WHERE t.child_id=c.id AND t.assignment_id=a.id AND t.correct=1) AS correct,(SELECT MAX(created_at) FROM attempts t WHERE t.child_id=c.id AND t.assignment_id=a.id) AS last_seen,(SELECT json_group_array(activity) FROM completions x WHERE x.child_id=c.id AND x.assignment_id=a.id) AS completed FROM children c JOIN assignments a ON a.group_id=c.group_id WHERE c.approved=1').all()]);
  return respond({groups:groups.results,children:children.results,assignments:assignments.results,reports:reports.results});
  }
@@ -70,6 +72,31 @@ export async function handle(request:Request,env:Env){
  teacher();const name=text(data.name,80);requireValue(name,'Enter a class name.');const invite=random(),id=crypto.randomUUID();await env.DB.prepare('INSERT INTO groups VALUES(?,?,?,?)').bind(id,name,await hash(invite),now).run();return respond({id,invite});
  }
  if(path==='/invite'&&request.method==='POST'){teacher();const id=text(data.groupId,80);requireValue(await env.DB.prepare('SELECT id FROM groups WHERE id=?').bind(id).first(),'Choose a class.');const invite=random();await env.DB.prepare('UPDATE groups SET invite_hash=? WHERE id=?').bind(await hash(invite),id).run();return respond({invite})}
+ if(path==='/teacher-students'&&request.method==='POST'){
+ teacher();const groupId=text(data.groupId,80);requireValue(await env.DB.prepare('SELECT id FROM groups WHERE id=?').bind(groupId).first(),'Choose a class.');
+ requireValue(Array.isArray(data.names)&&data.names.length>0&&data.names.length<=20,'Add 1–20 student names, one per line.');
+ const names=(data.names as unknown[]).map(n=>text(n,60));requireValue(names.every(Boolean),'Every student needs a name or nickname.');
+ const username=text(data.parentUsername,40).toLowerCase();let parentId=ROSTER_ID;
+ if(username){const account=await env.DB.prepare('SELECT id FROM accounts WHERE username=? AND id<>?').bind(username,ROSTER_ID).first<{id:string}>();requireValue(account,'Parent account not found. Leave the field empty to link a parent later.');parentId=account!.id;}
+ const students=await Promise.all(names.map(async name=>{const claim=parentId===ROSTER_ID?random():null;return {id:crypto.randomUUID(),name,claim,claimHash:claim?await hash(claim):null}}));
+ const statements=[env.DB.prepare('INSERT OR IGNORE INTO accounts VALUES(?,?,?,?,?)').bind(ROSTER_ID,ROSTER_USERNAME,random(),random(),now)];
+ for(const c of students){statements.push(env.DB.prepare('INSERT INTO children VALUES(?,?,?,?,1,?)').bind(c.id,parentId,groupId,c.name,now));if(c.claimHash)statements.push(env.DB.prepare('INSERT INTO student_claims VALUES(?,?,?)').bind(c.id,c.claimHash,now+14*86400000));}
+ await env.DB.batch(statements);return respond({students:students.map(({id,name,claim})=>({id,name,claim}))});
+ }
+ if(path==='/move-student'&&request.method==='POST'){
+ teacher();const id=text(data.childId,80),groupId=text(data.groupId,80);requireValue(await env.DB.prepare('SELECT id FROM children WHERE id=?').bind(id).first(),'Student not found.');requireValue(await env.DB.prepare('SELECT id FROM groups WHERE id=?').bind(groupId).first(),'Choose an existing class.');
+ const name=data.name===undefined?null:text(data.name,60);requireValue(name===null||name,'Enter a student name.');
+ await env.DB.prepare('UPDATE children SET group_id=?,name=COALESCE(?,name) WHERE id=?').bind(groupId,name,id).run();return respond({saved:true});
+ }
+ if(path==='/student-invite'&&request.method==='POST'){
+ teacher();const id=text(data.childId,80);requireValue(await env.DB.prepare('SELECT id FROM children WHERE id=? AND parent_id=?').bind(id,ROSTER_ID).first(),'This student is already linked to a parent, or could not be found.');const claim=random();
+ await env.DB.prepare('INSERT INTO student_claims VALUES(?,?,?) ON CONFLICT(child_id) DO UPDATE SET claim_hash=excluded.claim_hash,expires=excluded.expires').bind(id,await hash(claim),now+14*86400000).run();return respond({claim});
+ }
+ if(path==='/student-claim'&&request.method==='POST'){
+ if(session.role!=='parent')throw new Failure('Parent account required.',403);const claim=await hash(text(data.claim,80));
+ const result=await env.DB.batch([env.DB.prepare('UPDATE children SET parent_id=? WHERE parent_id=? AND id IN (SELECT child_id FROM student_claims WHERE claim_hash=? AND expires>?)').bind(session.account_id,ROSTER_ID,claim,now),env.DB.prepare('DELETE FROM student_claims WHERE claim_hash=? AND child_id IN (SELECT id FROM children WHERE parent_id=?)').bind(claim,session.account_id)]);
+ requireValue(result[0].meta.changes===1,'This student link has expired or has already been used. Ask your teacher for a new link.');return respond({saved:true});
+ }
  if(path==='/approve'&&request.method==='POST'){teacher();requireValue(typeof data.approved==='boolean','Choose approval status.');await env.DB.prepare('UPDATE children SET approved=? WHERE id=?').bind(Number(data.approved),text(data.childId,80)).run();return respond({saved:true})}
  if(path==='/assignments'&&request.method==='POST'){
  teacher();const groupId=text(data.groupId,80);requireValue(await env.DB.prepare('SELECT id FROM groups WHERE id=?').bind(groupId).first(),'Choose a class.');

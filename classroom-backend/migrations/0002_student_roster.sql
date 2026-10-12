@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS student_claims(child_id TEXT PRIMARY KEY REFERENCES children(id), claim_hash TEXT UNIQUE NOT NULL, expires INTEGER NOT NULL);

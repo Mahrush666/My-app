@@ -10,7 +10,7 @@ const port=Number(process.env.WORDQUEST_PREVIEW_PORT||5174);
 const origin='http://127.0.0.1:'+port;
 const DB=localDatabase();
 const env={DB,ALLOWED_ORIGINS:origin,TEACHER_PASSWORD:'local-demo-only'};
-const routes=new Set(['/health','/register','/login','/teacher-login','/logout','/teacher','/groups','/invite','/approve','/assignments','/delete-assignment','/family','/children','/homework','/progress']);
+const routes=new Set(['/health','/register','/login','/teacher-login','/logout','/teacher','/groups','/invite','/approve','/assignments','/delete-assignment','/family','/children','/homework','/progress','/teacher-students','/move-student','/student-invite','/student-claim']);
 const types={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.webp':'image/webp','.png':'image/png','.svg':'image/svg+xml','.m4a':'audio/mp4','.mp3':'audio/mpeg','.mp4':'video/mp4'};
 const server=createServer(async(req,res)=>{try{
  const url=new URL(req.url,origin);

@@ -41,7 +41,7 @@ export async function handle(request:Request,env:Env){
  const limit=await env.DB.prepare('INSERT INTO login_limits(key,count,expires) VALUES(?,1,?) ON CONFLICT(key) DO UPDATE SET count=count+1 RETURNING count').bind(key,now+900000).first<{count:number}>();
  if((limit?.count||0)>max)throw new Failure('Too many attempts. Try again in 15 minutes.',429);
  }
- await env.DB.batch([env.DB.prepare('DELETE FROM login_limits WHERE expires<?').bind(now),env.DB.prepare('DELETE FROM sessions WHERE expires<?').bind(now)]);
+ await env.DB.batch([env.DB.prepare('DELETE FROM student_sessions WHERE session_hash IN (SELECT hash FROM sessions WHERE expires<?)').bind(now),env.DB.prepare('DELETE FROM login_limits WHERE expires<?').bind(now),env.DB.prepare('DELETE FROM sessions WHERE expires<?').bind(now)]);
  const password=typeof data.password==='string'?data.password:'';if(password.length>128)throw new Failure('Password is too long.');
  let accountId:string|null=null;let role='parent';
  if(path==='/teacher-login'){if(!await equal(password,env.TEACHER_PASSWORD))throw new Failure('Incorrect teacher password.',401);role='teacher'}
@@ -56,12 +56,19 @@ export async function handle(request:Request,env:Env){
  }
  const token=random();await env.DB.prepare('INSERT INTO sessions VALUES(?,?,?,?)').bind(await hash(token),accountId,role,now+30*86400000).run();return respond({token,role});
  }
+ if(path==='/student-login'&&request.method==='POST'){
+ const access=text(data.access,80);if(!/^[a-f0-9]{64}$/.test(access))throw new Failure('This homework QR is invalid.',401);
+ const accessHash=await hash(access);const child=await env.DB.prepare('SELECT child_id FROM student_links WHERE access_hash=?').bind(accessHash).first<{child_id:string}>();if(!child)throw new Failure('This homework QR was replaced or disabled. Ask your teacher for a new QR.',401);
+ const token=random(),sessionHash=await hash(token);await env.DB.batch([env.DB.prepare('INSERT INTO sessions VALUES(?,NULL,?,?)').bind(sessionHash,'student',now+30*86400000),env.DB.prepare('INSERT INTO student_sessions VALUES(?,?,?)').bind(sessionHash,child.child_id,accessHash)]);return respond({token,role:'student'});
+ }
  const raw=request.headers.get('Authorization')?.replace(/^Bearer /,'')||'';
  const session=/^[a-f0-9]{64}$/.test(raw)?await env.DB.prepare('SELECT account_id,role FROM sessions WHERE hash=? AND expires>?').bind(await hash(raw),now).first<{account_id:string;role:string}>():null;
  if(!session)throw new Failure('Please sign in.',401);
- if(path==='/logout'&&request.method==='POST'){await env.DB.prepare('DELETE FROM sessions WHERE hash=?').bind(await hash(raw)).run();return respond({saved:true})}
+ let scopedChild:string|null=null;
+ if(session.role==='student'){const access=await env.DB.prepare('SELECT ss.child_id FROM student_sessions ss JOIN student_links sl ON sl.child_id=ss.child_id AND sl.access_hash=ss.access_hash WHERE ss.session_hash=?').bind(await hash(raw)).first<{child_id:string}>();if(!access)throw new Failure('This homework QR was replaced or disabled. Ask your teacher for a new QR.',401);scopedChild=access.child_id;}
+ if(path==='/logout'&&request.method==='POST'){await env.DB.batch([env.DB.prepare('DELETE FROM student_sessions WHERE session_hash=?').bind(await hash(raw)),env.DB.prepare('DELETE FROM sessions WHERE hash=?').bind(await hash(raw))]);return respond({saved:true})}
  const teacher=()=>{if(session.role!=='teacher')throw new Failure('Teacher access required.',403)};
- const childAccess=async(id:unknown)=>{const c=await env.DB.prepare('SELECT * FROM children WHERE id=? AND parent_id=?').bind(text(id,80),session.account_id).first<{id:string;group_id:string;approved:number}>();if(!c)throw new Failure('Child profile not found.',404);return c};
+ const childAccess=async(id:unknown)=>{const c=await env.DB.prepare(scopedChild?'SELECT * FROM children WHERE id=? AND id=?':'SELECT * FROM children WHERE id=? AND parent_id=?').bind(text(id,80),scopedChild||session.account_id).first<{id:string;group_id:string;approved:number}>();if(!c)throw new Failure('Child profile not found.',404);return c};
  if(path==='/teacher'&&request.method==='GET'){
  teacher();const [groups,children,assignments,reports]=await Promise.all([
  env.DB.prepare('SELECT id,name FROM groups ORDER BY created_at').all(),env.DB.prepare("SELECT c.*,CASE WHEN a.id='teacher-managed-roster' THEN NULL ELSE a.username END AS username FROM children c JOIN accounts a ON a.id=c.parent_id ORDER BY c.created_at").all(),env.DB.prepare('SELECT * FROM assignments ORDER BY updated_at DESC').all(),
@@ -88,6 +95,11 @@ export async function handle(request:Request,env:Env){
  const name=data.name===undefined?null:text(data.name,60);requireValue(name===null||name,'Enter a student name.');
  await env.DB.prepare('UPDATE children SET group_id=?,name=COALESCE(?,name) WHERE id=?').bind(groupId,name,id).run();return respond({saved:true});
  }
+ if(path==='/student-link'&&request.method==='POST'){
+ teacher();const id=text(data.childId,80);requireValue(await env.DB.prepare('SELECT id FROM children WHERE id=?').bind(id).first(),'Student not found.');
+ if(data.revoke===true){await env.DB.batch([env.DB.prepare('DELETE FROM student_sessions WHERE child_id=?').bind(id),env.DB.prepare('DELETE FROM student_links WHERE child_id=?').bind(id)]);return respond({saved:true});}
+ const access=random();await env.DB.batch([env.DB.prepare('DELETE FROM student_sessions WHERE child_id=?').bind(id),env.DB.prepare('INSERT INTO student_links VALUES(?,?) ON CONFLICT(child_id) DO UPDATE SET access_hash=excluded.access_hash').bind(id,await hash(access))]);return respond({access});
+ }
  if(path==='/student-invite'&&request.method==='POST'){
  teacher();const id=text(data.childId,80);requireValue(await env.DB.prepare('SELECT id FROM children WHERE id=? AND parent_id=?').bind(id,ROSTER_ID).first(),'This student is already linked to a parent, or could not be found.');const claim=random();
  await env.DB.prepare('INSERT INTO student_claims VALUES(?,?,?) ON CONFLICT(child_id) DO UPDATE SET claim_hash=excluded.claim_hash,expires=excluded.expires').bind(id,await hash(claim),now+14*86400000).run();return respond({claim});
@@ -113,6 +125,7 @@ export async function handle(request:Request,env:Env){
  }
  if(path==='/delete-assignment'&&request.method==='POST'){teacher();const id=text(data.id,80);await env.DB.batch([env.DB.prepare('DELETE FROM completions WHERE assignment_id=?').bind(id),env.DB.prepare('DELETE FROM attempts WHERE assignment_id=?').bind(id),env.DB.prepare('DELETE FROM assignments WHERE id=?').bind(id)]);return respond({saved:true})}
  if(path==='/family'&&request.method==='GET'){
+ if(scopedChild){const children=await env.DB.prepare('SELECT c.id,c.name,c.approved,c.group_id,g.name AS group_name FROM children c JOIN groups g ON g.id=c.group_id WHERE c.id=?').bind(scopedChild).all();return respond({children:children.results});}
  if(session.role!=='parent')throw new Failure('Parent account required.',403);
  const children=await env.DB.prepare('SELECT c.id,c.name,c.approved,c.group_id,g.name AS group_name FROM children c JOIN groups g ON g.id=c.group_id WHERE parent_id=? ORDER BY c.created_at').bind(session.account_id).all();return respond({children:children.results});
  }

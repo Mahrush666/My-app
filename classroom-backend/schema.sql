@@ -14,3 +14,5 @@ CREATE INDEX IF NOT EXISTS attempts_child ON attempts(child_id,assignment_id);
 CREATE TABLE IF NOT EXISTS completions(child_id TEXT NOT NULL REFERENCES children(id), assignment_id TEXT NOT NULL REFERENCES assignments(id), activity TEXT NOT NULL, completed_at INTEGER NOT NULL, PRIMARY KEY(child_id,assignment_id,activity));
 CREATE TABLE IF NOT EXISTS login_limits(key TEXT PRIMARY KEY, count INTEGER NOT NULL, expires INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS student_claims(child_id TEXT PRIMARY KEY REFERENCES children(id), claim_hash TEXT UNIQUE NOT NULL, expires INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS student_links(child_id TEXT PRIMARY KEY REFERENCES children(id),access_hash TEXT UNIQUE NOT NULL);
+CREATE TABLE IF NOT EXISTS student_sessions(session_hash TEXT PRIMARY KEY REFERENCES sessions(hash),child_id TEXT NOT NULL REFERENCES children(id),access_hash TEXT NOT NULL);

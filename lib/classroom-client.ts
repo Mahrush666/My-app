@@ -1,5 +1,5 @@
 import {publicAsset} from './public-runtime';
-export type ClassroomSession={token:string;role:'parent'|'teacher';endpoint:string};
+export type ClassroomSession={token:string;role:'parent'|'teacher'|'student';endpoint:string};
 const key='wordquest-classroom-session-v1';
 export function sessionSaved():ClassroomSession|null{try{return JSON.parse(localStorage.getItem(key)||'null')}catch{return null}}
 export function saveSession(value:ClassroomSession|null){if(value)localStorage.setItem(key,JSON.stringify(value));else localStorage.removeItem(key)}

@@ -1,6 +1,6 @@
 # WordQuest classroom backend
 
-Status: implemented and tested locally; not connected to a live database yet. The GitHub Pages app continues to work without accounts. Its Classes & families screen has an explicit connection test; family sign-in stays disabled until a configured backend is reachable.
+Status: deployed to Cloudflare Workers and D1 on October 12, 2026. Live API tests passed; China/WeChat access still needs the teacher’s phone test. Endpoint: https://wordquest-classroom.makhmetshin1907.workers.dev. The GitHub Pages app continues to work without accounts. Its Classes & families screen has an explicit connection test; family sign-in stays disabled until a configured backend is reachable.
 
 ## What it provides
 
@@ -58,3 +58,5 @@ Tests use real SQLite with an adapter for D1's methods. They exercise registrati
 
 ## Local demo before connection
 Run `npm run preview:classroom`, then open `http://127.0.0.1:5174/#view=classroom`. The demo teacher password is `local-demo-only`. All demo profiles and results are temporary and disappear on shutdown. This server listens only on this computer; its address is not a student mobile QR destination. Production still requires a deployed database and secret.
+
+When publishing new lesson content or activity types, redeploy the classroom Worker as well as the frontend: both use the same lesson catalogue.

@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {build} from 'esbuild';
+const result=await build({entryPoints:['lib/student-entry.ts'],bundle:true,write:false,format:'esm',platform:'node'});
+const {studentAccess,studentHomeworkLink}=await import('data:text/javascript;base64,'+Buffer.from(result.outputFiles[0].text).toString('base64'));
+const access='a'.repeat(64);
+const link=studentHomeworkLink('https://mahrush666.github.io/My-app/?unit=old#view=teacher',access);
+assert.equal(studentAccess(new URL(link)),access);
+assert.equal(studentAccess(new URL(link.split('#')[0])),access,'Scanning must work even if the URL fragment is dropped');
+assert.equal(studentAccess(new URL('https://example.test/#view=classroom&access='+access)),access,'Previously shared QRs still work');
+assert.equal(studentAccess(new URL('https://example.test/#view=classroom')),'');
+assert.equal(new URL(link).searchParams.has('unit'),false);
+console.log('Student QR checks passed: new links, scanner-stripped fragments and existing private QRs.');

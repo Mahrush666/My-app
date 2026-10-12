@@ -35,3 +35,6 @@ Save & update student QR now creates a fresh configured link. New links store ch
 ## Power up Starter picture story
 
 Unit 7 · Reading contains The queen of the river, imported from the teacher’s PPT. Watch & listen is the only activity enabled by default. Ten close-up picture views use the original illustrated page; the original MP3 plays continuously while children change pictures manually. There is no inferred scene timing. Replay resets the audio and returns to the first picture. The final view includes the crown and speech bubble.
+
+## Listening-first release (October 12, 2026)
+Speaking flashcards are hidden in teacher settings and student navigation. Older QR/settings links are migrated to remove speaking; speaking-only links become listening flashcards. Picture/sound choices retain the same word review schedule. Read & listen offers illustrated paragraphs, lesson audio and a manual practice completion button, including in guided lessons. No microphone or speech-check service is needed in the active exercises. Speech backend code is retained for future work.

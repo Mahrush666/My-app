@@ -6,7 +6,7 @@ export async function speechEndpoint():Promise<string> {
  try {
   const response=await fetch(publicAsset('speech-config.json'),{cache:'no-store',signal:controller.signal});
   if(!response.ok)return '';
-  const config=await response.json();
+  const config=(await response.json()||{}) as {endpoint?:unknown};
   if(typeof config.endpoint!=='string'||!config.endpoint)return '';
   const url=new URL(config.endpoint);
   if(url.protocol!=='https:'&&!(url.protocol==='http:'&&['localhost','127.0.0.1'].includes(url.hostname)))return '';
@@ -26,7 +26,7 @@ export async function checkSpeechConnection(endpoint:string,signal?:AbortSignal)
   try {response=await fetch(health.href,{signal:controller.signal})}
   catch {throw new Error(controller.signal.aborted?'connection_timeout':'connection')}
   if(!response.ok)throw new Error(response.status===503?'not_configured':'connection_http_'+response.status);
-  const data=await response.json().catch(()=>({}));
+  const data=(await response.json().catch(()=>({}))||{}) as Record<string,unknown>;
   if(data.status!=='ready')throw new Error('connection_response');
  }
  finally{clearTimeout(timeout);signal?.removeEventListener('abort',abort)}
@@ -50,7 +50,7 @@ export async function checkSpeech(endpoint:string,clip:Blob,signal:AbortSignal):
  let response:Response;
  try {response=await fetch(endpoint,{method:'POST',body:form,signal})}
  catch(error){if(signal.aborted)throw error;throw new Error('network')}
- const data=await response.json().catch(()=>({}));
+ const data=(await response.json().catch(()=>({}))||{}) as Record<string,unknown>;
  if(!response.ok)throw new Error(response.status===429?'busy':response.status===503?'not_configured':[413,415,422].includes(response.status)?'invalid_audio':'unavailable');
  if((data.status!=='recognized'&&data.status!=='unclear')||typeof data.transcript!=='string')throw new Error('unavailable');
  return {status:data.status,transcript:data.transcript};

@@ -27,6 +27,14 @@ console.log('Unit settings sharing, malformed settings, and speech target checks
 
 assert.equal(hash.get('student'),'1');
 assert.equal(url.hash,'');
-assert.equal(configuredActivities('animals',valid,{},true).join(','),'picture-speak,picture-listen');
+assert.equal(configuredActivities('animals',valid,{},true).join(','),'picture-listen');
 assert.equal(configuredActivities('unassigned',valid,{},true).length,0);
 assert.equal(configuredActivities('animals',valid,{animals:{activities:['cards'],age:'6–12'}},true).includes('cards'),false);
+
+const migrated=validateSettings({mixed:{activities:['picture-speak','video','picture-listen'],age:'3–5'},speaking:{activities:['picture-speak'],age:'3–5'}},['mixed','speaking']);
+assert.equal(migrated.mixed.activities.join(','),'video,picture-listen');
+assert.equal(migrated.speaking.activities.join(','),'picture-listen');
+assert.equal(configuredActivities('legacy',{legacy:{activities:['picture-speak','cards'],age:''}},{},true).join(','),'cards');
+assert.equal(context.exports.activityOptions.some(a=>a[0]==='picture-speak'),false);
+assert.equal(configuredActivities('default',{},{},false,['picture-speak','picture-listen']).join(','),'picture-listen');
+console.log('Speech-free release checks passed: presets, legacy QR migration and direct activity filtering.');

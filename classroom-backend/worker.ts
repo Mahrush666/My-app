@@ -1,0 +1,123 @@
+import type {D1Database} from '@cloudflare/workers-types';
+import {lessons} from '../github-pages/lessons';
+import {activityOptions,type ActivityId} from '../lib/unit-activities';
+export type Env={DB:D1Database;ALLOWED_ORIGINS:string;TEACHER_PASSWORD:string};
+const enc=new TextEncoder();
+const hex=(v:ArrayBuffer|Uint8Array)=>Array.from(new Uint8Array(v),b=>b.toString(16).padStart(2,'0')).join('');
+const random=()=>hex(crypto.getRandomValues(new Uint8Array(32)));
+const hash=async(s:string)=>hex(await crypto.subtle.digest('SHA-256',enc.encode(s)));
+async function passwordHash(password:string,salt:string){const key=await crypto.subtle.importKey('raw',enc.encode(password),'PBKDF2',false,['deriveBits']);return hex(await crypto.subtle.deriveBits({name:'PBKDF2',salt:enc.encode(salt),iterations:100000,hash:'SHA-256'},key,256))}
+async function equal(a:string,b:string){const key=await crypto.subtle.importKey('raw',enc.encode('wordquest-comparison'),{name:'HMAC',hash:'SHA-256'},false,['sign']);const [x,y]=await Promise.all([crypto.subtle.sign('HMAC',key,enc.encode(a)),crypto.subtle.sign('HMAC',key,enc.encode(b))]);const aa=new Uint8Array(x),bb=new Uint8Array(y);let diff=0;for(let i=0;i<aa.length;i++)diff|=aa[i]^bb[i];return diff===0}
+class Failure extends Error{constructor(message:string,public status=400){super(message)}}
+const requireValue=(value:unknown,message:string)=>{if(!value)throw new Failure(message)};
+function text(value:unknown,max:number){return typeof value==='string'?value.trim().slice(0,max):''}
+function available(unit:typeof lessons[number]){return activityOptions.map(a=>a[0]).filter(a=>a==='video'?!!unit.videos?.length:a==='story'?!!unit.story:a==='reading'?unit.readings.length>0:unit.words.length>=4)}
+export async function handle(request:Request,env:Env){
+ const origin=request.headers.get('Origin');const allowed=(env.ALLOWED_ORIGINS||'').split(',').map(s=>s.trim());
+ const headers:Record<string,string>={'Cache-Control':'no-store','Vary':'Origin','X-Content-Type-Options':'nosniff'};
+ const respond=(value:unknown,status=200)=>Response.json(value,{status,headers});
+ if(origin&&!allowed.includes(origin))return respond({error:'This app address is not allowed.'},403);
+ if(origin){headers['Access-Control-Allow-Origin']=origin;headers['Access-Control-Allow-Headers']='Content-Type, Authorization';headers['Access-Control-Allow-Methods']='GET, POST, DELETE, OPTIONS'}
+ if(request.method==='OPTIONS')return new Response(null,{status:204,headers});
+ const path=new URL(request.url).pathname;
+ try{
+ if(path==='/health'&&request.method==='GET'){if(!env.DB||!env.TEACHER_PASSWORD)return respond({status:'not_configured'},503);await env.DB.prepare('SELECT id FROM groups LIMIT 1').first();return respond({status:'ready'})}
+ if(!env.DB||!env.TEACHER_PASSWORD)throw new Failure('The teacher needs to finish connecting this classroom.',503);
+ let data:Record<string,unknown>={};
+ if(request.method==='POST'){
+ if(!origin)throw new Failure('Open this through the classroom app.',403);
+ const body=await request.text();if(body.length>30000)throw new Failure('This request is too large.',413);
+ try{data=JSON.parse(body)}catch{throw new Failure('Invalid request.')}
+ if(!data||typeof data!=='object'||Array.isArray(data))throw new Failure('Invalid request.');
+ }
+ const now=Date.now();
+ if(['/register','/login','/teacher-login'].includes(path)&&request.method==='POST'){
+ // Bound both account and IP attempts without logging credentials.
+ const username=text(data.username,40).toLowerCase();const ip=request.headers.get('CF-Connecting-IP')||'local';
+ for(const [scope,max] of [['ip:'+ip,100],['account:'+(path==='/teacher-login'?'teacher':username),10]] as const){
+ const key=await hash(scope+':'+Math.floor(now/900000));
+ const limit=await env.DB.prepare('INSERT INTO login_limits(key,count,expires) VALUES(?,1,?) ON CONFLICT(key) DO UPDATE SET count=count+1 RETURNING count').bind(key,now+900000).first<{count:number}>();
+ if((limit?.count||0)>max)throw new Failure('Too many attempts. Try again in 15 minutes.',429);
+ }
+ await env.DB.batch([env.DB.prepare('DELETE FROM login_limits WHERE expires<?').bind(now),env.DB.prepare('DELETE FROM sessions WHERE expires<?').bind(now)]);
+ const password=typeof data.password==='string'?data.password:'';if(password.length>128)throw new Failure('Password is too long.');
+ let accountId:string|null=null;let role='parent';
+ if(path==='/teacher-login'){if(!await equal(password,env.TEACHER_PASSWORD))throw new Failure('Incorrect teacher password.',401);role='teacher'}
+ else{
+ requireValue(/^[a-z0-9_-]{3,40}$/.test(username),'Use a login name with 3–40 letters, numbers, underscores or hyphens.');
+ const account=await env.DB.prepare('SELECT * FROM accounts WHERE username=?').bind(username).first<{id:string;salt:string;password_hash:string}>();
+ if(path==='/register'){
+ requireValue(password.length>=10,'Choose a password of at least 10 characters.');requireValue(data.consent===true,'An adult must agree to create a family account.');
+ if(account)throw new Failure('That login name is taken. Choose another.');
+ accountId=crypto.randomUUID();const salt=random();await env.DB.prepare('INSERT INTO accounts VALUES(?,?,?,?,?)').bind(accountId,username,salt,await passwordHash(password,salt),now).run();
+ }else{const actual=await passwordHash(password,account?.salt||'missing-account');if(!account||!await equal(actual,account.password_hash))throw new Failure('Incorrect login name or password.',401);accountId=account.id}
+ }
+ const token=random();await env.DB.prepare('INSERT INTO sessions VALUES(?,?,?,?)').bind(await hash(token),accountId,role,now+30*86400000).run();return respond({token,role});
+ }
+ const raw=request.headers.get('Authorization')?.replace(/^Bearer /,'')||'';
+ const session=/^[a-f0-9]{64}$/.test(raw)?await env.DB.prepare('SELECT account_id,role FROM sessions WHERE hash=? AND expires>?').bind(await hash(raw),now).first<{account_id:string;role:string}>():null;
+ if(!session)throw new Failure('Please sign in.',401);
+ if(path==='/logout'&&request.method==='POST'){await env.DB.prepare('DELETE FROM sessions WHERE hash=?').bind(await hash(raw)).run();return respond({saved:true})}
+ const teacher=()=>{if(session.role!=='teacher')throw new Failure('Teacher access required.',403)};
+ const childAccess=async(id:unknown)=>{const c=await env.DB.prepare('SELECT * FROM children WHERE id=? AND parent_id=?').bind(text(id,80),session.account_id).first<{id:string;group_id:string;approved:number}>();if(!c)throw new Failure('Child profile not found.',404);return c};
+ if(path==='/teacher'&&request.method==='GET'){
+ teacher();const [groups,children,assignments,reports]=await Promise.all([
+ env.DB.prepare('SELECT id,name FROM groups ORDER BY created_at').all(),env.DB.prepare('SELECT c.*,a.username FROM children c JOIN accounts a ON a.id=c.parent_id ORDER BY c.created_at').all(),env.DB.prepare('SELECT * FROM assignments ORDER BY updated_at DESC').all(),
+ env.DB.prepare('SELECT c.id AS child_id,a.id AS assignment_id,a.title,(SELECT COUNT(*) FROM attempts t WHERE t.child_id=c.id AND t.assignment_id=a.id) AS attempts,(SELECT COUNT(*) FROM attempts t WHERE t.child_id=c.id AND t.assignment_id=a.id AND t.correct=1) AS correct,(SELECT MAX(created_at) FROM attempts t WHERE t.child_id=c.id AND t.assignment_id=a.id) AS last_seen,(SELECT json_group_array(activity) FROM completions x WHERE x.child_id=c.id AND x.assignment_id=a.id) AS completed FROM children c JOIN assignments a ON a.group_id=c.group_id WHERE c.approved=1').all()]);
+ return respond({groups:groups.results,children:children.results,assignments:assignments.results,reports:reports.results});
+ }
+ if(path==='/groups'&&request.method==='POST'){
+ teacher();const name=text(data.name,80);requireValue(name,'Enter a class name.');const invite=random(),id=crypto.randomUUID();await env.DB.prepare('INSERT INTO groups VALUES(?,?,?,?)').bind(id,name,await hash(invite),now).run();return respond({id,invite});
+ }
+ if(path==='/invite'&&request.method==='POST'){teacher();const id=text(data.groupId,80);requireValue(await env.DB.prepare('SELECT id FROM groups WHERE id=?').bind(id).first(),'Choose a class.');const invite=random();await env.DB.prepare('UPDATE groups SET invite_hash=? WHERE id=?').bind(await hash(invite),id).run();return respond({invite})}
+ if(path==='/approve'&&request.method==='POST'){teacher();requireValue(typeof data.approved==='boolean','Choose approval status.');await env.DB.prepare('UPDATE children SET approved=? WHERE id=?').bind(Number(data.approved),text(data.childId,80)).run();return respond({saved:true})}
+ if(path==='/assignments'&&request.method==='POST'){
+ teacher();const groupId=text(data.groupId,80);requireValue(await env.DB.prepare('SELECT id FROM groups WHERE id=?').bind(groupId).first(),'Choose a class.');
+ const unit=lessons.find(u=>u.id===data.unitId);requireValue(unit,'Choose a lesson.');if(!unit)throw new Failure('Unknown lesson.');
+ const activities=Array.isArray(data.activities)?[...new Set(data.activities)]:[];
+ requireValue(activities.length&&activities.every(a=>available(unit).includes(a as Exclude<ActivityId,'picture-speak'>)),'Choose supported activities.');
+ const wordIds=Array.isArray(data.wordIds)?[...new Set(data.wordIds)]:unit.words.map(w=>w.id);
+ requireValue(wordIds.every(id=>unit.words.some(w=>w.id===id)),'Choose words from this lesson.');
+ if(activities.some(a=>!['video','story','reading'].includes(String(a))))requireValue(wordIds.length>=4,'Choose at least four words for vocabulary activities.');
+ const due=text(data.dueDate,10);requireValue(!due||/^\d{4}-\d{2}-\d{2}$/.test(due),'Choose a valid due date.');
+ const id=text(data.id,80)||crypto.randomUUID();if(data.id)requireValue(await env.DB.prepare('SELECT id FROM assignments WHERE id=? AND group_id=?').bind(id,groupId).first(),'Assignment not found.');
+ // Editing an assignment keeps word reviews but resets its checklist for the revised work.
+ await env.DB.batch([env.DB.prepare('DELETE FROM completions WHERE assignment_id=?').bind(id),env.DB.prepare('INSERT INTO assignments VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET unit_id=excluded.unit_id,title=excluded.title,activities=excluded.activities,word_ids=excluded.word_ids,due_date=excluded.due_date,updated_at=excluded.updated_at').bind(id,groupId,unit.id,text(data.title,120)||unit.title,JSON.stringify(activities),JSON.stringify(wordIds),due,now)]);return respond({id});
+ }
+ if(path==='/delete-assignment'&&request.method==='POST'){teacher();const id=text(data.id,80);await env.DB.batch([env.DB.prepare('DELETE FROM completions WHERE assignment_id=?').bind(id),env.DB.prepare('DELETE FROM attempts WHERE assignment_id=?').bind(id),env.DB.prepare('DELETE FROM assignments WHERE id=?').bind(id)]);return respond({saved:true})}
+ if(path==='/family'&&request.method==='GET'){
+ if(session.role!=='parent')throw new Failure('Parent account required.',403);
+ const children=await env.DB.prepare('SELECT c.id,c.name,c.approved,c.group_id,g.name AS group_name FROM children c JOIN groups g ON g.id=c.group_id WHERE parent_id=? ORDER BY c.created_at').bind(session.account_id).all();return respond({children:children.results});
+ }
+ if(path==='/children'&&request.method==='POST'){
+ if(session.role!=='parent')throw new Failure('Parent account required.',403);
+ const group=await env.DB.prepare('SELECT id FROM groups WHERE invite_hash=?').bind(await hash(text(data.invite,80))).first<{id:string}>();requireValue(group,'This invitation is invalid or has been replaced. Ask your teacher for a new QR.');
+ const name=text(data.name,60);requireValue(name,'Enter a child’s name or nickname.');const count=await env.DB.prepare('SELECT COUNT(*) AS n FROM children WHERE parent_id=?').bind(session.account_id).first<{n:number}>();requireValue((count?.n||0)<10,'This account already has ten child profiles.');
+ const id=crypto.randomUUID();await env.DB.prepare('INSERT INTO children VALUES(?,?,?,?,0,?)').bind(id,session.account_id,group!.id,name,now).run();return respond({id});
+ }
+ if(path==='/homework'&&request.method==='GET'){
+ const child=await childAccess(new URL(request.url).searchParams.get('child'));if(!child.approved)return respond({assignments:[],progress:{},completed:[],pending:true});
+ const [assignments,reviews,completed]=await Promise.all([env.DB.prepare('SELECT * FROM assignments WHERE group_id=? ORDER BY due_date,updated_at').bind(child.group_id).all(),env.DB.prepare('SELECT word_id,step,due FROM reviews WHERE child_id=?').bind(child.id).all(),env.DB.prepare('SELECT assignment_id,activity FROM completions WHERE child_id=?').bind(child.id).all()]);
+ return respond({assignments:assignments.results,progress:Object.fromEntries(reviews.results.map(r=>[r.word_id,{step:r.step,due:r.due}])),completed:completed.results,pending:false});
+ }
+ if(path==='/progress'&&request.method==='POST'){
+ const child=await childAccess(data.childId);requireValue(child.approved,'Your teacher needs to approve this profile.');
+ const assignment=await env.DB.prepare('SELECT * FROM assignments WHERE id=? AND group_id=?').bind(text(data.assignmentId,80),child.group_id).first<{id:string;activities:string;word_ids:string}>();requireValue(assignment,'This assignment is no longer available. Refresh your homework.');
+ const activities=JSON.parse(assignment!.activities) as string[];const activity=text(data.activity,40);requireValue(activities.includes(activity),'This activity is not assigned.');
+ if(data.complete===true){
+ // Completion is an explicit family checklist, not an automatic accuracy claim.
+ await env.DB.prepare('INSERT INTO completions VALUES(?,?,?,?) ON CONFLICT(child_id,assignment_id,activity) DO UPDATE SET completed_at=excluded.completed_at').bind(child.id,assignment!.id,activity,now).run();return respond({saved:true});
+ }
+ requireValue(typeof data.correct==='boolean','An answer result is required.');const wordId=text(data.wordId,100);requireValue(JSON.parse(assignment!.word_ids).includes(wordId),'This word is not assigned.');
+ const id=text(data.eventId,80);requireValue(/^[a-zA-Z0-9-]{16,80}$/.test(id),'An answer identifier is required.');
+ // One atomic batch: an already acknowledged answer never changes the review schedule twice.
+ const inserted=await env.DB.batch([
+ env.DB.prepare('INSERT OR IGNORE INTO attempts VALUES(?,?,?,?,?,?,?)').bind(id,child.id,assignment!.id,activity,wordId,Number(data.correct),now),
+ env.DB.prepare(`INSERT INTO reviews(child_id,word_id,step,due) SELECT ?,?, ?,? WHERE changes()=1 ON CONFLICT(child_id,word_id) DO UPDATE SET step=CASE WHEN ?=0 THEN 0 WHEN reviews.due>? THEN reviews.step ELSE MIN(reviews.step+1,4) END,due=CASE WHEN ?=0 THEN ? WHEN reviews.due>? THEN reviews.due ELSE ?+CASE MIN(reviews.step+1,4) WHEN 1 THEN 86400000 WHEN 2 THEN 259200000 WHEN 3 THEN 604800000 ELSE 1209600000 END END`).bind(child.id,wordId,data.correct?1:0,now+(data.correct?86400000:600000),Number(data.correct),now,Number(data.correct),now+600000,now,now)
+ ]);
+ return respond({saved:true,duplicate:inserted[0].meta.changes===0});
+ }
+ throw new Failure('Page not found.',404);
+ }catch(error){if(error instanceof Failure)return respond({error:error.message},error.status);return respond({error:'Could not save or load the classroom. Please try again.'},503)}
+}
+export default {fetch:handle};

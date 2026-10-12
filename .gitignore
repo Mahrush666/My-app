@@ -50,3 +50,6 @@ next-env.d.ts
 
 # Local Worker secrets
 .dev.vars*
+
+/dist-classroom/
+/classroom-backend/local.sqlite*

@@ -1,0 +1,15 @@
+PRAGMA foreign_keys = ON;
+CREATE TABLE IF NOT EXISTS accounts(id TEXT PRIMARY KEY, username TEXT UNIQUE NOT NULL, salt TEXT NOT NULL, password_hash TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS sessions(hash TEXT PRIMARY KEY, account_id TEXT, role TEXT NOT NULL, expires INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS sessions_expiry ON sessions(expires);
+CREATE TABLE IF NOT EXISTS groups(id TEXT PRIMARY KEY, name TEXT NOT NULL, invite_hash TEXT UNIQUE NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS children(id TEXT PRIMARY KEY, parent_id TEXT NOT NULL REFERENCES accounts(id), group_id TEXT NOT NULL REFERENCES groups(id), name TEXT NOT NULL, approved INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS children_parent ON children(parent_id);
+CREATE INDEX IF NOT EXISTS children_group ON children(group_id);
+CREATE TABLE IF NOT EXISTS assignments(id TEXT PRIMARY KEY, group_id TEXT NOT NULL REFERENCES groups(id), unit_id TEXT NOT NULL, title TEXT NOT NULL, activities TEXT NOT NULL, word_ids TEXT NOT NULL, due_date TEXT NOT NULL DEFAULT '', updated_at INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS assignments_group ON assignments(group_id);
+CREATE TABLE IF NOT EXISTS reviews(child_id TEXT NOT NULL REFERENCES children(id), word_id TEXT NOT NULL, step INTEGER NOT NULL, due INTEGER NOT NULL, PRIMARY KEY(child_id,word_id));
+CREATE TABLE IF NOT EXISTS attempts(id TEXT PRIMARY KEY, child_id TEXT NOT NULL REFERENCES children(id), assignment_id TEXT NOT NULL REFERENCES assignments(id), activity TEXT NOT NULL, word_id TEXT, correct INTEGER, created_at INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS attempts_child ON attempts(child_id,assignment_id);
+CREATE TABLE IF NOT EXISTS completions(child_id TEXT NOT NULL REFERENCES children(id), assignment_id TEXT NOT NULL REFERENCES assignments(id), activity TEXT NOT NULL, completed_at INTEGER NOT NULL, PRIMARY KEY(child_id,assignment_id,activity));
+CREATE TABLE IF NOT EXISTS login_limits(key TEXT PRIMARY KEY, count INTEGER NOT NULL, expires INTEGER NOT NULL);

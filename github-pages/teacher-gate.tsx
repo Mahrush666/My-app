@@ -1,0 +1,14 @@
+import {useEffect,useState,type ReactNode} from 'react';
+import {classroomRequest,configuredEndpoint,saveSession,sessionSaved,type ClassroomSession} from '../lib/classroom-client';
+export default function TeacherGate({children}:{children:ReactNode}){
+ const [endpoint,setEndpoint]=useState(''),[checking,setChecking]=useState(true),[busy,setBusy]=useState(false),[unlocked,setUnlocked]=useState(false),[password,setPassword]=useState(''),[error,setError]=useState('');
+ useEffect(()=>{let live=true;(async()=>{try{const address=await configuredEndpoint();if(!live)return;if(!address)throw Error('The teacher login server is not connected yet.');setEndpoint(address);const saved=sessionSaved();
+ // A browser flag or claimed role is not enough: validate the token with the server.
+ if(saved?.role==='teacher'&&saved.endpoint===address){await classroomRequest(address,'/teacher',undefined,saved);if(live)setUnlocked(true);}
+ }catch(e){if(live)setError(e instanceof Error?e.message:'Could not check teacher access.');}finally{if(live)setChecking(false);}})();return()=>{live=false}},[]);
+ async function login(){if(busy||!endpoint)return;setBusy(true);setError('');try{const result=await classroomRequest<{token:string;role:string}>(endpoint,'/teacher-login',{password});if(result.role!=='teacher'||!result.token)throw Error('Teacher access required.');const session:ClassroomSession={token:result.token,role:'teacher',endpoint};saveSession(session);setPassword('');setUnlocked(true);}catch(e){setError(e instanceof Error?e.message:'Could not sign in.');}finally{setBusy(false)}}
+ async function lock(){const saved=sessionSaved();saveSession(null);setUnlocked(false);setPassword('');setError('');if(saved?.role==='teacher')try{await classroomRequest(endpoint,'/logout',{},saved)}catch{ /* Local access is locked even when the server is unreachable. */ }}
+ if(checking)return <section className="panel" role="status">Checking teacher login… 正在验证老师登录…</section>;
+ if(unlocked)return <><div className="teacher-presets"><span className="pill">Teacher signed in 老师已登录</span><button onClick={()=>void lock()}>Sign out & lock 退出并锁定</button></div>{children}</>;
+ return <section className="panel teacher-settings"><h1>Teacher sign in 老师登录</h1><p>Use the same password as your teacher account. 使用老师账号的相同密码。</p><form onSubmit={e=>{e.preventDefault();void login()}}><label htmlFor="planner-teacher-password">Password 密码</label><input id="planner-teacher-password" type="password" autoComplete="current-password" required maxLength={128} value={password} onChange={e=>setPassword(e.target.value)}/><button className="primary" disabled={busy||!endpoint}>{busy?'Signing in… 正在登录…':'Sign in 登录'}</button></form>{error&&<p className="notice" role="alert">{error}</p>}</section>;
+}

@@ -1,7 +1,7 @@
 import type {D1Database} from '@cloudflare/workers-types';
 import {lessons} from '../github-pages/lessons';
 import {activityOptions,type ActivityId} from '../lib/unit-activities';
-export type Env={DB:D1Database;ALLOWED_ORIGINS:string;TEACHER_PASSWORD:string};
+export type Env={DB:D1Database;ALLOWED_ORIGINS:string;TEACHER_PASSWORD?:string;TEACHER_PASSWORD_HASH?:string};
 const ROSTER_ID='teacher-managed-roster';
 const ROSTER_USERNAME='__teacher_roster__';
 const enc=new TextEncoder();
@@ -19,12 +19,12 @@ export async function handle(request:Request,env:Env){
  const headers:Record<string,string>={'Cache-Control':'no-store','Vary':'Origin','X-Content-Type-Options':'nosniff'};
  const respond=(value:unknown,status=200)=>Response.json(value,{status,headers});
  if(origin&&!allowed.includes(origin))return respond({error:'This app address is not allowed.'},403);
- if(origin){headers['Access-Control-Allow-Origin']=origin;headers['Access-Control-Allow-Headers']='Content-Type, Authorization';headers['Access-Control-Allow-Methods']='GET, POST, DELETE, OPTIONS'}
+ if(origin){headers['Access-Control-Allow-Origin']=origin;headers['Access-Control-Allow-Headers']='Content-Type, Authorization, apikey, X-Wordquest-Session';headers['Access-Control-Allow-Methods']='GET, POST, DELETE, OPTIONS'}
  if(request.method==='OPTIONS')return new Response(null,{status:204,headers});
  const path=new URL(request.url).pathname;
  try{
- if(path==='/health'&&request.method==='GET'){if(!env.DB||!env.TEACHER_PASSWORD)return respond({status:'not_configured'},503);await env.DB.prepare('SELECT id FROM groups LIMIT 1').first();return respond({status:'ready'})}
- if(!env.DB||!env.TEACHER_PASSWORD)throw new Failure('The teacher needs to finish connecting this classroom.',503);
+ if(path==='/health'&&request.method==='GET'){if(!env.DB||(!env.TEACHER_PASSWORD&&!env.TEACHER_PASSWORD_HASH))return respond({status:'not_configured'},503);await env.DB.prepare('SELECT id FROM groups LIMIT 1').first();return respond({status:'ready'})}
+ if(!env.DB||(!env.TEACHER_PASSWORD&&!env.TEACHER_PASSWORD_HASH))throw new Failure('The teacher needs to finish connecting this classroom.',503);
  let data:Record<string,unknown>={};
  if(request.method==='POST'){
  if(!origin)throw new Failure('Open this through the classroom app.',403);
@@ -44,7 +44,7 @@ export async function handle(request:Request,env:Env){
  await env.DB.batch([env.DB.prepare('DELETE FROM student_sessions WHERE session_hash IN (SELECT hash FROM sessions WHERE expires<?)').bind(now),env.DB.prepare('DELETE FROM login_limits WHERE expires<?').bind(now),env.DB.prepare('DELETE FROM sessions WHERE expires<?').bind(now)]);
  const password=typeof data.password==='string'?data.password:'';if(password.length>128)throw new Failure('Password is too long.');
  let accountId:string|null=null;let role='parent';
- if(path==='/teacher-login'){if(!await equal(password,env.TEACHER_PASSWORD))throw new Failure('Incorrect teacher password.',401);role='teacher'}
+ if(path==='/teacher-login'){if(!await equal(env.TEACHER_PASSWORD_HASH?await hash(password):password,env.TEACHER_PASSWORD_HASH||env.TEACHER_PASSWORD||''))throw new Failure('Incorrect teacher password.',401);role='teacher'}
  else{
  requireValue(username!==ROSTER_USERNAME&&/^[a-z0-9_-]{3,40}$/.test(username),'Use a login name with 3–40 letters, numbers, underscores or hyphens.');
  const account=await env.DB.prepare('SELECT * FROM accounts WHERE username=?').bind(username).first<{id:string;salt:string;password_hash:string}>();

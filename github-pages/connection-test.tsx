@@ -1,11 +1,11 @@
 import {useEffect,useState} from 'react';
 import {publicAsset} from '../lib/public-runtime';
-import {endpointValid} from '../lib/classroom-client';
+import {endpointValid,classroomHeaders} from '../lib/classroom-client';
 type Check={name:string;ok:boolean;detail:string};
 export default function ConnectionTest(){
  const [checks,setChecks]=useState<Check[]>([]),[running,setRunning]=useState(false),[attempt,setAttempt]=useState(0);
  useEffect(()=>{let live=true;setChecks([]);setRunning(true);
- async function test(name:string,url:string,init?:RequestInit,expected=200){const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),8000),start=Date.now();try{const r=await fetch(url,{...init,signal:abort.signal});const body=await r.json();const ok=r.status===expected;const result={name,ok,detail:`${ok?'Connected':'Unexpected response'} · HTTP ${r.status} · ${Date.now()-start} ms`};if(live)setChecks(c=>[...c,result]);return {body,ok};}catch(e){if(live)setChecks(c=>[...c,{name,ok:false,detail:e instanceof Error&&e.name==='AbortError'?'Timed out after 8 seconds 超时':'Browser could not read the response 浏览器无法连接'}]);return null}finally{clearTimeout(timer)}}
+ async function test(name:string,url:string,init?:RequestInit,expected=200){const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),8000),start=Date.now();try{const headers=new Headers(init?.headers);if(!url.endsWith('classroom-config.json')){const base=url.slice(0,url.lastIndexOf('/'));const token=headers.get('Authorization')?.replace(/^Bearer /,'');for(const [key,value]of Object.entries(classroomHeaders(base,token)))headers.set(key,value);}const r=await fetch(url,{...init,headers,signal:abort.signal});const body=await r.json();const ok=r.status===expected;const result={name,ok,detail:`${ok?'Connected':'Unexpected response'} · HTTP ${r.status} · ${Date.now()-start} ms`};if(live)setChecks(c=>[...c,result]);return {body,ok};}catch(e){if(live)setChecks(c=>[...c,{name,ok:false,detail:e instanceof Error&&e.name==='AbortError'?'Timed out after 8 seconds 超时':'Browser could not read the response 浏览器无法连接'}]);return null}finally{clearTimeout(timer)}}
  (async()=>{const config=await test('1. App settings 应用设置',publicAsset('classroom-config.json'));if(!config?.ok)return;let endpoint:string;try{const value=(config.body as {endpoint?:unknown})?.endpoint;if(typeof value!=='string')throw Error('Missing address');endpoint=endpointValid(value)}catch{if(live)setChecks(c=>[...c,{name:'Backend address',ok:false,detail:'Missing or invalid classroom address'}]);return;}
  await Promise.all([
  test('2. Server connection 服务器连接',endpoint+'/health'),

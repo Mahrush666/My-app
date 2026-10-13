@@ -1,12 +1,12 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {localDatabase} from './sqlite-adapter.mjs';
+const {localDatabase}=await import(process.env.WORDQUEST_TEST_DATABASE==='postgres'?'../supabase/classroom/test-adapter.mjs':'./sqlite-adapter.mjs');
 import {handle} from '../dist-classroom/worker.mjs';
 const origin='https://mahrush666.github.io';
-function setup(){const DB=localDatabase();const env={DB,ALLOWED_ORIGINS:origin,TEACHER_PASSWORD:'test-teacher-password'};let seq=0;
+async function setup(){const DB=await localDatabase();const env={DB,ALLOWED_ORIGINS:origin,TEACHER_PASSWORD:'test-teacher-password'};let seq=0;
  return {DB,async api(path,body,token){const r=await handle(new Request('https://classroom.test'+path,{method:body===undefined?'GET':'POST',headers:{Origin:origin,...(token?{Authorization:'Bearer '+token}:{}),'Content-Type':'application/json','CF-Connecting-IP':'test-'+seq++},body:body===undefined?undefined:JSON.stringify(body)}),env);return {status:r.status,body:await r.json()}}};}
 test('parent registration, child approval, class-specific assignments, protected progress and teacher reports',async()=>{
- const {api,DB}=setup();
+ const {api,DB}=await setup();
  const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
  const a=(await api('/groups',{name:'Tuesday Starter'},teacher)).body;
  const b=(await api('/groups',{name:'Saturday Readers'},teacher)).body;
@@ -35,7 +35,7 @@ test('parent registration, child approval, class-specific assignments, protected
  const initial=(await api('/homework?child='+kid,undefined,parent)).body.progress['pu-starter-u7-climb'];
  assert.equal(initial.step,1);
  assert.equal((await api('/progress',event,parent)).body.duplicate,true);
- assert.equal(DB.sqlite.prepare('SELECT COUNT(*) AS n FROM attempts').get().n,1);
+ assert.equal((await DB.sqlite.prepare('SELECT COUNT(*) AS n FROM attempts').get()).n,1);
  await api('/progress',{...event,eventId:crypto.randomUUID(),correct:false},parent);
  await api('/progress',{...event,eventId:crypto.randomUUID(),correct:true},parent);
  const review=(await api('/homework?child='+kid,undefined,parent)).body.progress['pu-starter-u7-climb'];assert.equal(review.step,0);assert.ok(review.due<initial.due,'Immediate correction preserves the short retry interval');
@@ -52,14 +52,14 @@ test('parent registration, child approval, class-specific assignments, protected
  assert.equal((await api('/children',{name:'Ben',invite:replacement},parent)).status,200);
  await api('/logout',{},parent);assert.equal((await api('/family',undefined,parent)).status,401);
  const login=await api('/login',{username:'panda_family',password:'parent-password'});assert.equal(login.status,200);assert.equal((await api('/family',undefined,login.body.token)).body.children.length,2);
- DB.sqlite.close();
+ await DB.sqlite.close();
 });
 test('origin checks and authentication are enforced',async()=>{
- const {api,DB}=setup();assert.equal((await api('/teacher')).status,401);
- const r=await handle(new Request('https://classroom.test/teacher',{headers:{Origin:'https://untrusted.test'}}),{DB,ALLOWED_ORIGINS:origin,TEACHER_PASSWORD:'test'});assert.equal(r.status,403);DB.sqlite.close();
+ const {api,DB}=await setup();assert.equal((await api('/teacher')).status,401);
+ const r=await handle(new Request('https://classroom.test/teacher',{headers:{Origin:'https://untrusted.test'}}),{DB,ALLOWED_ORIGINS:origin,TEACHER_PASSWORD:'test'});assert.equal(r.status,403);await DB.sqlite.close();
 });
 test('teacher roster, private parent claims and class moves preserve learning history',async()=>{
- const {api,DB}=setup();const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const {api,DB}=await setup();const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
  const a=(await api('/groups',{name:'Starter A'},teacher)).body,b=(await api('/groups',{name:'Starter B'},teacher)).body;
  const parent=(await api('/register',{username:'roster_parent',password:'parent-password',consent:true})).body.token;
  const other=(await api('/register',{username:'second_parent',password:'parent-password',consent:true})).body.token;
@@ -82,16 +82,16 @@ test('teacher roster, private parent claims and class moves preserve learning hi
  assert.equal((await api('/move-student',{childId:kid.id,groupId:'missing'},teacher)).status,400);
  assert.equal((await api('/move-student',{childId:kid.id,groupId:b.id,name:'Amy Wang'},teacher)).status,200);
  const after=(await api('/homework?child='+kid.id,undefined,parent)).body;assert.deepEqual(after.progress,before);assert.equal(after.assignments[0].id,second);
- assert.equal(DB.sqlite.prepare('SELECT COUNT(*) AS n FROM attempts WHERE child_id=?').get(kid.id).n,1);
+ assert.equal((await DB.sqlite.prepare('SELECT COUNT(*) AS n FROM attempts WHERE child_id=?').get(kid.id)).n,1);
  assert.equal((await api('/family',undefined,parent)).body.children[0].name,'Amy Wang');
  assert.equal((await api('/teacher-students',{groupId:a.id,names:['Lily'],parentUsername:'roster_parent'},teacher)).status,200);
  assert.equal((await api('/family',undefined,parent)).body.children.length,2);
  assert.equal((await api('/teacher-students',{groupId:a.id,names:['X'],parentUsername:'missing_parent'},teacher)).status,400);
- const ben=added.body.students[1];DB.sqlite.prepare('UPDATE student_claims SET expires=0 WHERE child_id=?').run(ben.id);assert.equal((await api('/student-claim',{claim:ben.claim},parent)).status,400);
- DB.sqlite.close();
+ const ben=added.body.students[1];await DB.sqlite.prepare('UPDATE student_claims SET expires=0 WHERE child_id=?').run(ben.id);assert.equal((await api('/student-claim',{claim:ben.claim},parent)).status,400);
+ await DB.sqlite.close();
 });
 test('reusable homework QR opens only one student; rotation and revocation invalidate active sessions',async()=>{
- const {api,DB}=setup();const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const {api,DB}=await setup();const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
  const group=(await api('/groups',{name:'QR class'},teacher)).body;
  const students=(await api('/teacher-students',{groupId:group.id,names:['Lele','Other child']},teacher)).body.students;
  const kid=students[0].id,other=students[1].id;
@@ -118,6 +118,13 @@ test('reusable homework QR opens only one student; rotation and revocation inval
  await api('/student-link',{childId:kid,revoke:true},teacher);assert.equal((await api('/family',undefined,newer)).status,401);assert.equal((await api('/student-login',{access:replacement})).status,401);
  const final=(await api('/student-link',{childId:kid},teacher)).body.access;const last=(await api('/student-login',{access:final})).body.token;
  await api('/logout',{},last);assert.equal((await api('/family',undefined,last)).status,401);
- DB.sqlite.prepare('UPDATE sessions SET expires=0').run();assert.equal((await api('/teacher-login',{password:'test-teacher-password'})).status,200,'expired QR sessions clean up without foreign key errors');
- DB.sqlite.close();
+ await DB.sqlite.prepare('UPDATE sessions SET expires=0').run();assert.equal((await api('/teacher-login',{password:'test-teacher-password'})).status,200,'expired QR sessions clean up without foreign key errors');
+ await DB.sqlite.close();
+});
+
+test('hashed teacher verifier accepts the existing password and rejects incorrect passwords',async()=>{
+ const DB=await localDatabase();const verifier=Buffer.from(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('test-hash-password'))).toString('hex');
+ const env={DB,ALLOWED_ORIGINS:origin,TEACHER_PASSWORD_HASH:verifier};
+ for(const [password,status]of [['wrong',401],['test-hash-password',200]]){const r=await handle(new Request('https://classroom.test/teacher-login',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({password})}),env);assert.equal(r.status,status);}
+ await DB.sqlite.close();
 });

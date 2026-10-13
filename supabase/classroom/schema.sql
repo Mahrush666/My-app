@@ -1,0 +1,91 @@
+CREATE SCHEMA IF NOT EXISTS wordquest;
+REVOKE ALL ON SCHEMA wordquest FROM PUBLIC,anon,authenticated;
+GRANT USAGE ON SCHEMA wordquest TO service_role;
+SET search_path=wordquest;
+
+CREATE TABLE IF NOT EXISTS accounts(id TEXT PRIMARY KEY, username TEXT UNIQUE NOT NULL, salt TEXT NOT NULL, password_hash TEXT NOT NULL, created_at BIGINT NOT NULL);
+CREATE TABLE IF NOT EXISTS sessions(hash TEXT PRIMARY KEY, account_id TEXT, role TEXT NOT NULL, expires BIGINT NOT NULL);
+CREATE INDEX IF NOT EXISTS sessions_expiry ON sessions(expires);
+CREATE TABLE IF NOT EXISTS groups(id TEXT PRIMARY KEY, name TEXT NOT NULL, invite_hash TEXT UNIQUE NOT NULL, created_at BIGINT NOT NULL);
+CREATE TABLE IF NOT EXISTS children(id TEXT PRIMARY KEY, parent_id TEXT NOT NULL REFERENCES accounts(id), group_id TEXT NOT NULL REFERENCES groups(id), name TEXT NOT NULL, approved BIGINT NOT NULL DEFAULT 0, created_at BIGINT NOT NULL);
+CREATE INDEX IF NOT EXISTS children_parent ON children(parent_id);
+CREATE INDEX IF NOT EXISTS children_group ON children(group_id);
+CREATE TABLE IF NOT EXISTS assignments(id TEXT PRIMARY KEY, group_id TEXT NOT NULL REFERENCES groups(id), unit_id TEXT NOT NULL, title TEXT NOT NULL, activities TEXT NOT NULL, word_ids TEXT NOT NULL, due_date TEXT NOT NULL DEFAULT '', updated_at BIGINT NOT NULL);
+CREATE INDEX IF NOT EXISTS assignments_group ON assignments(group_id);
+CREATE TABLE IF NOT EXISTS reviews(child_id TEXT NOT NULL REFERENCES children(id), word_id TEXT NOT NULL, step BIGINT NOT NULL, due BIGINT NOT NULL, PRIMARY KEY(child_id,word_id));
+CREATE TABLE IF NOT EXISTS attempts(id TEXT PRIMARY KEY, child_id TEXT NOT NULL REFERENCES children(id), assignment_id TEXT NOT NULL REFERENCES assignments(id), activity TEXT NOT NULL, word_id TEXT, correct BIGINT, created_at BIGINT NOT NULL);
+CREATE INDEX IF NOT EXISTS attempts_child ON attempts(child_id,assignment_id);
+CREATE TABLE IF NOT EXISTS completions(child_id TEXT NOT NULL REFERENCES children(id), assignment_id TEXT NOT NULL REFERENCES assignments(id), activity TEXT NOT NULL, completed_at BIGINT NOT NULL, PRIMARY KEY(child_id,assignment_id,activity));
+CREATE TABLE IF NOT EXISTS login_limits(key TEXT PRIMARY KEY, count BIGINT NOT NULL, expires BIGINT NOT NULL);
+CREATE TABLE IF NOT EXISTS student_claims(child_id TEXT PRIMARY KEY REFERENCES children(id), claim_hash TEXT UNIQUE NOT NULL, expires BIGINT NOT NULL);
+CREATE TABLE IF NOT EXISTS student_links(child_id TEXT PRIMARY KEY REFERENCES children(id),access_hash TEXT UNIQUE NOT NULL);
+CREATE TABLE IF NOT EXISTS student_sessions(session_hash TEXT PRIMARY KEY REFERENCES sessions(hash),child_id TEXT NOT NULL REFERENCES children(id),access_hash TEXT NOT NULL);
+
+CREATE TABLE IF NOT EXISTS config(key TEXT PRIMARY KEY,value TEXT NOT NULL);
+ALTER TABLE accounts ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON accounts FROM PUBLIC,anon,authenticated;
+GRANT ALL ON accounts TO service_role;
+ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON sessions FROM PUBLIC,anon,authenticated;
+GRANT ALL ON sessions TO service_role;
+ALTER TABLE groups ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON groups FROM PUBLIC,anon,authenticated;
+GRANT ALL ON groups TO service_role;
+ALTER TABLE children ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON children FROM PUBLIC,anon,authenticated;
+GRANT ALL ON children TO service_role;
+ALTER TABLE assignments ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON assignments FROM PUBLIC,anon,authenticated;
+GRANT ALL ON assignments TO service_role;
+ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON reviews FROM PUBLIC,anon,authenticated;
+GRANT ALL ON reviews TO service_role;
+ALTER TABLE attempts ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON attempts FROM PUBLIC,anon,authenticated;
+GRANT ALL ON attempts TO service_role;
+ALTER TABLE completions ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON completions FROM PUBLIC,anon,authenticated;
+GRANT ALL ON completions TO service_role;
+ALTER TABLE login_limits ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON login_limits FROM PUBLIC,anon,authenticated;
+GRANT ALL ON login_limits TO service_role;
+ALTER TABLE student_claims ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON student_claims FROM PUBLIC,anon,authenticated;
+GRANT ALL ON student_claims TO service_role;
+ALTER TABLE student_links ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON student_links FROM PUBLIC,anon,authenticated;
+GRANT ALL ON student_links TO service_role;
+ALTER TABLE student_sessions ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON student_sessions FROM PUBLIC,anon,authenticated;
+GRANT ALL ON student_sessions TO service_role;
+ALTER TABLE config ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON config FROM PUBLIC,anon,authenticated;
+GRANT ALL ON config TO service_role;
+
+CREATE OR REPLACE FUNCTION public.wordquest_batch(statements jsonb) RETURNS jsonb
+LANGUAGE plpgsql SECURITY INVOKER SET search_path=wordquest,pg_temp AS $$
+DECLARE item jsonb; parts text[]; q text; v jsonb; rows jsonb; output jsonb:='[]'::jsonb; affected bigint:=0; prior_changes bigint:=0; i integer;
+BEGIN
+ IF jsonb_typeof(statements)<>'array' OR jsonb_array_length(statements)>100 THEN RAISE EXCEPTION 'Invalid batch'; END IF;
+ FOR item IN SELECT value FROM jsonb_array_elements(statements) LOOP
+  parts:=string_to_array(item->>'sql','?');
+  IF cardinality(parts)<>jsonb_array_length(item->'params')+1 THEN RAISE EXCEPTION 'Parameter count mismatch'; END IF;
+  q:=parts[1];
+  FOR i IN 1..jsonb_array_length(item->'params') LOOP
+   v:=item->'params'->(i-1);
+   q:=q||CASE WHEN v='null'::jsonb THEN 'NULL' WHEN jsonb_typeof(v) IN ('number','boolean') THEN v::text ELSE quote_literal(v#>>'{}') END||parts[i+1];
+  END LOOP;
+  q:=replace(q,'changes()',prior_changes::text);
+  IF (item->>'rows')::boolean THEN
+   IF q ~* '^\s*SELECT' THEN EXECUTE 'SELECT COALESCE(jsonb_agg(to_jsonb(t)),''[]''::jsonb) FROM ('||q||') t' INTO rows;
+   ELSE EXECUTE 'WITH t AS ('||q||') SELECT COALESCE(jsonb_agg(to_jsonb(t)),''[]''::jsonb) FROM t' INTO rows; END IF;
+   affected:=jsonb_array_length(rows);
+  ELSE EXECUTE q; GET DIAGNOSTICS affected=ROW_COUNT; rows:='[]'::jsonb; END IF;
+  prior_changes:=affected;
+  output:=output||jsonb_build_array(jsonb_build_object('results',rows,'success',true,'meta',jsonb_build_object('changes',affected)));
+ END LOOP;
+ RETURN output;
+END $$;
+REVOKE ALL ON FUNCTION public.wordquest_batch(jsonb) FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.wordquest_batch(jsonb) TO service_role;
+NOTIFY pgrst,'reload schema';

@@ -105,6 +105,12 @@ test('reusable homework QR opens only one student; rotation and revocation inval
  const assignment=(await api('/assignments',{groupId:group.id,unitId:'pu-starter-u7-lesson1',activities:['picture-listen'],wordIds:['pu-starter-u7-climb','pu-starter-u7-swim','pu-starter-u7-walk','pu-starter-u7-jump']},teacher)).body.id;
  assert.equal((await api('/progress',{childId:kid,assignmentId:assignment,activity:'picture-listen',wordId:'pu-starter-u7-climb',correct:true,eventId:crypto.randomUUID()},first.token)).status,200);
  assert.equal((await api('/homework?child='+kid,undefined,second.token)).body.progress['pu-starter-u7-climb'].step,1);
+ await api('/progress',{childId:kid,assignmentId:assignment,activity:'picture-listen',complete:true},first.token);
+ const afterDone=(await api('/student-login',{access})).body.token;
+ assert.equal((await api('/homework?child='+kid,undefined,afterDone)).body.completed.some(c=>c.assignment_id===assignment),true,'Completion does not consume the QR');
+ const laterAssignment=(await api('/assignments',{groupId:group.id,unitId:'pu-starter-u8-lesson1',activities:['video'],wordIds:[],title:'Next homework'},teacher)).body.id;
+ const laterScan=(await api('/student-login',{access})).body.token;
+ assert.ok((await api('/homework?child='+kid,undefined,laterScan)).body.assignments.some(a=>a.id===laterAssignment),'Same QR retrieves newly assigned homework');
  await api('/approve',{childId:kid,approved:false},teacher);assert.equal((await api('/homework?child='+kid,undefined,first.token)).body.pending,true);await api('/approve',{childId:kid,approved:true},teacher);
  const replacement=(await api('/student-link',{childId:kid},teacher)).body.access;
  assert.equal((await api('/student-login',{access})).status,401);assert.equal((await api('/family',undefined,first.token)).status,401);assert.equal((await api('/family',undefined,second.token)).status,401);

@@ -5,6 +5,7 @@ import {speak,stopSpeaking,type Word,type Progress} from './words';
 import {shuffle} from '@/lib/random';
 import {reviewCards} from '@/lib/review-schedule';
 import {publicAsset} from '@/lib/public-runtime';
+import {playAnswerSound} from '@/lib/audio';
 import {spokenMatch} from '@/lib/unit-activities';
 import {speechEndpoint,checkSpeech,checkSpeechConnection,speechFailureMessage} from '@/lib/speech-check';
 import {recordingLevel} from '@/lib/recording-level';
@@ -24,7 +25,7 @@ export default function PicturePractice({mode,vocabulary,progress,onAnswer}:{mod
  setChoices(shuffle([w,...shuffle(vocabulary.filter(x=>x.en!==w.en)).slice(0,3)]));setSelected(-1);setResult(null);setMessage('');setTranscript('');setUrl('')},[w,vocabulary]);
  useEffect(()=>()=>{if(url)URL.revokeObjectURL(url)},[url]);
  function stop(){if(timer.current)clearTimeout(timer.current);if(recorder.current?.state==='recording')recorder.current.stop();stream.current?.getTracks().forEach(t=>t.stop());setRecording(false)}
- async function mark(correct:boolean){setResult(correct);setMessage(correct?'⭐ Well done! 答对了！':'💛 Listen and try again. 听一听，再试试。');try{if(!marked.current){marked.current=true;await onAnswer(w,correct,mode);}}catch{marked.current=false;setResult(null);setMessage('Your answer could not be saved. Please try again.')}}
+ async function mark(correct:boolean){playAnswerSound(correct);setResult(correct);setMessage(correct?'⭐ Well done! 答对了！':'💛 Listen and try again. 听一听，再试试。');try{if(!marked.current){marked.current=true;await onAnswer(w,correct,mode);}}catch{marked.current=false;setResult(null);setMessage('Your answer could not be saved. Please try again.')}}
  async function testConnection(){const attempt=++generation.current;request.current?.abort();const controller=new AbortController();request.current=controller;setBusy(true);setMessage('Checking the connection… 正在测试连接…');try{const target=endpoint||await speechEndpoint();if(!target){if(alive.current&&attempt===generation.current)setMessage('Could not load voice settings. Please refresh the app and try again. 无法加载语音设置，请刷新后重试。');return}if(alive.current&&attempt===generation.current)setEndpoint(target);await checkSpeechConnection(target,controller.signal);if(alive.current&&attempt===generation.current)setMessage('The voice server is reachable. Now try a recording; this connection test does not test Groq recognition. 可以连接语音服务器，请试录音。连接测试不检查 Groq 识别。')}catch(error){if(alive.current&&attempt===generation.current)setMessage(speechFailureMessage(error))}finally{if(alive.current&&attempt===generation.current)setBusy(false)}}
  async function start(){if(!canRecord)return;const attempt=++generation.current;request.current?.abort();stopSpeaking();setBusy(true);setMessage('');setResult(null);setTranscript('');setUrl('');try{
  const media=await navigator.mediaDevices.getUserMedia({audio:true});if(!alive.current||attempt!==generation.current){media.getTracks().forEach(t=>t.stop());return}stream.current=media;level.current=await recordingLevel(media);if(!alive.current||attempt!==generation.current){level.current?.close();media.getTracks().forEach(t=>t.stop());return}

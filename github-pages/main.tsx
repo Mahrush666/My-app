@@ -9,6 +9,7 @@ import {studentAccess} from '../lib/student-entry';
 import {validateSettings,type Settings,configuredActivities} from '../lib/unit-activities';
 import Practice from '../app/practice';
 import { lessons } from './lessons';
+import {bookUnits,lessonLabel} from './lesson-groups';
 import '../app/globals.css';
 function App() {
  const params=new URLSearchParams(location.hash.slice(1));
@@ -18,20 +19,26 @@ function App() {
  const [teacher,setTeacher]=useState(params.get('view')==='teacher');
  const [settings,setSettings]=useState<Settings>(()=>{try{return validateSettings(JSON.parse(localStorage.getItem('wordquest-unit-settings-v1')||'{}'),lessons.map(l=>l.id))}catch{return {}}});
  const [shared]=useState<Settings>(()=>{try{return validateSettings(JSON.parse(query.get('settings')||params.get('settings')||'{}'),lessons.map(l=>l.id))}catch{return {}}});
- const [book,setBook]=useState(''), [unit,setUnit]=useState(query.get('unit')||params.get('unit')||'');
+ const initialLesson=lessons.find(l=>l.id===(query.get('unit')||params.get('unit')));
+ const [book,setBook]=useState(initialLesson?.book||''),[chapter,setChapter]=useState(initialLesson?.unit?.id||''),[lessonId,setLessonId]=useState(initialLesson?.id||'');
  function save(next:Settings){if(Object.values(next).some(v=>!v.activities.length))throw new Error('Choose an activity in every edited unit.');localStorage.setItem('wordquest-unit-settings-v1',JSON.stringify(next));setSettings(next)}
  const visibleLessons=student?lessons.filter(l=>Boolean(shared[l.id])):lessons;
- const selected=visibleLessons.find(l=>l.id===unit);
+ const selected=visibleLessons.find(l=>l.id===lessonId);
  const books=[...new Set(visibleLessons.map(l=>l.book))];
+ const units=bookUnits(visibleLessons,book),currentUnit=units.find(u=>u.id===chapter);
+ const menuLessons=visibleLessons.filter(l=>l.book===book&&(!units.length||l.unit?.id===chapter));
+ function allBooks(){setBook('');setChapter('');setLessonId('')}
+ function openBook(name:string){setBook(name);setChapter('');setLessonId('')}
  if(query.has('supabase-test'))return <main className="app classroom"><SupabaseTest/></main>;
  if(query.has('connection-test'))return <main className="app classroom"><ConnectionTest/></main>;
  if(online)return <main className="app"><Classroom onExit={()=>{location.href=location.pathname+'#view=teacher'}}/></main>;
  return <main className="app"><header className="top"><a className="brand" href={student?location.pathname+location.search+location.hash:'./'}>✦ Word<span className="brand-accent">Quest</span></a>{!student&&<button onClick={()=>{setTeacher(!teacher);history.replaceState(null,'',teacher?location.pathname:location.pathname+'#view=teacher')}}>{teacher?'Student view 学生页面':'Teacher view 老师设置'}</button>}</header>
  {!student&&<p><a className="text-link" href="#view=classroom">Classes, assignments & family accounts 班级与家庭账号 →</a></p>}
  <p className="small-note">Practice progress stays on this browser. 本次练习进度保存在此设备。 Online teacher reports are not connected yet.</p>
- {teacher&&!student?<Teacher settings={settings} onSave={save} onExit={()=>{setTeacher(false);history.replaceState(null,'',location.pathname)}}/>:selected?<><div className="section-heading"><div><p className="eyebrow">{selected.book}</p><h2>{selected.title}</h2></div>{visibleLessons.length>1&&<button onClick={()=>setUnit('')}>Choose lesson 选课程</button>}</div><Practice key={selected.id} vocabulary={selected.words} readings={selected.readings} story={selected.story} videos={selected.videos} activities={configuredActivities(selected.id,shared,settings,student,selected.defaultActivities)}/></>:<>
- <div className="section-heading"><h1>{book?'Choose a unit 选单元':'Choose your book 选课本'}</h1>{book&&<button onClick={()=>setBook('')}>All books 所有课本</button>}</div>
- {student&&!visibleLessons.length&&<p className="notice">This student link has no valid lesson settings. Ask your teacher for a new QR code. 请老师重新生成课程二维码。</p>}<div className="lesson-menu">{book?visibleLessons.filter(l=>l.book===book).map(l=><button key={l.id} className="lesson-tile" onClick={()=>setUnit(l.id)}><BookOpen size={32}/><strong>{l.title}</strong><span>{l.story?`${l.story.scenes.length} story pictures${l.words.length?' · ':''}`:''}{l.words.length>0?`${l.words.length} flashcards`:''}{configuredActivities(l.id,shared,settings,student).includes('reading')?` · ${l.readings.length} reading paragraphs`:''}</span></button>):books.map(b=><button key={b} className="lesson-tile" onClick={()=>setBook(b)}><BookOpen size={32}/><strong>{b}</strong><span>{visibleLessons.filter(l=>l.book===b).length} units 单元</span></button>)}</div></>}
+ {!teacher&&(book||selected)&&<nav className="lesson-breadcrumbs" aria-label="Lesson location"><button onClick={allBooks}>Books 课本</button><span aria-hidden="true">›</span><button onClick={()=>openBook(book)}>{book}</button>{currentUnit&&<><span aria-hidden="true">›</span><button onClick={()=>setLessonId('')}>{currentUnit.title}</button></>}</nav>}
+ {teacher&&!student?<Teacher settings={settings} onSave={save} onExit={()=>{setTeacher(false);history.replaceState(null,'',location.pathname)}}/>:selected?<><div className="section-heading"><div><p className="eyebrow">{selected.book}</p><h2>{selected.title}</h2></div>{visibleLessons.length>1&&<button onClick={()=>setLessonId('')}>Choose lesson 选课程</button>}</div><Practice key={selected.id} vocabulary={selected.words} readings={selected.readings} story={selected.story} videos={selected.videos} activities={configuredActivities(selected.id,shared,settings,student,selected.defaultActivities)}/></>:<>
+ <div className="section-heading"><div>{book&&<p className="eyebrow">{currentUnit?.title||book}</p>}<h1>{!book?'Choose your book 选课本':units.length&&!chapter?'Choose a unit 选单元':'Choose a lesson 选课程'}</h1></div>{book&&<button onClick={chapter?()=>setChapter(''):allBooks}>{chapter?'All units 所有单元':'All books 所有课本'}</button>}</div>
+ {student&&!visibleLessons.length&&<p className="notice">This student link has no valid lesson settings. Ask your teacher for a new QR code. 请老师重新生成课程二维码。</p>}<div className="lesson-menu">{!book?books.map(b=>{const grouped=bookUnits(visibleLessons,b);return <button key={b} className="lesson-tile" onClick={()=>openBook(b)}><BookOpen size={32}/><strong>{b}</strong><span>{grouped.length?grouped.length+' units 单元':visibleLessons.filter(l=>l.book===b).length+' lessons 课程'}</span></button>}):units.length&&!chapter?units.map(u=><button key={u.id} className="lesson-tile" onClick={()=>setChapter(u.id)}><BookOpen size={32}/><strong>{u.title}</strong><span>{visibleLessons.filter(l=>l.book===book&&l.unit?.id===u.id).length} lessons 课程</span></button>):menuLessons.map(l=><button key={l.id} className="lesson-tile" onClick={()=>setLessonId(l.id)}><BookOpen size={32}/><strong>{lessonLabel(l)}</strong><span>{l.story?l.story.scenes.length+' story pictures':''}{l.words.length>0?l.words.length+' flashcards':''}</span></button>)}</div></>}
  <footer>Learn a little. Play a little. 每天学一点，玩一点。</footer></main>
 }
 function Root(){

@@ -1,3 +1,4 @@
+import {supportsActivity} from '../lib/activity-availability';
 import {useEffect,useState} from 'react';
 import QRCode from 'qrcode';
 import {lessons} from './lessons';
@@ -32,7 +33,7 @@ export default function Classroom({onExit}:{onExit:()=>void}){
  const [studentNames,setStudentNames]=useState(''),[parentUsername,setParentUsername]=useState(''),[claim,setClaim]=useState(new URLSearchParams(location.search).get('claim')||''),[inviteStudent,setInviteStudent]=useState('');
  const [unitId,setUnitId]=useState(lessons[0].id),[activities,setActivities]=useState<ActivityId[]>(lessons[0].defaultActivities||['picture-listen']),[wordIds,setWordIds]=useState<string[]>(lessons[0].words.map(w=>w.id!)),[assignmentTitle,setAssignmentTitle]=useState(''),[dueDate,setDueDate]=useState(''),[editing,setEditing]=useState('');
  const unit=lessons.find(l=>l.id===unitId)!;
- const available=activityOptions.filter(([a])=>a==='video'?!!unit.videos?.length:a==='story'?!!unit.story:a==='reading'?unit.readings.length>0:unit.words.length>=4);
+ const available=activityOptions.filter(([a])=>supportsActivity(a,unit));
  async function api<T>(path:string,data?:unknown){return classroomRequest<T>(session?.endpoint||endpoint,path,data,session)}
  async function run(action:()=>Promise<void>){if(busy)return;setBusy(true);setError('');setNotice('');try{await action()}catch(e){setError(e instanceof Error?e.message:'Please try again.')}finally{setBusy(false)}}
  async function load(s=session){if(!s)return;if(s.role==='teacher'){const d=await classroomRequest<TeacherState>(s.endpoint,'/teacher',undefined,s);setTeacher(d);setGroupId(id=>id||d.groups[0]?.id||'')}else{const d=await classroomRequest<{children:Child[]}>(s.endpoint,'/family',undefined,s);setFamily(d.children);setChildId(id=>d.children.some(c=>c.id===id)?id:d.children[0]?.id||'')}}

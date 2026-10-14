@@ -1,3 +1,4 @@
+import {supportsActivity} from '../lib/activity-availability';
 import type {D1Database} from '@cloudflare/workers-types';
 import {lessons} from '../github-pages/lessons';
 import {activityOptions,type ActivityId} from '../lib/unit-activities';
@@ -13,7 +14,7 @@ async function equal(a:string,b:string){const key=await crypto.subtle.importKey(
 class Failure extends Error{constructor(message:string,public status=400){super(message)}}
 const requireValue=(value:unknown,message:string)=>{if(!value)throw new Failure(message)};
 function text(value:unknown,max:number){return typeof value==='string'?value.trim().slice(0,max):''}
-function available(unit:typeof lessons[number]){return activityOptions.map(a=>a[0]).filter(a=>a==='video'?!!unit.videos?.length:a==='story'?!!unit.story:a==='reading'?unit.readings.length>0:unit.words.length>=4)}
+function available(unit:typeof lessons[number]){return activityOptions.map(a=>a[0]).filter(a=>supportsActivity(a,unit))}
 export async function handle(request:Request,env:Env){
  const origin=request.headers.get('Origin');const allowed=(env.ALLOWED_ORIGINS||'').split(',').map(s=>s.trim());
  const headers:Record<string,string>={'Cache-Control':'no-store','Vary':'Origin','X-Content-Type-Options':'nosniff'};

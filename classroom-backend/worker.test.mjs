@@ -128,3 +128,16 @@ test('hashed teacher verifier accepts the existing password and rejects incorrec
  for(const [password,status]of [['wrong',401],['test-hash-password',200]]){const r=await handle(new Request('https://classroom.test/teacher-login',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({password})}),env);assert.equal(r.status,status);}
  await DB.sqlite.close();
 });
+
+test('Unit 8 lesson 2 supports four pre-reader activities and saves listening progress',async()=>{
+ const {api,DB}=await setup();const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Lesson 2 children'},teacher)).body;
+ const child=(await api('/teacher-students',{groupId:group.id,names:['Lesson 2 student']},teacher)).body.students[0];
+ const activities=['look-listen','picture-listen','sound-picture','yes-no'];const wordIds=['eat','clean','drink','sleep','take-a-photo'].map(x=>'pu-starter-u8-l2-'+x);
+ const assignment=await api('/assignments',{groupId:group.id,unitId:'pu-starter-u8-lesson2',title:'Action sentences',activities,wordIds},teacher);assert.equal(assignment.status,200);
+ const access=(await api('/student-link',{childId:child.id},teacher)).body.access;const student=(await api('/student-login',{access})).body.token;
+ for(const activity of ['picture-listen','sound-picture','yes-no'])assert.equal((await api('/progress',{childId:child.id,assignmentId:assignment.body.id,activity,wordId:wordIds[0],correct:true,eventId:crypto.randomUUID()},student)).status,200);
+ const homework=(await api('/homework?child='+child.id,undefined,student)).body;assert.deepEqual(JSON.parse(homework.assignments[0].activities),activities);assert.equal(homework.progress[wordIds[0]].step,1,'Changing flashcard formats must not advance future reviews repeatedly');
+ assert.equal((await api('/assignments',{groupId:group.id,unitId:'pu-starter-u8-lesson1',title:'Unsupported quiz',activities:['yes-no'],wordIds:['eat','clean','drink','sleep'].map(x=>'pu-starter-u8-'+x)},teacher)).status,400);
+ await DB.sqlite.close();
+});

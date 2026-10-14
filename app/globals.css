@@ -107,3 +107,15 @@
  .learning-app .teacher-selectors label{width:auto;min-width:0}
  .learning-app .teacher-settings select{font-size:14px;padding:10px;min-height:44px}
 }
+
+/* Picture activities keep the answers readable on small phones without written prompts. */
+.action-picture-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+.action-picture-choices button{position:relative;min-width:0;padding:8px;border:3px solid transparent;background:white;border-radius:18px}
+.action-picture-choices button.selected{border-color:#6652e8;background:#f0edff}
+.action-picture-choices img{width:100%;height:clamp(95px,24vw,165px);object-fit:contain}
+.action-picture-choices svg{position:absolute;right:6px;bottom:6px;color:#5034cc;background:white;border-radius:50%}
+.yes-no-choices,.action-card-navigation{display:flex;justify-content:center;gap:12px;margin:12px 0;flex-wrap:wrap}
+.yes-no-choices button{display:flex;flex:1;align-items:center;justify-content:center;gap:10px;min-height:74px;font-size:38px;border:3px solid #c9e5d3;background:#effbf3}
+.yes-no-choices button+button{border-color:#f0cecb;background:#fff3ef}
+.yes-no-choices span{font-size:18px}.action-listen{display:flex;align-items:center;justify-content:center;gap:10px;width:100%}
+.action-practice .picture-prompt{height:clamp(150px,38vw,280px);margin:12px auto}.action-practice .feedback{min-height:24px;margin:10px 0}

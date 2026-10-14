@@ -1,6 +1,6 @@
 # Classroom migration to Supabase
 
-The October 13 WeChat test without VPN passed all five connectivity checks. The production endpoint must remain unchanged until the real classroom function and imported data pass verification.
+The classroom uses Supabase project `lzsljehuuezdlssrgzwe` (Singapore). The October 13 WeChat test without VPN passed all five connectivity checks. The October 15 rollout preserved existing student IDs, QR hashes and homework. Live checks covered teacher login, private student access, repeated scans, review saves, completion and new homework. Cloudflare and its private export remain available for rollback.
 
 ## Deployment
 

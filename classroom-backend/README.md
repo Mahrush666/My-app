@@ -7,7 +7,7 @@ Status: deployed to Cloudflare Workers and D1 on October 12, 2026. Live API test
 - One private teacher account (password supplied as a Worker secret).
 - Parent registration/login, multiple child profiles per family, class invitation codes and teacher approval.
 - Class-specific assignments: book/unit, activity types, selected vocabulary and optional due date. At least four vocabulary items are required for multiple-choice activities. Reading/story assignments currently include the whole selected lesson rather than individual paragraphs.
-- Parent homework checklist (self-reported completion), answer counts, teacher reports and child-specific spaced reviews stored online. Video/story completion is manually reported; no automatic proficiency claims.
+- Automatic homework completion: each assigned checked-answer activity finishes after every selected word has a saved correct answer (corrections count). Guided lessons require listening, spelling and sentence questions. Self-rated cards, video, story, listening and reading remain accessible as extra practice. Completed status persists across QR scans; editing an assignment resets its requirements while preserving SRS and answer history. Answer counts and completion are practice records, not proficiency scores.
 - Hashed sessions, salted PBKDF2 passwords, access checks for each child/assignment, login throttling, request-size limits, origin restrictions. No audio or speech recognition.
 - Password recovery, account deletion UI, offline answer queue, multi-teacher organizations and email verification are not included in this pilot. Parents must keep their login name/password. Keep the first test to teacher-created test accounts until real WeChat connectivity and account lifecycle requirements are settled.
 

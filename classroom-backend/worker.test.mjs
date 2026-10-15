@@ -39,10 +39,12 @@ test('parent registration, child approval, class-specific assignments, protected
  await api('/progress',{...event,eventId:crypto.randomUUID(),correct:false},parent);
  await api('/progress',{...event,eventId:crypto.randomUUID(),correct:true},parent);
  const review=(await api('/homework?child='+kid,undefined,parent)).body.progress['pu-starter-u7-climb'];assert.equal(review.step,0);assert.ok(review.due<initial.due,'Immediate correction preserves the short retry interval');
- await api('/progress',{childId:kid,assignmentId,activity:'picture-listen',complete:true},parent);
+ assert.equal((await api('/progress',{childId:kid,assignmentId,activity:'picture-listen',complete:true},parent)).status,400);
+ assert.equal((await api('/homework?child='+kid,undefined,parent)).body.completed.length,0);
+ for(const wordId of payload.wordIds.slice(1))await api('/progress',{...event,wordId,eventId:crypto.randomUUID()},parent);
  assert.equal((await api('/homework?child='+kid,undefined,parent)).body.completed.length,1);
- const reports=(await api('/teacher',undefined,teacher)).body.reports;assert.equal(reports[0].attempts,3);assert.equal(reports[0].correct,2);
- // Revised assignments preserve word schedules but reset the explicit family checklist.
+ const reports=(await api('/teacher',undefined,teacher)).body.reports;assert.equal(reports[0].attempts,6);assert.equal(reports[0].correct,5);
+ // Revised assignments preserve word schedules but reset the automatic answer requirements.
  await api('/assignments',{...payload,id:assignmentId,title:'Updated homework'},teacher);
  homework=(await api('/homework?child='+kid,undefined,parent)).body;assert.equal(homework.assignments[0].title,'Updated homework');assert.equal(homework.completed.length,0);assert.deepEqual(homework.progress['pu-starter-u7-climb'],review);
  await api('/approve',{childId:kid,approved:false},teacher);assert.equal((await api('/progress',event,parent)).status,400);
@@ -105,7 +107,7 @@ test('reusable homework QR opens only one student; rotation and revocation inval
  const assignment=(await api('/assignments',{groupId:group.id,unitId:'pu-starter-u7-lesson1',activities:['picture-listen'],wordIds:['pu-starter-u7-climb','pu-starter-u7-swim','pu-starter-u7-walk','pu-starter-u7-jump']},teacher)).body.id;
  assert.equal((await api('/progress',{childId:kid,assignmentId:assignment,activity:'picture-listen',wordId:'pu-starter-u7-climb',correct:true,eventId:crypto.randomUUID()},first.token)).status,200);
  assert.equal((await api('/homework?child='+kid,undefined,second.token)).body.progress['pu-starter-u7-climb'].step,1);
- await api('/progress',{childId:kid,assignmentId:assignment,activity:'picture-listen',complete:true},first.token);
+ for(const wordId of ['pu-starter-u7-swim','pu-starter-u7-walk','pu-starter-u7-jump'])await api('/progress',{childId:kid,assignmentId:assignment,activity:'picture-listen',wordId,correct:true,eventId:crypto.randomUUID()},first.token);
  const afterDone=(await api('/student-login',{access})).body.token;
  assert.equal((await api('/homework?child='+kid,undefined,afterDone)).body.completed.some(c=>c.assignment_id===assignment),true,'Completion does not consume the QR');
  const laterAssignment=(await api('/assignments',{groupId:group.id,unitId:'pu-starter-u8-lesson1',activities:['video'],wordIds:[],title:'Next homework'},teacher)).body.id;
@@ -139,5 +141,35 @@ test('Unit 8 lesson 2 supports four pre-reader activities and saves listening pr
  for(const activity of ['picture-listen','sound-picture','yes-no'])assert.equal((await api('/progress',{childId:child.id,assignmentId:assignment.body.id,activity,wordId:wordIds[0],correct:true,eventId:crypto.randomUUID()},student)).status,200);
  const homework=(await api('/homework?child='+child.id,undefined,student)).body;assert.deepEqual(JSON.parse(homework.assignments[0].activities),activities);assert.equal(homework.progress[wordIds[0]].step,1,'Changing flashcard formats must not advance future reviews repeatedly');
  assert.equal((await api('/assignments',{groupId:group.id,unitId:'pu-starter-u8-lesson1',title:'Unsupported quiz',activities:['yes-no'],wordIds:['eat','clean','drink','sleep'].map(x=>'pu-starter-u8-'+x)},teacher)).status,400);
+ await DB.sqlite.close();
+});
+
+test('homework finishes from correct answers in every assigned format; retries and revisions preserve SRS',async()=>{
+ const {api,DB}=await setup();const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Automatic completion'},teacher)).body;
+ const child=(await api('/teacher-students',{groupId:group.id,names:['Auto child']},teacher)).body.students[0];
+ const access=(await api('/student-link',{childId:child.id},teacher)).body.access;
+ const student=(await api('/student-login',{access})).body.token;
+ const wordIds=['eat','clean','drink','sleep','take-a-photo'].map(x=>'pu-starter-u8-l2-'+x);
+ const payload={groupId:group.id,unitId:'pu-starter-u8-lesson2',activities:['look-listen','picture-listen','sound-picture','yes-no'],wordIds};
+ const assignmentId=(await api('/assignments',payload,teacher)).body.id;
+ async function answer(activity,wordId,correct=true,correction=false){const r=await api('/progress',{childId:child.id,assignmentId,activity,wordId,correct,correction,eventId:crypto.randomUUID()},student);assert.equal(r.status,200);return r.body;}
+ await answer('picture-listen',wordIds[0],false);
+ const missed=(await api('/homework?child='+child.id,undefined,student)).body.progress[wordIds[0]];
+ await answer('picture-listen',wordIds[0],true,true);
+ assert.deepEqual((await api('/homework?child='+child.id,undefined,student)).body.progress[wordIds[0]],missed);
+ for(const w of wordIds.slice(1))await answer('picture-listen',w);
+ let hw=(await api('/homework?child='+child.id,undefined,student)).body;
+ assert.deepEqual(hw.completed.map(x=>x.activity),['picture-listen']);
+ for(const w of wordIds)await answer('sound-picture',w);
+ for(const w of wordIds.slice(0,-1))await answer('yes-no',w);
+ hw=(await api('/homework?child='+child.id,undefined,student)).body;assert.equal(hw.completed.length,2,'Every format and word is required independently');
+ const final=await answer('yes-no',wordIds.at(-1));assert.equal(final.completed.length,3,'Passive listening never needs a completion tick');
+ const rescan=(await api('/student-login',{access})).body.token;
+ assert.equal((await api('/homework?child='+child.id,undefined,rescan)).body.completed.length,3);
+ await api('/assignments',{...payload,id:assignmentId},teacher);
+ assert.equal((await api('/homework?child='+child.id,undefined,rescan)).body.completed.length,0);
+ await answer('picture-listen',wordIds[0]);
+ assert.equal((await api('/homework?child='+child.id,undefined,rescan)).body.completed.length,0,'Old answers do not complete revised homework');
  await DB.sqlite.close();
 });

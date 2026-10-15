@@ -11,16 +11,16 @@ import type { ReadingPassage } from '@/lib/classroom-types';
 type Stage = 'listen' | 'spell' | 'sentence' | 'read' | 'done';
 const stages = [{ id: 'listen', label: 'Listen 听' }, { id: 'spell', label: 'Spell 拼写' }, { id: 'sentence', label: 'Build 组句' }, { id: 'read', label: 'Read 朗读' }];
 type Props = {
-  vocabulary: Word[]; progress: Progress; readings: ReadingPassage[]; unitId?: string;
+  vocabulary: Word[]; progress: Progress; allCards?:boolean; readings: ReadingPassage[]; unitId?: string;
   onAnswer: (word: Word, correct: boolean, exercise: string) => Promise<void>;
   onRecording: (passage: ReadingPassage) => void;
   onSession: (durationSeconds: number, completed: boolean, answers: number, firstTry: number) => Promise<void>;
   onPlay?: () => void;
 };
 
-export default function GuidedLesson({ vocabulary, progress, readings, unitId, onAnswer, onRecording, onSession, onPlay }: Props) {
+export default function GuidedLesson({ vocabulary, progress, readings, unitId, allCards=false, onAnswer, onRecording, onSession, onPlay }: Props) {
   // Hold a session's selection steady while background syncing refreshes progress.
-  const [selected] = useState(() => lessonWords(vocabulary, progress, Date.now()));
+  const [selected] = useState(() => allCards?vocabulary:lessonWords(vocabulary, progress, Date.now()));
   const [sentences] = useState(() => selected.filter(w => sentenceTokens(w.sentence || w.en).length > 1).slice(0, 4));
   const [stage, setStage] = useState<Stage>('listen'), [round, setRound] = useState(0);
   const [choices, setChoices] = useState<Word[]>([]), [tokens, setTokens] = useState<string[]>([]), [used, setUsed] = useState<number[]>([]);

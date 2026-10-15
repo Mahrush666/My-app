@@ -1,3 +1,4 @@
+import {requiresAnswers} from '../lib/homework-completion';
 import {supportsActivity} from '../lib/activity-availability';
 import type {D1Database} from '@cloudflare/workers-types';
 import {lessons} from '../github-pages/lessons';
@@ -122,7 +123,7 @@ export async function handle(request:Request,env:Env){
  const due=text(data.dueDate,10);requireValue(!due||/^\d{4}-\d{2}-\d{2}$/.test(due),'Choose a valid due date.');
  const id=text(data.id,80)||crypto.randomUUID();if(data.id)requireValue(await env.DB.prepare('SELECT id FROM assignments WHERE id=? AND group_id=?').bind(id,groupId).first(),'Assignment not found.');
  // Editing an assignment keeps word reviews but resets its checklist for the revised work.
- await env.DB.batch([env.DB.prepare('DELETE FROM completions WHERE assignment_id=?').bind(id),env.DB.prepare('INSERT INTO assignments VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET unit_id=excluded.unit_id,title=excluded.title,activities=excluded.activities,word_ids=excluded.word_ids,due_date=excluded.due_date,updated_at=excluded.updated_at').bind(id,groupId,unit.id,text(data.title,120)||unit.title,JSON.stringify(activities),JSON.stringify(wordIds),due,now)]);return respond({id});
+ await env.DB.batch([env.DB.prepare('DELETE FROM completions WHERE assignment_id=?').bind(id),env.DB.prepare('INSERT INTO assignments VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET unit_id=excluded.unit_id,title=excluded.title,activities=excluded.activities,word_ids=excluded.word_ids,due_date=excluded.due_date,updated_at=excluded.updated_at').bind(id,groupId,unit.id,text(data.title,120)||unit.title,JSON.stringify(activities),JSON.stringify(wordIds),due,Math.max(now,Number((await env.DB.prepare('SELECT MAX(created_at) AS latest FROM attempts WHERE assignment_id=?').bind(id).first<{latest:number|null}>())?.latest||0)+1))]);return respond({id});
  }
  if(path==='/delete-assignment'&&request.method==='POST'){teacher();const id=text(data.id,80);await env.DB.batch([env.DB.prepare('DELETE FROM completions WHERE assignment_id=?').bind(id),env.DB.prepare('DELETE FROM attempts WHERE assignment_id=?').bind(id),env.DB.prepare('DELETE FROM assignments WHERE id=?').bind(id)]);return respond({saved:true})}
  if(path==='/family'&&request.method==='GET'){
@@ -143,20 +144,22 @@ export async function handle(request:Request,env:Env){
  }
  if(path==='/progress'&&request.method==='POST'){
  const child=await childAccess(data.childId);requireValue(child.approved,'Your teacher needs to approve this profile.');
- const assignment=await env.DB.prepare('SELECT * FROM assignments WHERE id=? AND group_id=?').bind(text(data.assignmentId,80),child.group_id).first<{id:string;activities:string;word_ids:string}>();requireValue(assignment,'This assignment is no longer available. Refresh your homework.');
+ const assignment=await env.DB.prepare('SELECT * FROM assignments WHERE id=? AND group_id=?').bind(text(data.assignmentId,80),child.group_id).first<{id:string;unit_id:string;activities:string;word_ids:string;updated_at:number}>();requireValue(assignment,'This assignment is no longer available. Refresh your homework.');
  const activities=JSON.parse(assignment!.activities) as string[];const activity=text(data.activity,40);requireValue(activities.includes(activity),'This activity is not assigned.');
- if(data.complete===true){
- // Completion is an explicit family checklist, not an automatic accuracy claim.
- await env.DB.prepare('INSERT INTO completions VALUES(?,?,?,?) ON CONFLICT(child_id,assignment_id,activity) DO UPDATE SET completed_at=excluded.completed_at').bind(child.id,assignment!.id,activity,now).run();return respond({saved:true});
- }
+ requireValue(data.complete!==true,'Homework finishes automatically after the required answers.');
  requireValue(typeof data.correct==='boolean','An answer result is required.');const wordId=text(data.wordId,100);requireValue(JSON.parse(assignment!.word_ids).includes(wordId),'This word is not assigned.');
+ const stage=text(data.stage,20);const attemptActivity=activity==='lesson'?activity+':'+stage:activity;
+ if(activity==='lesson')requireValue(['listen','spell','sentence'].includes(stage),'Unknown lesson exercise.');
+ const answerTime=Math.max(now,Number(assignment!.updated_at));
  const id=text(data.eventId,80);requireValue(/^[a-zA-Z0-9-]{16,80}$/.test(id),'An answer identifier is required.');
  // One atomic batch: an already acknowledged answer never changes the review schedule twice.
  const inserted=await env.DB.batch([
- env.DB.prepare('INSERT OR IGNORE INTO attempts VALUES(?,?,?,?,?,?,?)').bind(id,child.id,assignment!.id,activity,wordId,Number(data.correct),now),
- env.DB.prepare(`INSERT INTO reviews(child_id,word_id,step,due) SELECT ?,?, ?,? WHERE changes()=1 ON CONFLICT(child_id,word_id) DO UPDATE SET step=CASE WHEN ?=0 THEN 0 WHEN reviews.due>? THEN reviews.step ELSE MIN(reviews.step+1,4) END,due=CASE WHEN ?=0 THEN ? WHEN reviews.due>? THEN reviews.due ELSE ?+CASE MIN(reviews.step+1,4) WHEN 1 THEN 86400000 WHEN 2 THEN 259200000 WHEN 3 THEN 604800000 ELSE 1209600000 END END`).bind(child.id,wordId,data.correct?1:0,now+(data.correct?86400000:600000),Number(data.correct),now,Number(data.correct),now+600000,now,now)
+ env.DB.prepare('INSERT OR IGNORE INTO attempts VALUES(?,?,?,?,?,?,?)').bind(id,child.id,assignment!.id,attemptActivity,wordId,Number(data.correct),answerTime),
+ ...(data.correction===true?[]:[env.DB.prepare(`INSERT INTO reviews(child_id,word_id,step,due) SELECT ?,?, ?,? WHERE changes()=1 ON CONFLICT(child_id,word_id) DO UPDATE SET step=CASE WHEN ?=0 THEN 0 WHEN reviews.due>? THEN reviews.step ELSE MIN(reviews.step+1,4) END,due=CASE WHEN ?=0 THEN ? WHEN reviews.due>? THEN reviews.due ELSE ?+CASE MIN(reviews.step+1,4) WHEN 1 THEN 86400000 WHEN 2 THEN 259200000 WHEN 3 THEN 604800000 ELSE 1209600000 END END`).bind(child.id,wordId,data.correct?1:0,now+(data.correct?86400000:600000),Number(data.correct),now,Number(data.correct),now+600000,now,now)]),
+ ...(requiresAnswers(activity)?[env.DB.prepare(`INSERT OR IGNORE INTO completions(child_id,assignment_id,activity,completed_at) SELECT ?,?,?,? WHERE (SELECT COUNT(DISTINCT activity || word_id) FROM attempts WHERE child_id=? AND assignment_id=? AND correct=1 AND created_at>=? AND ${activity==='lesson'?"activity IN ('lesson:listen','lesson:spell','lesson:sentence')":'activity=?'} )>=?`).bind(child.id,assignment!.id,activity,answerTime,child.id,assignment!.id,assignment!.updated_at,...(activity==='lesson'?[]:[activity]),activity==='lesson'?JSON.parse(assignment!.word_ids).length*2+Math.min(4,lessons.find(l=>l.id===assignment!.unit_id)!.words.filter(w=>JSON.parse(assignment!.word_ids).includes(w.id)&&w.sentence.trim().split(/\s+/).length>1).length):JSON.parse(assignment!.word_ids).length)]:[])
  ]);
- return respond({saved:true,duplicate:inserted[0].meta.changes===0});
+ const completed=await env.DB.prepare('SELECT assignment_id,activity FROM completions WHERE child_id=?').bind(child.id).all();
+ return respond({saved:true,duplicate:inserted[0].meta.changes===0,completed:completed.results});
  }
  throw new Failure('Page not found.',404);
  }catch(error){if(error instanceof Failure)return respond({error:error.message},error.status);return respond({error:'Could not save or load the classroom. Please try again.'},503)}

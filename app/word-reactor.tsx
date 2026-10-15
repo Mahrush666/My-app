@@ -17,7 +17,7 @@ const snapshot = (g: State) => ({ time: Math.floor(g.time), hp: g.hp, score: g.s
 const controls = ['ArrowLeft', 'ArrowUp', 'ArrowDown', 'ArrowRight'];
 const ART = publicAsset('game-art/lantern-street/');
 type GameArt = { street: HTMLImageElement; archer: HTMLImageElement; jiangshi: HTMLImageElement };
-export default function WordReactor({ vocabulary, progress, onAnswer, onExit }: { vocabulary: Word[]; progress: Progress; onAnswer?: (word: Word, correct: boolean, mode: string) => void; onExit?: () => void }) {
+export default function WordReactor({ vocabulary, progress, onAnswer, onExit, allCards=false }: { vocabulary: Word[]; progress: Progress; allCards?:boolean; onAnswer?: (word: Word, correct: boolean, mode: string) => void; onExit?: () => void }) {
   const surface = useRef<HTMLElement>(null), arena = useRef<HTMLDivElement>(null), world = useRef({ width:600, height:440 });
   const [expanded,setExpanded] = useState(false);
   const canvas = useRef<HTMLCanvasElement>(null), game = useRef(fresh()), statusRef = useRef<Status>('ready'), keys = useRef(new Set<string>()), target = useRef<{ x: number; y: number } | null>(null);
@@ -69,7 +69,7 @@ export default function WordReactor({ vocabulary, progress, onAnswer, onExit }: 
     game.current = g; facing.current = 1; setCorrectWords(0); setUpgrades({ spark: 0, shield: 0, speed: 0 }); remaining.current = []; currentQuestion.current = null; setQuestion(null); setHint(''); change('playing');
   }
   function ask() {
-    if (!remaining.current.length) remaining.current = lessonWords(vocabulary, progressRef.current, Date.now(), Math.min(6, vocabulary.length));
+    if (!remaining.current.length) remaining.current = allCards?shuffle(vocabulary):lessonWords(vocabulary, progressRef.current, Date.now(), Math.min(6, vocabulary.length));
     const word = remaining.current.shift(); if (!word) return;
     currentQuestion.current = word; setQuestion(word); setOptions(shuffle([word, ...shuffle(vocabulary.filter(w => w.en !== word.en)).slice(0, 3)])); setHint(''); change('quiz');
   }

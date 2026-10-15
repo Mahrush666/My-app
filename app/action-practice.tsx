@@ -7,8 +7,8 @@ import {playAnswerSound} from '@/lib/audio';
 import {reviewCards} from '@/lib/review-schedule';
 import {shuffle} from '@/lib/random';
 type Mode='look-listen'|'sound-picture'|'yes-no';
-export default function ActionPractice({mode,vocabulary,progress,onAnswer}:{mode:Mode;vocabulary:Word[];progress:Progress;onAnswer:(word:Word,correct:boolean,mode:string)=>Promise<void>}){
- const [queue,setQueue]=useState(()=>mode==='look-listen'?vocabulary:reviewCards(vocabulary,progress,Date.now()));
+export default function ActionPractice({mode,vocabulary,progress,allCards=false,onAnswer}:{mode:Mode;vocabulary:Word[];progress:Progress;allCards?:boolean;onAnswer:(word:Word,correct:boolean,mode:string,correction?:boolean)=>Promise<void>}){
+ const [queue,setQueue]=useState(()=>mode==='look-listen'||allCards?vocabulary:reviewCards(vocabulary,progress,Date.now()));
  const [round,setRound]=useState(0),[selected,setSelected]=useState(-1),[result,setResult]=useState<boolean|null>(null),[message,setMessage]=useState(''),[saving,setSaving]=useState(false);
  const marked=useRef(false),busy=useRef(false),alive=useRef(true),truths=useRef(shuffle(vocabulary.map((_,i)=>i%2===0)));
  const word=queue[round];
@@ -18,7 +18,7 @@ export default function ActionPractice({mode,vocabulary,progress,onAnswer}:{mode
  const question=word?.action?`Is ${word.action.subject} ${(truth?word:other)?.action?.ing}?`:'';
  useEffect(()=>{marked.current=false;setSelected(-1);setResult(null);setMessage('');stopSpeaking()},[word]);
  useEffect(()=>{alive.current=true;return()=>{alive.current=false;stopSpeaking()}},[]);
- async function mark(correct:boolean){if(busy.current||result===true||!word)return;playAnswerSound(correct);setResult(correct);setMessage(correct?'⭐ Well done! 答对了！':'💛 Listen and try again. 听一听，再试试。');if(marked.current)return;busy.current=true;setSaving(true);marked.current=true;try{await onAnswer(word,correct,mode)}catch{marked.current=false;if(alive.current){setResult(null);setMessage('Could not save. Please try again. 暂时无法保存，请重试。')}}finally{busy.current=false;if(alive.current)setSaving(false)}}
+ async function mark(correct:boolean){if(busy.current||result===true||!word)return;playAnswerSound(correct);setResult(correct);setMessage(correct?'⭐ Well done! 答对了！':'💛 Listen and try again. 听一听，再试试。');if(marked.current&&!correct)return;busy.current=true;setSaving(true);const correction=marked.current;try{await onAnswer(word,correct,mode,correction);marked.current=true;}catch{marked.current=false;if(alive.current){setResult(null);setMessage('Could not save. Please try again. 暂时无法保存，请重试。')}}finally{busy.current=false;if(alive.current)setSaving(false)}}
  function restart(all:boolean){stopSpeaking();setQueue(all?vocabulary:reviewCards(vocabulary,progress,Date.now()));setRound(0);setSelected(-1);setResult(null);setMessage('');marked.current=false;}
  if(!word)return <section className="empty"><h2>{mode==='look-listen'?'⭐ Great listening! 听得真棒！':'⭐ Review complete! 复习完成！'}</h2><p>{mode==='look-listen'?'Listen again whenever you like. 随时可以再听一遍。':'Remembered cards return when they are due. You can also practise again. 记住的卡片会稍后再次出现，也可以继续练习。'}</p>{mode!=='look-listen'&&<button onClick={()=>restart(false)}>Check due cards 查看待复习卡片</button>}<button onClick={()=>restart(true)}>Practise all cards 再练习</button></section>;
  const picture=<div className="picture-prompt"><img src={publicAsset(word.picture!)} alt="" decoding="async"/></div>;

@@ -119,3 +119,11 @@
 .yes-no-choices button+button{border-color:#f0cecb;background:#fff3ef}
 .yes-no-choices span{font-size:18px}.action-listen{display:flex;align-items:center;justify-content:center;gap:10px;width:100%}
 .action-practice .picture-prompt{height:clamp(150px,38vw,280px);margin:12px auto}.action-practice .feedback{min-height:24px;margin:10px 0}
+
+/* Keep student homework focused on the next lesson. */
+.classroom-options{margin:0 0 .75rem auto;width:fit-content;color:#606585;font-size:14px}
+.classroom-options summary{cursor:pointer;padding:.5rem;min-height:44px;display:list-item;box-sizing:border-box}
+.classroom-options .teacher-presets{justify-content:flex-end;margin:.5rem 0}
+.classroom .homework-card h3{margin:0 0 1rem;font-size:clamp(19px,4.8vw,25px);line-height:1.35}
+.classroom .homework-card{padding:1rem;margin:.75rem 0}
+.classroom .homework-card .primary{min-height:48px}

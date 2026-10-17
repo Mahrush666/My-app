@@ -1,3 +1,5 @@
+import {MoreHorizontal} from 'lucide-react';
+import {DropdownMenu,DropdownMenuTrigger,DropdownMenuContent,DropdownMenuItem,DropdownMenuSeparator} from '../components/ui/dropdown-menu';
 import {homeworkFinished} from '../lib/homework-completion';
 import {supportsActivity} from '../lib/activity-availability';
 import {useEffect,useState,useMemo,useRef} from 'react';
@@ -18,8 +20,20 @@ const blank:TeacherState={groups:[],children:[],assignments:[],reports:[]};
 const title=(activity:string)=>activityOptions.find(a=>a[0]===activity)?.[2]||activity;
 function StudentRow({child,groups,busy,onSave,onApprove,onInvite,onRevoke}:{child:Child;groups:Group[];busy:boolean;onSave:(name:string,groupId:string)=>void;onApprove:()=>void;onInvite:()=>void;onRevoke:()=>void}){
  const [name,setName]=useState(child.name),[group,setGroup]=useState(child.group_id);
+ const form=useRef<HTMLFormElement>(null);
  useEffect(()=>{setName(child.name);setGroup(child.group_id)},[child.name,child.group_id]);
- return <form className="classroom-row" onSubmit={e=>{e.preventDefault();onSave(name,group)}}><div><label>Student name 学生姓名<input required maxLength={60} value={name} onChange={e=>setName(e.target.value)}/></label><p>{child.username?'Parent: '+child.username:'Parent not linked 尚未关联家长'} · {child.approved?'Approved 已加入':'Awaiting approval 待审核'}</p></div><div><label>Class 班级<select value={group} onChange={e=>setGroup(e.target.value)}>{groups.map(g=><option key={g.id} value={g.id}>{g.name}</option>)}</select></label></div><button disabled={busy||!name.trim()||(name===child.name&&group===child.group_id)}>Save student 保存</button><button type="button" disabled={busy} onClick={onApprove}>{child.approved?'Suspend access':'Approve 加入班级'}</button><button type="button" disabled={busy} onClick={onInvite}>Homework QR 作业二维码</button><button type="button" disabled={busy} onClick={onRevoke}>Disable homework QR 停用二维码</button></form>
+ return <form ref={form} className="classroom-row student-row" onSubmit={e=>{e.preventDefault();if(!busy&&name.trim())onSave(name,group)}}>
+ <div className="student-name"><label>Student name 学生姓名<input required maxLength={60} value={name} onChange={e=>setName(e.target.value)}/></label><p>{child.username?'Parent: '+child.username:'Parent not linked 尚未关联家长'} · {child.approved?'Approved 已加入':'Awaiting approval 待审核'}</p></div>
+ <div className="student-class"><label>Class 班级<select value={group} onChange={e=>setGroup(e.target.value)}>{groups.map(g=><option key={g.id} value={g.id}>{g.name}</option>)}</select></label></div>
+ <DropdownMenu><DropdownMenuTrigger asChild><button type="button" className="student-menu-trigger" disabled={busy} aria-label={'Actions for '+child.name+' 学生操作'}><MoreHorizontal size={22}/></button></DropdownMenuTrigger>
+ <DropdownMenuContent align="end" sideOffset={6} className="student-actions-menu">
+ <DropdownMenuItem disabled={busy||!name.trim()||(name===child.name&&group===child.group_id)} onSelect={()=>form.current?.requestSubmit()}>Save student 保存</DropdownMenuItem>
+ <DropdownMenuItem disabled={busy} onSelect={onInvite}>Homework QR 作业二维码</DropdownMenuItem>
+ <DropdownMenuSeparator/>
+ <DropdownMenuItem disabled={busy} onSelect={onApprove}>{child.approved?'Suspend access 暂停访问':'Approve 加入班级'}</DropdownMenuItem>
+ <DropdownMenuItem disabled={busy} variant="destructive" onSelect={onRevoke}>Disable homework QR 停用二维码</DropdownMenuItem>
+ </DropdownMenuContent></DropdownMenu>
+ </form>
 }
 export default function Classroom({onExit}:{onExit:()=>void}){
  const [access]=useState(()=>studentAccess(new URL(location.href)));

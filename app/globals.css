@@ -127,3 +127,15 @@
 .classroom .homework-card h3{margin:0 0 1rem;font-size:clamp(19px,4.8vw,25px);line-height:1.35}
 .classroom .homework-card{padding:1rem;margin:.75rem 0}
 .classroom .homework-card .primary{min-height:48px}
+
+/* Compact student rows with actions in an accessible overflow menu. */
+.classroom form.student-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) 44px;align-items:start;gap:12px;margin:0;padding:14px 0}
+.classroom .student-row>div{min-width:0}
+.classroom .student-row label{margin:0;gap:6px;font-size:14px}
+.classroom .student-name p{font-size:12px;line-height:1.5;margin:6px 0 0;color:#606585}
+.classroom .student-menu-trigger{display:flex;align-items:center;justify-content:center;width:44px;height:44px;min-height:44px;padding:0;margin-top:27px;border-radius:12px;box-shadow:none}
+.student-actions-menu{width:270px;max-width:calc(100vw - 24px);padding:6px;border-radius:14px;background:#fff;color:#242442;border:1px solid #dedeea;box-shadow:0 8px 28px #24244220;z-index:1100}
+.student-actions-menu [role=menuitem]{min-height:44px;line-height:1.4;padding:10px 12px;cursor:pointer;font-size:14px;border-radius:8px}
+.student-actions-menu [data-highlighted]{background:#efedff}
+.student-actions-menu [data-disabled]{opacity:.45;cursor:default}
+@media(max-width:560px){.classroom form.student-row{grid-template-columns:minmax(0,1fr) 44px;gap:8px 10px}.student-name{grid-column:1;grid-row:1}.student-class{grid-column:1;grid-row:2}.student-menu-trigger{grid-column:2;grid-row:1}}

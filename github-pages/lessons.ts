@@ -1,3 +1,4 @@
+import {powerUp1Unit9Vocabulary} from './pu1-u9-vocabulary1';
 import {powerUp1Unit9Reading} from './pu1-u9-reading';
 import type {IllustratedReading} from '../lib/illustrated-reading';
 import {powerUp1Unit7Vocabulary} from './pu1-u7-vocabulary1';
@@ -31,6 +32,7 @@ const actionWords: Word[] = [
 ].map(([en,zh,icon])=>({id:'pu-starter-u7-'+en,en,zh,icon,picture:'lessons/pu-starter-u7-lesson1/'+en+'.webp',category:'Free time',sentence:'I can '+en+'.'}));
 export const lessons: Lesson[] = ([
  powerUp1Unit7Vocabulary,
+ powerUp1Unit9Vocabulary,
  powerUp1Unit9Reading,
  unit8Lesson1,
  unit8Lesson2,

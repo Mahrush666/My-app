@@ -59,7 +59,7 @@ const entries: [string,string,string][] = [
 ];
 export const powerUp1Unit9Reading:Lesson={
  id:'pu1-u9-reading',book:'Power Up 1',title:'Unit 9 · Reading · The Monkey and the Shark',
- unit:{id:'pu1-u9',number:9,title:'Unit 9'},lessonTitle:'Reading · The Monkey and the Shark',
+ unit:{id:'pu1-u9',number:9,title:'Unit 9 · Happy holidays'},lessonTitle:'Reading · The Monkey and the Shark',
  defaultAge:'6–12',defaultActivities:['word-choice','reading','story-quiz','story-order'],
  words:entries.map(([en,zh,sentence],i)=>({id:'pu1-u9-word-'+(i+1),en,zh,sentence,icon:'🐒',category:'The Monkey and the Shark',picture:'lessons/pu1-u9-reading/word-'+(i+1)+'.webp'})),
  readingStory,

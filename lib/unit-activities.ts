@@ -9,6 +9,8 @@ const definedActivityOptions = [
  ['lesson','✨','Guided lesson','Listening, spelling, sentences and reading.'],
  ['cards','📚','Flashcards · Read & recall','Ages 6–12. Read the word and review with spaced repetition.'],
  ['word-choice','🔤','Flashcards · Choose the written word','Ages 6–12. Match a picture or sound to a written word.'],
+ ['story-quiz','❓','Story · Questions','Choose answers about the illustrated story.'],
+ ['story-order','🖼️','Story · Picture order','Put the story pictures in order.'],
  ['reading','📖','Read & listen','Read illustrated paragraphs and listen to the story.'],
  ['reactor','🏹','Word Reactor','Action game with written word questions.'],
  ['match','🧩','Word Match','Match English and Chinese words.'],

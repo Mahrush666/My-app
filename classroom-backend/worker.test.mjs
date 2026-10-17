@@ -173,3 +173,32 @@ test('homework finishes from correct answers in every assigned format; retries a
  assert.equal((await api('/homework?child='+child.id,undefined,rescan)).body.completed.length,0,'Old answers do not complete revised homework');
  await DB.sqlite.close();
 });
+
+test('Unit 9 story answers are checked on server, finish all questions and orders, and never change word reviews',async()=>{
+ const {api,DB}=await setup();
+ const story=JSON.parse((await import('node:fs')).readFileSync(new URL('../lib/monkey-shark-reading.json',import.meta.url),'utf8'));
+ const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Unit 9 Readers'},teacher)).body;
+ const parent=(await api('/register',{username:'story_family',password:'parent-password',consent:true})).body.token;
+ const kid=(await api('/children',{name:'Story reader',invite:group.invite},parent)).body.id;
+ await api('/approve',{childId:kid,approved:true},teacher);
+ const assignment={groupId:group.id,unitId:'pu1-u9-reading',activities:['reading','story-quiz','story-order'],wordIds:[],title:'Monkey story'};
+ const saved=await api('/assignments',assignment,teacher);assert.equal(saved.status,200);
+ const assignmentId=saved.body.id;
+ const event={childId:kid,assignmentId,activity:'story-quiz',wordId:'question-1',answer:'1',correct:true,eventId:crypto.randomUUID()};
+ const wrong=await api('/progress',event,parent);assert.equal(wrong.status,200);assert.equal(wrong.body.correct,false,'Ignores forged correct flag');assert.deepEqual(wrong.body.completed,[]);
+ assert.equal((await api('/progress',{...event,eventId:crypto.randomUUID(),wordId:'made-up'},parent)).status,400);
+ assert.equal((await api('/progress',{...event,eventId:crypto.randomUUID(),answer:'99'},parent)).status,400);
+ for(const q of story.questions){const answer={...event,wordId:q.id,answer:String(q.answer),eventId:crypto.randomUUID()};assert.equal((await api('/progress',answer,parent)).body.correct,true);assert.equal((await api('/progress',answer,parent)).body.duplicate,true);}
+ let hw=(await api('/homework?child='+kid,undefined,parent)).body;assert.deepEqual(hw.progress,{});assert.equal(hw.completed.length,1);assert.equal(hw.completed[0].activity,'story-quiz');
+ const ordering={...event,activity:'story-order',wordId:'order-1',eventId:crypto.randomUUID()};
+ assert.equal((await api('/progress',{...ordering,answer:'scene-2,scene-2,scene-2'},parent)).status,400);
+ assert.equal((await api('/progress',{...ordering,answer:'scene-4,scene-3,scene-2'},parent)).body.correct,false);
+ for(const r of story.orders)assert.equal((await api('/progress',{...ordering,wordId:r.id,answer:r.scenes.join(','),eventId:crypto.randomUUID()},parent)).body.correct,true);
+ hw=(await api('/homework?child='+kid,undefined,parent)).body;assert.equal(hw.completed.length,2);assert.deepEqual(hw.progress,{});
+ await api('/assignments',{...assignment,id:assignmentId},teacher);
+ hw=(await api('/homework?child='+kid,undefined,parent)).body;assert.deepEqual(hw.completed,[]);
+ await api('/progress',{...event,answer:'0',eventId:crypto.randomUUID()},parent);
+ assert.equal((await api('/homework?child='+kid,undefined,parent)).body.completed.length,0,'Old answers do not finish edited homework');
+ await DB.sqlite.close();
+});

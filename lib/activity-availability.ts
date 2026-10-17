@@ -1,6 +1,8 @@
 import type {ActivityId} from './unit-activities';
 import type {Lesson} from '../github-pages/lessons';
-export function supportsActivity(activity:ActivityId,lesson:Pick<Lesson,'words'|'videos'|'story'|'readings'>){
+export function supportsActivity(activity:ActivityId,lesson:Pick<Lesson,'words'|'videos'|'story'|'readings'|'readingStory'>){
+ if(activity==='story-quiz')return Boolean(lesson.readingStory?.questions.length);
+ if(activity==='story-order')return Boolean(lesson.readingStory?.orders.length);
  if(activity==='video')return Boolean(lesson.videos?.length);
  if(activity==='story')return Boolean(lesson.story);
  if(activity==='reading')return lesson.readings.length>0;

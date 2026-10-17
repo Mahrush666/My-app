@@ -1,0 +1,261 @@
+{
+  "title": "The Monkey and the Shark",
+  "scenes": [
+    {
+      "id": "scene-1",
+      "image": "lessons/pu1-u9-reading/scene-1.webp",
+      "label": "A tree by the sea",
+      "full": [
+        "In Africa there is a big coconut tree.",
+        "It is next to the sea and a town."
+      ],
+      "easy": [
+        "There is a big coconut tree.",
+        "It is next to the sea."
+      ]
+    },
+    {
+      "id": "scene-2",
+      "image": "lessons/pu1-u9-reading/scene-2.webp",
+      "label": "Sharing coconuts",
+      "full": [
+        "Every day a monkey goes and eats its delicious coconuts.",
+        "Every day he gives some to a shark."
+      ],
+      "easy": [
+        "The monkey eats coconuts every day.",
+        "He gives coconuts to the shark."
+      ]
+    },
+    {
+      "id": "scene-3",
+      "image": "lessons/pu1-u9-reading/scene-3.webp",
+      "label": "An invitation",
+      "full": [
+        "One day, the shark says, \"You are very nice to me.\"",
+        "\"I would like to invite you to my house.\""
+      ],
+      "easy": [
+        "The shark says, \"You are very nice to me.\"",
+        "\"Come to my house!\""
+      ]
+    },
+    {
+      "id": "scene-4",
+      "image": "lessons/pu1-u9-reading/scene-4.webp",
+      "label": "A ride on the shark",
+      "full": [
+        "\"But I don't go in the sea,\" says the monkey.",
+        "\"No problem,\" says the shark.",
+        "\"Jump on my back!\"",
+        "The shark swims away with the monkey."
+      ],
+      "easy": [
+        "The monkey gets on the shark's back.",
+        "They swim away."
+      ]
+    },
+    {
+      "id": "scene-5",
+      "image": "lessons/pu1-u9-reading/scene-5.webp",
+      "label": "The ill king",
+      "full": [
+        "\"At home our king is very ill,\" the shark says.",
+        "\"He needs a monkey's heart to make him well!\""
+      ],
+      "easy": [
+        "The king is very ill.",
+        "He wants the monkey's heart."
+      ]
+    },
+    {
+      "id": "scene-6",
+      "image": "lessons/pu1-u9-reading/scene-6.webp",
+      "label": "A clever idea",
+      "full": [
+        "The monkey thinks for a moment.",
+        "\"Oh, no!\" he says.",
+        "\"I haven't got my heart with me.\"",
+        "\"When I go out I put my heart in the tree.\""
+      ],
+      "easy": [
+        "The monkey has an idea.",
+        "He says, \"My heart is in the tree.\""
+      ]
+    },
+    {
+      "id": "scene-7",
+      "image": "lessons/pu1-u9-reading/scene-7.webp",
+      "label": "Going back",
+      "full": [
+        "\"No problem,\" says the shark.",
+        "\"Let's go back and get it!\""
+      ],
+      "easy": [
+        "The shark says, \"Let's go back!\""
+      ]
+    },
+    {
+      "id": "scene-8",
+      "image": "lessons/pu1-u9-reading/scene-8.webp",
+      "label": "Jumping to safety",
+      "full": [
+        "They go back to the tree and the monkey jumps off the shark's back.",
+        "\"Wait here,\" says the monkey."
+      ],
+      "easy": [
+        "They go back to the tree.",
+        "The monkey jumps off.",
+        "He says, \"Wait here!\""
+      ]
+    },
+    {
+      "id": "scene-9",
+      "image": "lessons/pu1-u9-reading/scene-9.webp",
+      "label": "The shark waits",
+      "full": [
+        "The shark waits and waits, and waits and waits.",
+        "\"What are you doing?\" the shark shouts.",
+        "\"Let's go!\""
+      ],
+      "easy": [
+        "The shark waits.",
+        "He says, \"Let's go!\""
+      ]
+    },
+    {
+      "id": "scene-10",
+      "image": "lessons/pu1-u9-reading/scene-10.webp",
+      "label": "The monkey escapes",
+      "full": [
+        "\"No way!\" the monkey shouts back.",
+        "\"You're not tricking me again!\"",
+        "\"I need my heart!\"",
+        "And he runs away laughing."
+      ],
+      "easy": [
+        "The monkey says, \"No! I need my heart!\"",
+        "He runs away.",
+        "The monkey is safe."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "question-1",
+      "scene": "scene-1",
+      "text": "Where is the coconut tree?",
+      "options": [
+        "Next to the sea.",
+        "In a classroom.",
+        "On a mountain."
+      ],
+      "answer": 0,
+      "explanation": "The tree is next to the sea and a town."
+    },
+    {
+      "id": "question-2",
+      "scene": "scene-2",
+      "text": "What does the monkey give the shark?",
+      "options": [
+        "Bananas.",
+        "Coconuts.",
+        "Fish."
+      ],
+      "answer": 1,
+      "explanation": "The monkey shares his delicious coconuts every day."
+    },
+    {
+      "id": "question-3",
+      "scene": "scene-3",
+      "text": "Who invites the monkey to his house?",
+      "options": [
+        "The king.",
+        "The monkey.",
+        "The shark."
+      ],
+      "answer": 2,
+      "explanation": "The shark invites the monkey to his house."
+    },
+    {
+      "id": "question-4",
+      "scene": "scene-4",
+      "text": "How does the monkey travel in the sea?",
+      "options": [
+        "On the shark's back.",
+        "In a boat.",
+        "On a bicycle."
+      ],
+      "answer": 0,
+      "explanation": "The monkey rides on the shark's back."
+    },
+    {
+      "id": "question-5",
+      "scene": "scene-5",
+      "text": "Why does the king want a heart?",
+      "options": [
+        "To eat coconuts.",
+        "To make him well.",
+        "To play a game."
+      ],
+      "answer": 1,
+      "explanation": "The king is ill. The shark says a monkey's heart can make him well."
+    },
+    {
+      "id": "question-6",
+      "scene": "scene-6",
+      "text": "Is the monkey's heart really in the tree?",
+      "options": [
+        "Yes, he left it there.",
+        "Yes, the shark put it there.",
+        "No, it is a clever trick."
+      ],
+      "answer": 2,
+      "explanation": "His heart is inside his body. He says it is in the tree so he can escape."
+    },
+    {
+      "id": "question-7",
+      "scene": "scene-8",
+      "text": "Why does the monkey say \"Wait here\"?",
+      "options": [
+        "He wants to escape.",
+        "He wants to swim again.",
+        "He wants to visit the king."
+      ],
+      "answer": 0,
+      "explanation": "The monkey wants to stay safe in the tree."
+    },
+    {
+      "id": "question-8",
+      "scene": "scene-10",
+      "text": "Are they still friends at the end?",
+      "options": [
+        "Yes, they play together.",
+        "No, the monkey runs away.",
+        "Yes, they visit the king."
+      ],
+      "answer": 1,
+      "explanation": "The shark tried to trick the monkey, so the monkey runs away."
+    }
+  ],
+  "orders": [
+    {
+      "id": "order-1",
+      "title": "The journey",
+      "scenes": [
+        "scene-2",
+        "scene-3",
+        "scene-4"
+      ]
+    },
+    {
+      "id": "order-2",
+      "title": "The escape",
+      "scenes": [
+        "scene-6",
+        "scene-8",
+        "scene-10"
+      ]
+    }
+  ]
+}

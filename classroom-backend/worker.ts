@@ -1,3 +1,4 @@
+import {checkStoryAnswer} from '../lib/illustrated-reading';
 import {requiresAnswers} from '../lib/homework-completion';
 import {supportsActivity} from '../lib/activity-availability';
 import type {D1Database} from '@cloudflare/workers-types';
@@ -119,7 +120,7 @@ export async function handle(request:Request,env:Env){
  requireValue(activities.length&&activities.every(a=>available(unit).includes(a as Exclude<ActivityId,'picture-speak'>)),'Choose supported activities.');
  const wordIds=Array.isArray(data.wordIds)?[...new Set(data.wordIds)]:unit.words.map(w=>w.id);
  requireValue(wordIds.every(id=>unit.words.some(w=>w.id===id)),'Choose words from this lesson.');
- if(activities.some(a=>!['video','story','reading'].includes(String(a))))requireValue(wordIds.length>=4,'Choose at least four words for vocabulary activities.');
+ if(activities.some(a=>!['video','story','reading','story-quiz','story-order'].includes(String(a))))requireValue(wordIds.length>=4,'Choose at least four words for vocabulary activities.');
  const due=text(data.dueDate,10);requireValue(!due||/^\d{4}-\d{2}-\d{2}$/.test(due),'Choose a valid due date.');
  const id=text(data.id,80)||crypto.randomUUID();if(data.id)requireValue(await env.DB.prepare('SELECT id FROM assignments WHERE id=? AND group_id=?').bind(id,groupId).first(),'Assignment not found.');
  // Editing an assignment keeps word reviews but resets its checklist for the revised work.
@@ -147,6 +148,21 @@ export async function handle(request:Request,env:Env){
  const assignment=await env.DB.prepare('SELECT * FROM assignments WHERE id=? AND group_id=?').bind(text(data.assignmentId,80),child.group_id).first<{id:string;unit_id:string;activities:string;word_ids:string;updated_at:number}>();requireValue(assignment,'This assignment is no longer available. Refresh your homework.');
  const activities=JSON.parse(assignment!.activities) as string[];const activity=text(data.activity,40);requireValue(activities.includes(activity),'This activity is not assigned.');
  requireValue(data.complete!==true,'Homework finishes automatically after the required answers.');
+ if(activity==='story-quiz'||activity==='story-order'){
+ const story=lessons.find(l=>l.id===assignment!.unit_id)?.readingStory;requireValue(story,'This story is unavailable.');
+ const itemId=text(data.wordId,100),answer=text(data.answer,300);
+ const correct=checkStoryAnswer(story!,activity,itemId,answer);requireValue(correct!==null,'Choose a valid story answer.');
+ const id=text(data.eventId,80);requireValue(/^[a-zA-Z0-9-]{16,80}$/.test(id),'An answer identifier is required.');
+ const answerTime=Math.max(now,Number(assignment!.updated_at));
+ const required=activity==='story-quiz'?story!.questions.length:story!.orders.length;
+ // Story comprehension has its own completion requirements and never changes word SRS.
+ const inserted=await env.DB.batch([
+ env.DB.prepare('INSERT OR IGNORE INTO attempts VALUES(?,?,?,?,?,?,?)').bind(id,child.id,assignment!.id,activity,itemId,Number(correct),answerTime),
+ env.DB.prepare(`INSERT OR IGNORE INTO completions(child_id,assignment_id,activity,completed_at) SELECT ?,?,?,? WHERE (SELECT COUNT(DISTINCT word_id) FROM attempts WHERE child_id=? AND assignment_id=? AND correct=1 AND created_at>=? AND activity=?)>=?`).bind(child.id,assignment!.id,activity,answerTime,child.id,assignment!.id,assignment!.updated_at,activity,required)
+ ]);
+ const completed=await env.DB.prepare('SELECT assignment_id,activity FROM completions WHERE child_id=?').bind(child.id).all();
+ return respond({saved:true,correct,duplicate:inserted[0].meta.changes===0,completed:completed.results});
+ }
  requireValue(typeof data.correct==='boolean','An answer result is required.');const wordId=text(data.wordId,100);requireValue(JSON.parse(assignment!.word_ids).includes(wordId),'This word is not assigned.');
  const stage=text(data.stage,20);const attemptActivity=activity==='lesson'?activity+':'+stage:activity;
  if(activity==='lesson')requireValue(['listen','spell','sentence'].includes(stage),'Unknown lesson exercise.');

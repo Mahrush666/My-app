@@ -1,3 +1,5 @@
+import {powerUp1Unit9Reading} from './pu1-u9-reading';
+import type {IllustratedReading} from '../lib/illustrated-reading';
 import {powerUp1Unit7Vocabulary} from './pu1-u7-vocabulary1';
 import {unit8Lesson2} from './pu-starter-u8-lesson2';
 import {unit8Lesson1} from './pu-starter-u8-lesson1';
@@ -10,7 +12,7 @@ import { words, type Word } from '../app/words';
 import { passages } from '../app/passages';
 import { illustrations } from '../lib/story-illustrations';
 import type { ReadingPassage } from '../lib/classroom-types';
-export type Lesson = { id: string; book: string; title: string; unit?:{id:string;number:number;title:string}; lessonTitle?:string; words: Word[]; readings: ReadingPassage[]; story?:PictureStory; videos?:LessonVideo[]; defaultAge?:string; defaultActivities?:ActivityId[] };
+export type Lesson = { id: string; book: string; title: string; unit?:{id:string;number:number;title:string}; lessonTitle?:string; words: Word[]; readings: ReadingPassage[]; story?:PictureStory; readingStory?:IllustratedReading; videos?:LessonVideo[]; defaultAge?:string; defaultActivities?:ActivityId[] };
 const vocabulary = [
  ['delicious coconuts','美味的椰子','🥥','These are delicious coconuts.'],
  ['every day','每天','📅','I read every day.'],
@@ -29,6 +31,7 @@ const actionWords: Word[] = [
 ].map(([en,zh,icon])=>({id:'pu-starter-u7-'+en,en,zh,icon,picture:'lessons/pu-starter-u7-lesson1/'+en+'.webp',category:'Free time',sentence:'I can '+en+'.'}));
 export const lessons: Lesson[] = ([
  powerUp1Unit7Vocabulary,
+ powerUp1Unit9Reading,
  unit8Lesson1,
  unit8Lesson2,
  {id:'pu-starter-u7-lesson1',book:'Power up Starter',title:'Unit 7 · Lesson 1 · Free time',unit:{id:'pu-starter-u7',number:7,title:'Unit 7 · Free time'},lessonTitle:'Lesson 1 · Actions',words:actionWords,readings:[],videos:[{title:'Action chant',src:'lessons/pu-starter-u7-lesson1/action-chant.mp4',poster:'lessons/pu-starter-u7-lesson1/jump.webp'}],defaultActivities:['video','picture-listen']},

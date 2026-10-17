@@ -1,0 +1,246 @@
+{
+  "title": "Tidy up the barn",
+  "scenes": [
+    {
+      "id": "scene-1",
+      "image": "lessons/pu1-u9-story/scene-1.webp",
+      "label": "Oranges and hats",
+      "full": [
+        "Gracie: \"I've got four oranges here. Nice!\"",
+        "Shelly: \"Do you like the green hat or the red one?\"",
+        "Henrietta: \"Shelly! That's Grandpa's new hat!\""
+      ],
+      "easy": [
+        "Gracie has four oranges.",
+        "Shelly is wearing Grandpa's hat."
+      ]
+    },
+    {
+      "id": "scene-2",
+      "image": "lessons/pu1-u9-story/scene-2.webp",
+      "label": "Jim and Jenny are coming",
+      "full": [
+        "Jim: \"Let's go and play in the barn.\"",
+        "Cameron: \"It's Jim and Jenny.\""
+      ],
+      "easy": [
+        "Jim and Jenny are coming.",
+        "They want to play in the barn."
+      ]
+    },
+    {
+      "id": "scene-3",
+      "image": "lessons/pu1-u9-story/scene-3.webp",
+      "label": "Pick up the clothes",
+      "full": [
+        "\"Gracie! Eat your oranges, now!\"",
+        "\"OK.\"",
+        "\"Shelly! Come here and pick up these clothes, please!\""
+      ],
+      "easy": [
+        "Gracie eats the oranges.",
+        "Shelly picks up the clothes."
+      ]
+    },
+    {
+      "id": "scene-4",
+      "image": "lessons/pu1-u9-story/scene-4.webp",
+      "label": "Clean the table",
+      "full": [
+        "\"Now clean the table, Gracie. It's dirty.\"",
+        "\"And clean your face, please!\""
+      ],
+      "easy": [
+        "The table is dirty.",
+        "Gracie must clean the table and her face."
+      ]
+    },
+    {
+      "id": "scene-5",
+      "image": "lessons/pu1-u9-story/scene-5.webp",
+      "label": "Put things away",
+      "full": [
+        "\"Harry! Put that hat on the table, now!\"",
+        "\"Rocky! Take those pencils and put them in the bag.\"",
+        "\"OK, Mum.\""
+      ],
+      "easy": [
+        "Harry puts the hat on the table.",
+        "Rocky puts the pencils in the bag."
+      ]
+    },
+    {
+      "id": "scene-6",
+      "image": "lessons/pu1-u9-story/scene-6.webp",
+      "label": "A clean barn",
+      "full": [
+        "Jim: \"Look at the barn. It's nice and clean.\"",
+        "Jenny: \"Look! Grandpa's hat's there on the table, in the barn!\""
+      ],
+      "easy": [
+        "Jim and Jenny come into the barn.",
+        "The barn is clean.",
+        "Grandpa's hat is on the table."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "question-1",
+      "scene": "scene-1",
+      "text": "Who has four oranges?",
+      "options": [
+        "Shelly.",
+        "Gracie.",
+        "Jim."
+      ],
+      "answer": 1,
+      "explanation": "Gracie has four oranges."
+    },
+    {
+      "id": "question-2",
+      "scene": "scene-1",
+      "text": "Whose hat is Shelly wearing?",
+      "options": [
+        "Grandpa's hat.",
+        "Jenny's hat.",
+        "Jim's hat."
+      ],
+      "answer": 0,
+      "explanation": "Henrietta says it is Grandpa's new hat."
+    },
+    {
+      "id": "question-3",
+      "scene": "scene-2",
+      "text": "Who is coming to the barn?",
+      "options": [
+        "Grandpa and Harry.",
+        "Gracie and Shelly.",
+        "Jim and Jenny."
+      ],
+      "answer": 2,
+      "explanation": "Jim and Jenny are coming to play in the barn."
+    },
+    {
+      "id": "question-4",
+      "scene": "scene-3",
+      "text": "What must Shelly pick up?",
+      "options": [
+        "The oranges.",
+        "The clothes.",
+        "The table."
+      ],
+      "answer": 1,
+      "explanation": "Shelly must pick up the clothes."
+    },
+    {
+      "id": "question-5",
+      "scene": "scene-4",
+      "text": "What must Gracie clean?",
+      "options": [
+        "The table and her face.",
+        "The hat and the bag.",
+        "The barn door."
+      ],
+      "answer": 0,
+      "explanation": "The table and Gracie's face are dirty."
+    },
+    {
+      "id": "question-6",
+      "scene": "scene-5",
+      "text": "Where must Rocky put the pencils?",
+      "options": [
+        "On the hat.",
+        "Under the table.",
+        "In the bag."
+      ],
+      "answer": 2,
+      "explanation": "Rocky must put the pencils in the bag."
+    },
+    {
+      "id": "question-7",
+      "scene": "scene-6",
+      "text": "Where is Grandpa's hat at the end?",
+      "options": [
+        "In the bag.",
+        "On the table.",
+        "On Shelly's head."
+      ],
+      "answer": 1,
+      "explanation": "Grandpa's hat is on the table in the barn."
+    },
+    {
+      "id": "question-8",
+      "scene": "scene-6",
+      "text": "Is the barn clean at the end?",
+      "options": [
+        "Yes, it is.",
+        "No, it is not.",
+        "Jim does not know."
+      ],
+      "answer": 0,
+      "explanation": "Jim says the barn is nice and clean."
+    },
+    {
+      "id": "question-9",
+      "scene": "scene-3",
+      "text": "Choose the missing word: ___ up these clothes, please.",
+      "options": [
+        "Put",
+        "Clean",
+        "Pick"
+      ],
+      "answer": 2,
+      "explanation": "Pick up means lift something from where it is."
+    },
+    {
+      "id": "question-10",
+      "scene": "scene-5",
+      "text": "One hat over there: Put ___ hat on the table.",
+      "options": [
+        "these",
+        "that",
+        "those"
+      ],
+      "answer": 1,
+      "explanation": "Use that for one thing farther away."
+    },
+    {
+      "id": "question-11",
+      "scene": "scene-5",
+      "text": "More than one pencil over there: Take ___ pencils.",
+      "options": [
+        "those",
+        "that",
+        "this"
+      ],
+      "answer": 0,
+      "explanation": "Use those for more than one thing farther away."
+    },
+    {
+      "id": "question-12",
+      "scene": "scene-3",
+      "text": "More than one item of clothing here: Pick up ___ clothes.",
+      "options": [
+        "this",
+        "that",
+        "these"
+      ],
+      "answer": 2,
+      "explanation": "Use these for more than one thing nearby."
+    },
+    {
+      "id": "question-13",
+      "scene": "scene-6",
+      "text": "One book here: Take ___ book to the bookcase.",
+      "options": [
+        "those",
+        "this",
+        "these"
+      ],
+      "answer": 1,
+      "explanation": "Use this for one thing nearby."
+    }
+  ],
+  "orders": []
+}

@@ -8,7 +8,7 @@ export default function SingAlong({videos}:{videos:LessonVideo[]}){
  const player=useRef<HTMLVideoElement|null>(null),clip=videos[index];
  useEffect(()=>{const media=player.current;return()=>{media?.pause()}},[index]);
  if(!clip)return null;
- return <section className="sing-along"><p className="eyebrow">WATCH & SING 看视频唱一唱</p><h2>{clip.title}</h2><p>🎵 Watch, sing and do the actions! 看一看，唱一唱，做动作。</p>
+ return <section className="sing-along"><p className="eyebrow">{clip.kind==='story'?'WATCH THE STORY 看故事':'WATCH & SING 看视频唱一唱'}</p><h2>{clip.title}</h2><p>{clip.kind==='story'?'Watch and listen. 看一看，听一听。':'🎵 Watch, sing and do the actions! 看一看，唱一唱，做动作。'}</p>
  {videos.length>1&&<div className="video-choices">{videos.map((v,i)=><button key={v.src} aria-pressed={index===i} onClick={()=>{player.current?.pause();setError(false);setIndex(i)}}>{i===0?'🐸':'🎵'} {v.title}</button>)}</div>}
  <button className="primary" aria-label={playing?"Pause video":"Play video"} onClick={()=>{stopSpeaking();setError(false);if(playing)player.current?.pause();else void player.current?.play().catch(()=>setError(true))}}>{playing?"⏸ Pause 暂停":"▶ Play 播放"}</button>
  <video key={clip.src} ref={player} controls playsInline preload="none" src={publicAsset(clip.src)} poster={clip.poster?publicAsset(clip.poster):undefined} onPlay={()=>{stopSpeaking();setPlaying(true)}} onPause={()=>setPlaying(false)} onEnded={()=>setPlaying(false)} onError={()=>setError(true)}/>

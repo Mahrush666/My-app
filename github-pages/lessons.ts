@@ -1,3 +1,4 @@
+import {powerUp1Unit7Vocabulary} from './pu1-u7-vocabulary1';
 import {unit8Lesson2} from './pu-starter-u8-lesson2';
 import {unit8Lesson1} from './pu-starter-u8-lesson1';
 import type {LessonVideo} from '../lib/lesson-video';
@@ -27,6 +28,7 @@ const actionWords: Word[] = [
  ['climb','爬','🧗'],['swim','游泳','🏊'],['walk','走','🚶'],['jump','跳','🤸'],['run','跑','🏃'],
 ].map(([en,zh,icon])=>({id:'pu-starter-u7-'+en,en,zh,icon,picture:'lessons/pu-starter-u7-lesson1/'+en+'.webp',category:'Free time',sentence:'I can '+en+'.'}));
 export const lessons: Lesson[] = ([
+ powerUp1Unit7Vocabulary,
  unit8Lesson1,
  unit8Lesson2,
  {id:'pu-starter-u7-lesson1',book:'Power up Starter',title:'Unit 7 · Lesson 1 · Free time',unit:{id:'pu-starter-u7',number:7,title:'Unit 7 · Free time'},lessonTitle:'Lesson 1 · Actions',words:actionWords,readings:[],videos:[{title:'Action chant',src:'lessons/pu-starter-u7-lesson1/action-chant.mp4',poster:'lessons/pu-starter-u7-lesson1/jump.webp'}],defaultActivities:['video','picture-listen']},

@@ -1,0 +1,21 @@
+{
+  "parts": [
+    "part-00.bin",
+    "part-01.bin",
+    "part-02.bin",
+    "part-03.bin",
+    "part-04.bin",
+    "part-05.bin",
+    "part-06.bin",
+    "part-07.bin",
+    "part-08.bin",
+    "part-09.bin",
+    "part-10.bin",
+    "part-11.bin",
+    "part-12.bin",
+    "part-13.bin",
+    "part-14.bin",
+    "part-15.bin"
+  ],
+  "sha256": "a45f3b93cf249163eb947175637a2eb52f382127f1c6b4630d090ae362933db1"
+}

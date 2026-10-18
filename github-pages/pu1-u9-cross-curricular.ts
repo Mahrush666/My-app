@@ -12,6 +12,7 @@ export const powerUp1Unit9CrossCurricular:Lesson={
   "lessonTitle": "Cross-curricular · Landscapes and postcards",
   "defaultAge": "6–12",
   "defaultActivities": [
+    "video",
     "word-choice",
     "reading",
     "story-quiz"
@@ -55,5 +56,12 @@ export const powerUp1Unit9CrossCurricular:Lesson={
     }
   ],
   readingStory, readings: readingStory.scenes.map(s=>({id:s.id,title:s.label,text:s.full.join(" "),level:"Reading",hint:""})),
-  videos: []
+  "videos": [
+    {
+      "title": "Explore landscapes",
+      "src": "lessons/pu1-u9-cross-curricular/video.mp4",
+      "poster": "lessons/pu1-u9-cross-curricular/poster.webp",
+      "kind": "lesson"
+    }
+  ]
 };

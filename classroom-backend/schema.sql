@@ -16,3 +16,5 @@ CREATE TABLE IF NOT EXISTS login_limits(key TEXT PRIMARY KEY, count INTEGER NOT 
 CREATE TABLE IF NOT EXISTS student_claims(child_id TEXT PRIMARY KEY REFERENCES children(id), claim_hash TEXT UNIQUE NOT NULL, expires INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS student_links(child_id TEXT PRIMARY KEY REFERENCES children(id),access_hash TEXT UNIQUE NOT NULL);
 CREATE TABLE IF NOT EXISTS student_sessions(session_hash TEXT PRIMARY KEY REFERENCES sessions(hash),child_id TEXT NOT NULL REFERENCES children(id),access_hash TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS reward_events(id TEXT PRIMARY KEY, child_id TEXT NOT NULL REFERENCES children(id), source TEXT NOT NULL, kind TEXT NOT NULL, label TEXT NOT NULL, xp INTEGER NOT NULL, created_at INTEGER NOT NULL, revoked INTEGER NOT NULL DEFAULT 0, UNIQUE(child_id,source));
+CREATE INDEX IF NOT EXISTS reward_events_child ON reward_events(child_id,created_at);

@@ -1,0 +1,213 @@
+{
+  "title": "Holiday postcards",
+  "scenes": [
+    {
+      "id": "laura-1",
+      "label": "Laura’s postcard · The beach",
+      "image": "lessons/pu1-u9-cross-curricular/laura.webp",
+      "full": [
+        "Dear Paula,",
+        "I'm on holiday with my family in the Canary Islands.",
+        "We are staying in a hotel next to a beach."
+      ],
+      "easy": [
+        "Laura is on holiday.",
+        "Her hotel is next to a beach."
+      ]
+    },
+    {
+      "id": "laura-2",
+      "label": "Laura’s postcard · Black sand",
+      "image": "lessons/pu1-u9-cross-curricular/laura.webp",
+      "full": [
+        "The sand is black!",
+        "It's black because there's a volcano on the island."
+      ],
+      "easy": [
+        "The sand is black.",
+        "There is a volcano on the island."
+      ]
+    },
+    {
+      "id": "laura-3",
+      "label": "Laura’s postcard · Animals and shells",
+      "image": "lessons/pu1-u9-cross-curricular/laura.webp",
+      "full": [
+        "There are lots of interesting animals on Tenerife.",
+        "I love the lizards.",
+        "There are lots of shells on the beach.",
+        "See you soon, Laura."
+      ],
+      "easy": [
+        "Laura loves the lizards.",
+        "There are shells on the beach."
+      ]
+    },
+    {
+      "id": "hugo-1",
+      "label": "Hugo’s postcard · The forest",
+      "image": "lessons/pu1-u9-cross-curricular/hugo.webp",
+      "full": [
+        "Dear Mark,",
+        "I'm on holiday with my family in Australia.",
+        "It's fantastic!",
+        "We are staying in a house in the forest."
+      ],
+      "easy": [
+        "Hugo is in Australia.",
+        "His house is in the forest."
+      ]
+    },
+    {
+      "id": "hugo-2",
+      "label": "Hugo’s postcard · Nature",
+      "image": "lessons/pu1-u9-cross-curricular/hugo.webp",
+      "full": [
+        "There are lots of birds in the trees.",
+        "There are beautiful flowers too.",
+        "We can't pick them but we can take photos of them."
+      ],
+      "easy": [
+        "There are birds and flowers.",
+        "We can take photos.",
+        "We can't pick the flowers."
+      ]
+    },
+    {
+      "id": "hugo-3",
+      "label": "Hugo’s postcard · Having fun",
+      "image": "lessons/pu1-u9-cross-curricular/hugo.webp",
+      "full": [
+        "We can ride our bikes every day.",
+        "We can ride horses too.",
+        "It's really fun!",
+        "See you soon, Hugo."
+      ],
+      "easy": [
+        "Hugo can ride bikes.",
+        "He can ride horses too."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "holiday-q1",
+      "scene": "laura-1",
+      "text": "Where is Laura on holiday?",
+      "options": [
+        "In Australia.",
+        "In the Canary Islands.",
+        "In China."
+      ],
+      "answer": 1,
+      "explanation": "Laura is in the Canary Islands."
+    },
+    {
+      "id": "holiday-q2",
+      "scene": "laura-1",
+      "text": "Where is Laura’s hotel?",
+      "options": [
+        "Next to a beach.",
+        "In a forest.",
+        "On a mountain."
+      ],
+      "answer": 0,
+      "explanation": "The hotel is next to a beach."
+    },
+    {
+      "id": "holiday-q3",
+      "scene": "laura-2",
+      "text": "Why is the sand black?",
+      "options": [
+        "It is night.",
+        "There are trees.",
+        "There is a volcano on the island."
+      ],
+      "answer": 2,
+      "explanation": "The sand is black because there is a volcano."
+    },
+    {
+      "id": "holiday-q4",
+      "scene": "laura-3",
+      "text": "Which animals does Laura love?",
+      "options": [
+        "Lizards.",
+        "Horses.",
+        "Birds."
+      ],
+      "answer": 0,
+      "explanation": "Laura loves the lizards."
+    },
+    {
+      "id": "holiday-q5",
+      "scene": "laura-3",
+      "text": "What is on the beach?",
+      "options": [
+        "Lots of bikes.",
+        "Lots of shells.",
+        "Lots of desks."
+      ],
+      "answer": 1,
+      "explanation": "There are lots of shells on the beach."
+    },
+    {
+      "id": "holiday-q6",
+      "scene": "hugo-1",
+      "text": "Who writes the postcard to Mark?",
+      "options": [
+        "Paula.",
+        "Laura.",
+        "Hugo."
+      ],
+      "answer": 2,
+      "explanation": "Hugo writes the postcard to Mark."
+    },
+    {
+      "id": "holiday-q7",
+      "scene": "hugo-1",
+      "text": "Hugo’s house is in a forest.",
+      "options": [
+        "Yes.",
+        "No."
+      ],
+      "answer": 0,
+      "explanation": "Hugo is staying in a house in the forest."
+    },
+    {
+      "id": "holiday-q8",
+      "scene": "hugo-2",
+      "text": "What can Hugo do with the flowers?",
+      "options": [
+        "Pick them.",
+        "Take photos of them.",
+        "Eat them."
+      ],
+      "answer": 1,
+      "explanation": "He can take photos, but he cannot pick the flowers."
+    },
+    {
+      "id": "holiday-q9",
+      "scene": "hugo-2",
+      "text": "Complete: There are lots of birds in the ...",
+      "options": [
+        "shells.",
+        "boats.",
+        "trees."
+      ],
+      "answer": 2,
+      "explanation": "There are lots of birds in the trees."
+    },
+    {
+      "id": "holiday-q10",
+      "scene": "hugo-3",
+      "text": "Hugo can ride bikes and horses.",
+      "options": [
+        "Yes.",
+        "No."
+      ],
+      "answer": 0,
+      "explanation": "Hugo can ride bikes and horses."
+    }
+  ],
+  "orders": []
+}

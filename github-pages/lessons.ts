@@ -1,3 +1,5 @@
+import {powerUp1Unit9Vocabulary2} from './pu1-u9-vocabulary2';
+import {powerUp1Unit9CrossCurricular} from './pu1-u9-cross-curricular';
 import {powerUp1Unit9Story} from './pu1-u9-story';
 import {powerUp1Unit9Vocabulary} from './pu1-u9-vocabulary1';
 import {powerUp1Unit9Reading} from './pu1-u9-reading';
@@ -36,6 +38,8 @@ export const lessons: Lesson[] = ([
  powerUp1Unit9Vocabulary,
  powerUp1Unit9Reading,
  powerUp1Unit9Story,
+ powerUp1Unit9Vocabulary2,
+ powerUp1Unit9CrossCurricular,
  unit8Lesson1,
  unit8Lesson2,
  {id:'pu-starter-u7-lesson1',book:'Power up Starter',title:'Unit 7 · Lesson 1 · Free time',unit:{id:'pu-starter-u7',number:7,title:'Unit 7 · Free time'},lessonTitle:'Lesson 1 · Actions',words:actionWords,readings:[],videos:[{title:'Action chant',src:'lessons/pu-starter-u7-lesson1/action-chant.mp4',poster:'lessons/pu-starter-u7-lesson1/jump.webp'}],defaultActivities:['video','picture-listen']},

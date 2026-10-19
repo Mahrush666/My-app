@@ -385,3 +385,40 @@ test('campuses are owner-selected and teachers cannot cross campus boundaries af
  assert.equal((await api('/delete-campus',{id:staffOnly,confirm:true},owner)).status,400);
  await DB.sqlite.close();
 });
+
+test('student dashboard is class-scoped and extra practice saves SRS without homework or XP',async()=>{
+ const {api,DB}=await setup();try{
+ const owner=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const a=(await api('/groups',{name:'A'},owner)).body.id,b=(await api('/groups',{name:'B'},owner)).body.id;
+ const kids=(await api('/teacher-students',{groupId:a,names:['Amy Smith','Ben Jones']},owner)).body.students;
+ const other=(await api('/teacher-students',{groupId:b,names:['Private Other']},owner)).body.students[0].id;
+ const id=kids[0].id,peer=kids[1].id;
+ const link=(await api('/student-link',{childId:id},owner)).body.access;
+ const student=(await api('/student-login',{access:link})).body.token;
+ const now=Date.now(),local=new Date(now+28800000),weekday=local.getUTCDay()||7;
+ const monday=Date.UTC(local.getUTCFullYear(),local.getUTCMonth(),local.getUTCDate()-weekday+1)-28800000;
+ for(const [key,kid,xp,time,revoked] of [['own',id,10,now,0],['peer',peer,25,now,0],['past',id,90,monday-1,0],['revoked',id,40,now,1],['private',other,999,now,0]]){
+ await DB.prepare('INSERT INTO reward_events VALUES(?,?,?,?,?,?,?,?)').bind(key,kid,key,'manual','Test',xp,time,revoked).run();
+ }
+ await DB.prepare('INSERT INTO class_meetings VALUES(?,?,?,?,?)').bind('next',a,'2099-01-01','10:30',60).run();
+ await DB.prepare('INSERT INTO class_meetings VALUES(?,?,?,?,?)').bind('past',a,'2020-01-01','10:30',60).run();
+ await DB.prepare('INSERT INTO class_meetings VALUES(?,?,?,?,?)').bind('other',b,'2098-01-01','10:30',60).run();
+ const h=(await api('/homework?child='+id,undefined,student)).body;
+ assert.equal(h.dashboard.weeklyXP,10);assert.equal(h.dashboard.nextClass.day,'2099-01-01');
+ assert.deepEqual(h.dashboard.classmates,[{name:'Amy',xp:10,me:true},{name:'Ben',xp:25,me:false}]);
+ assert.equal((await api('/homework?child='+other,undefined,student)).status,404);
+ const body={childId:id,unitId:'pu-starter-u7-lesson1',wordId:'pu-starter-u7-climb',correct:true};
+ const first=await api('/practice-progress',body,student);assert.equal(first.status,200);
+ const review=first.body.progress[body.wordId];assert.equal(review.step,1);assert.ok(review.due>now);
+ const again=await api('/practice-progress',body,student);assert.deepEqual(again.body.progress[body.wordId],review);
+ assert.equal((await api('/practice-progress',{...body,childId:other},student)).status,404);
+ assert.equal((await api('/practice-progress',{...body,wordId:'fake'},student)).status,400);
+ const wrong=await api('/practice-progress',{...body,correct:false},student);assert.equal(wrong.body.progress[body.wordId].step,0);
+ const correction=await api('/practice-progress',{...body,correction:true},student);assert.deepEqual(correction.body.progress,wrong.body.progress);
+ const after=(await api('/homework?child='+id,undefined,student)).body;
+ assert.equal(after.dashboard.weeklyXP,10);assert.equal(after.completed.length,0);assert.equal(after.assignments.length,0);
+ await api('/approve',{childId:id,approved:false},owner);
+ assert.equal((await api('/homework?child='+id,undefined,student)).body.dashboard,undefined);
+ assert.notEqual((await api('/practice-progress',body,student)).status,200);
+ }finally{await DB.sqlite.close();}
+});

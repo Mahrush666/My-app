@@ -1,3 +1,4 @@
+import {studentDashboard} from './student-dashboard';
 import {staffAccess,authorizeStaff,filterCalendar,StaffError} from './staff';
 import {staffPermissions} from '../lib/staff';
 import {teacherTools} from './teacher-tools';
@@ -217,7 +218,16 @@ export async function handle(request:Request,env:Env){
  const [assignments,reviews,completed]=await Promise.all([env.DB.prepare('SELECT * FROM assignments WHERE group_id=? ORDER BY due_date,updated_at').bind(child.group_id).all(),env.DB.prepare('SELECT word_id,step,due FROM reviews WHERE child_id=?').bind(child.id).all(),env.DB.prepare('SELECT assignment_id,activity FROM completions WHERE child_id=?').bind(child.id).all()]);
  await syncHomeworkRewards(env.DB,child.id,assignments.results as {id:string;activities:string;title:string;updated_at:number}[],now);
  const rewards=await readRewards(env.DB,child.id);
- return respond({rewards,assignments:assignments.results,progress:Object.fromEntries(reviews.results.map(r=>[r.word_id,{step:r.step,due:r.due}])),completed:completed.results,pending:false});
+ return respond({dashboard:await studentDashboard(env.DB,child,now),rewards,assignments:assignments.results,progress:Object.fromEntries(reviews.results.map(r=>[r.word_id,{step:r.step,due:r.due}])),completed:completed.results,pending:false});
+ }
+ if(path==='/practice-progress'&&request.method==='POST'){
+ const child=await childAccess(data.childId);requireValue(child.approved,'Your teacher needs to approve this profile.');
+ const unit=lessons.find(l=>l.id===text(data.unitId,100)),wordId=text(data.wordId,100);
+ requireValue(unit?.words.some(w=>w.id===wordId),'This word is unavailable.');
+ requireValue(typeof data.correct==='boolean','An answer result is required.');
+ if(data.correction!==true)await env.DB.prepare(`INSERT INTO reviews(child_id,word_id,step,due) VALUES(?,?,?,?) ON CONFLICT(child_id,word_id) DO UPDATE SET step=CASE WHEN ?=0 THEN 0 WHEN reviews.due>? THEN reviews.step ELSE MIN(reviews.step+1,4) END,due=CASE WHEN ?=0 THEN ? WHEN reviews.due>? THEN reviews.due ELSE ?+CASE MIN(reviews.step+1,4) WHEN 1 THEN 86400000 WHEN 2 THEN 259200000 WHEN 3 THEN 604800000 ELSE 1209600000 END END`).bind(child.id,wordId,data.correct?1:0,now+(data.correct?86400000:600000),Number(data.correct),now,Number(data.correct),now+600000,now,now).run();
+ const reviews=await env.DB.prepare('SELECT word_id,step,due FROM reviews WHERE child_id=?').bind(child.id).all();
+ return respond({progress:Object.fromEntries(reviews.results.map(r=>[r.word_id,{step:r.step,due:r.due}]))});
  }
  if(path==='/progress'&&request.method==='POST'){
  const child=await childAccess(data.childId);requireValue(child.approved,'Your teacher needs to approve this profile.');

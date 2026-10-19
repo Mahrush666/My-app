@@ -372,5 +372,16 @@ test('campuses are owner-selected and teachers cannot cross campus boundaries af
  assert.equal((await api('/calendar?from=2026-10-19&to=2026-10-25',undefined,token)).body.meetings.length,1);
  const parent=(await api('/register',{username:'campus_parent',password:'parent-password',consent:true})).body.token;
  assert.equal((await api('/campuses',undefined,parent)).status,403);
+ const empty=(await api('/campuses',{name:'Empty'},owner)).body.id;
+ assert.equal((await api('/delete-campus',{id:empty,confirm:true},token)).status,403);
+ assert.equal((await api('/delete-campus',{id:empty,confirm:true},parent)).status,403);
+ assert.equal((await api('/delete-campus',{id:empty},owner)).status,400);
+ assert.equal((await api('/delete-campus',{id:'main',confirm:true},owner)).status,400);
+ assert.equal((await api('/delete-campus',{id:campus,confirm:true},owner)).status,400);
+ assert.equal((await api('/delete-campus',{id:empty,confirm:true},owner)).status,200);
+ assert.ok(!(await api('/campuses',undefined,owner)).body.campuses.some(c=>c.id===empty));
+ const staffOnly=(await api('/campuses',{name:'Staff only'},owner)).body.id;
+ await api('/staff-save',{...cfg,id,active:false,campusId:staffOnly,groups:[]},owner);
+ assert.equal((await api('/delete-campus',{id:staffOnly,confirm:true},owner)).status,400);
  await DB.sqlite.close();
 });

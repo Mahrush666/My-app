@@ -36,7 +36,7 @@ export default function StudentDashboard({name,data,rewards,progress,unfinished,
  <button onClick={()=>setScreen('review')}><span>🔁 Time to review 复习</span><small>{dueCount?dueCount+' words ready 待复习词汇':'No words due 暂无待复习词汇'}</small></button>
  <button onClick={()=>setScreen('books')}><span>📚 Books 课本</span><small>Extra practice 自主练习</small></button>
  </nav>
- {unfinished.length>0&&<section className="panel"><h2>Homework due 待完成作业</h2>{unfinished.slice(0,3).map(a=><div className="student-dash-task" key={a.id}><div><strong>{a.title}</strong><small>{a.due_date?'Due 截止 '+a.due_date:'No deadline 无截止日期'}</small></div><button onClick={()=>onHomework(a.id)}>Start 开始</button></div>)}{unfinished.length>3&&<button onClick={()=>setScreen('homework')}>All homework 全部作业</button>}</section>}
+
  <section className="panel"><h2>My rewards 我的奖励</h2><div className="student-earned-badges">{earned.length?earned.map(b=><span key={b.id}>{b.icon} {b.name}</span>):<p>Your first badge is waiting! 期待你的第一枚徽章！</p>}</div><StudentRewards value={rewards}/></section>
  <details className="panel" open><summary>Our class this week 班级本周进步</summary><p className="small-note">Week of 本周开始 {data?.weekStart} · XP</p>{data?.classmates.map((c,i)=><div className="student-weekly" key={i}><div><span>{c.name}{c.me?' · You 你':''}</span><strong>{c.xp} XP</strong></div><progress max={maxXP} value={c.xp} aria-label={c.name+' weekly XP'}/></div>)}{!data?.classmates.length&&<p>No class progress yet. 暂无班级进度。</p>}</details>
  </>}

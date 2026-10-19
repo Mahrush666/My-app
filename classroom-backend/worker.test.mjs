@@ -342,3 +342,35 @@ test('individual teachers activate once, remain class-scoped, and obey live owne
  const listed=(await api('/staff',undefined,owner)).body.teachers[0];assert.equal(listed.password_hash,undefined);assert.equal(listed.invite_hash,undefined);
  await DB.sqlite.close();
 });
+test('campuses are owner-selected and teachers cannot cross campus boundaries after transfers',async()=>{
+ const {api,DB}=await setup();const owner=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const campus=(await api('/campuses',{name:'North campus'},owner)).body.id;assert.ok(campus);
+ const a=(await api('/groups',{name:'Main A'},owner)).body.id,b=(await api('/groups',{name:'North A',campusId:campus},owner)).body.id;
+ const kidA=(await api('/teacher-students',{groupId:a,names:['Amy']},owner)).body.students[0].id,kidB=(await api('/teacher-students',{groupId:b,names:['Ben']},owner)).body.students[0].id;
+ const cfg={name:'Campus Teacher',username:'campus_teacher',role:'teacher',active:true,permissions:['students','attendance','schedule','assignments','rewards','delete'],groups:[a],campusId:'main'};
+ const id=(await api('/staff-save',cfg,owner)).body.id;
+ assert.equal((await api('/staff-save',{...cfg,id,groups:[a,b]},owner)).status,400);
+ const invite=(await api('/staff-invite',{id},owner)).body.invite;await api('/staff-accept',{invite,password:'campus-teacher-password'});
+ const token=(await api('/teacher-login',{username:cfg.username,password:'campus-teacher-password'})).body.token;
+ const state=(await api('/teacher?campus='+campus,undefined,token)).body;assert.deepEqual(state.groups.map(g=>g.id),[a]);assert.deepEqual(state.campuses.map(c=>c.id),['main']);assert.equal(state.allGroups,undefined);
+ assert.equal((await api('/campuses',undefined,token)).status,403);assert.equal((await api('/campuses',{name:'Unauthorized'},token)).status,403);
+ assert.equal((await api('/move-class-campus',{groupId:a,campusId:campus},token)).status,403);
+ assert.equal((await api('/rewards?child='+kidB,undefined,token)).status,403);
+ const main=(await api('/teacher?campus=main',undefined,owner)).body;assert.deepEqual(main.groups.map(g=>g.id),[a]);assert.equal(main.allGroups.length,2);
+ const north=(await api('/teacher?campus='+campus,undefined,owner)).body;assert.deepEqual(north.children.map(c=>c.id),[kidB]);
+ const schedule={eventId:crypto.randomUUID(),groupId:a,day:'2026-10-19',time:'16:00',duration:60,weeks:1};await api('/schedule',schedule,owner);
+ assert.equal((await api('/calendar?from=2026-10-19&to=2026-10-25&campus='+campus,undefined,owner)).body.meetings.length,0);
+ // The old teacher loses access immediately even though their stored group list still contains the class.
+ assert.equal((await api('/move-class-campus',{groupId:a,campusId:campus},owner)).status,200);
+ assert.equal((await api('/teacher',undefined,token)).body.groups.length,0);
+ assert.equal((await api('/rewards?child='+kidA,undefined,token)).status,403);
+ assert.equal((await api('/approve',{childId:kidA,approved:false},token)).status,403);
+ assert.equal((await api('/calendar?from=2026-10-19&to=2026-10-25&campus=all',undefined,token)).body.meetings.length,0);
+ assert.equal((await api('/staff-save',{...cfg,id,campusId:campus,groups:[a,b]},owner)).status,200);
+ assert.equal((await api('/teacher',undefined,token)).body.groups.length,2);
+ assert.deepEqual((await api('/teacher',undefined,token)).body.campuses.map(c=>c.id),[campus]);
+ assert.equal((await api('/calendar?from=2026-10-19&to=2026-10-25',undefined,token)).body.meetings.length,1);
+ const parent=(await api('/register',{username:'campus_parent',password:'parent-password',consent:true})).body.token;
+ assert.equal((await api('/campuses',undefined,parent)).status,403);
+ await DB.sqlite.close();
+});

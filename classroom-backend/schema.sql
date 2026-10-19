@@ -22,3 +22,7 @@ CREATE TABLE IF NOT EXISTS class_meetings(id TEXT PRIMARY KEY,group_id TEXT NOT 
 CREATE INDEX IF NOT EXISTS class_meetings_day ON class_meetings(day);
 CREATE TABLE IF NOT EXISTS attendance(meeting_id TEXT NOT NULL REFERENCES class_meetings(id),child_id TEXT NOT NULL REFERENCES children(id),status TEXT NOT NULL,PRIMARY KEY(meeting_id,child_id));
 CREATE TABLE IF NOT EXISTS staff_accounts(id TEXT PRIMARY KEY,name TEXT NOT NULL,username TEXT UNIQUE NOT NULL,role TEXT NOT NULL,permissions TEXT NOT NULL,groups_json TEXT NOT NULL,active INTEGER NOT NULL DEFAULT 1,salt TEXT NOT NULL DEFAULT '',password_hash TEXT NOT NULL DEFAULT '',invite_hash TEXT UNIQUE,invite_expires INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS campuses(id TEXT PRIMARY KEY,name TEXT NOT NULL);
+INSERT INTO campuses(id,name) VALUES('main','Main campus') ON CONFLICT(id) DO NOTHING;
+CREATE TABLE IF NOT EXISTS group_campuses(group_id TEXT PRIMARY KEY REFERENCES groups(id) ON DELETE CASCADE,campus_id TEXT NOT NULL REFERENCES campuses(id));
+CREATE TABLE IF NOT EXISTS staff_campuses(staff_id TEXT PRIMARY KEY REFERENCES staff_accounts(id) ON DELETE CASCADE,campus_id TEXT NOT NULL REFERENCES campuses(id));

@@ -5,7 +5,10 @@ export async function staffAccess(db:D1Database,id:string|null):Promise<StaffAcc
  if(!id)return {owner:true,name:'Owner',permissions:staffPermissions.map(p=>p[0]),groups:[]};
  const row=await db.prepare('SELECT name,permissions,groups_json,active FROM staff_accounts WHERE id=?').bind(id).first<{name:string;permissions:string;groups_json:string;active:number}>();
  if(!row?.active)throw new StaffError('Your teacher access has been suspended. Contact the owner.');
- return {owner:false,name:row.name,permissions:JSON.parse(row.permissions),groups:JSON.parse(row.groups_json)};
+ const campus=await db.prepare('SELECT campus_id FROM staff_campuses WHERE staff_id=?').bind(id).first<{campus_id:string}>();const campusId=campus?.campus_id||'main';
+ const classes=await db.prepare("SELECT g.id FROM groups g LEFT JOIN group_campuses gc ON gc.group_id=g.id WHERE COALESCE(gc.campus_id,'main')=?").bind(campusId).all<{id:string}>();
+ const allowed=new Set(classes.results.map(g=>g.id));
+ return {owner:false,name:row.name,campusId,permissions:JSON.parse(row.permissions),groups:(JSON.parse(row.groups_json) as string[]).filter(id=>allowed.has(id))};
 }
 export async function authorizeStaff(db:D1Database,access:StaffAccess,path:string,data:Record<string,unknown>,url:URL){
  if(access.owner)return;

@@ -173,3 +173,7 @@
 .classroom .campus-management{margin:0 0 12px;font-size:14px}
 .classroom .campus-management summary{cursor:pointer;padding:8px 0;color:#606585}
 .classroom .campus-management details[open]{padding:12px;border:1px solid #e0e5e3;border-radius:12px;background:white}
+.classroom .campus-controls{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
+.classroom .campus-controls .campus-switcher{max-width:calc(100% - 52px)}
+.classroom .campus-add-trigger{flex-shrink:0;display:grid;place-items:center;width:40px;height:40px;min-height:40px;padding:0;border-radius:12px;font-size:24px;box-shadow:none}
+.classroom .campus-create{max-width:460px}

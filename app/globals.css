@@ -164,3 +164,12 @@
 .story-explanation{background:#f0f8f0;padding:12px;border-radius:12px;line-height:1.5}.story-explanation button{display:inline-flex;vertical-align:middle;margin-left:8px}
 .story-done{text-align:center;padding:36px 12px}.story-question .feedback:empty{display:none}
 @media(max-width:520px){.story-order-pictures{grid-template-columns:1fr}.story-order-pictures>div>button:first-child{display:flex;align-items:center;gap:8px}.story-order-pictures img{width:calc(100% - 46px);max-height:125px;object-fit:contain}.order-number{flex-shrink:0}.story-question-title h3{font-size:1.05rem}}
+
+.classroom .teacher-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px}
+.classroom .campus-switcher{display:block;margin:0;min-width:0;max-width:calc(100% - 56px)}
+.classroom .campus-switcher select{width:auto;max-width:100%;min-height:44px;margin:0;padding:8px 30px 8px 12px;border:1px solid #e0e5e3;border-radius:12px;background:#fff;font-size:14px;text-overflow:ellipsis}
+.classroom .teacher-account-trigger{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:44px;height:44px;padding:0;border-radius:12px;box-shadow:none}
+.classroom .teacher-campus-name{font-size:14px;color:#606585}
+.classroom .campus-management{margin:0 0 12px;font-size:14px}
+.classroom .campus-management summary{cursor:pointer;padding:8px 0;color:#606585}
+.classroom .campus-management details[open]{padding:12px;border:1px solid #e0e5e3;border-radius:12px;background:white}

@@ -21,3 +21,4 @@ CREATE INDEX IF NOT EXISTS reward_events_child ON reward_events(child_id,created
 CREATE TABLE IF NOT EXISTS class_meetings(id TEXT PRIMARY KEY,group_id TEXT NOT NULL REFERENCES groups(id),day TEXT NOT NULL,time TEXT NOT NULL,duration INTEGER NOT NULL,UNIQUE(group_id,day,time));
 CREATE INDEX IF NOT EXISTS class_meetings_day ON class_meetings(day);
 CREATE TABLE IF NOT EXISTS attendance(meeting_id TEXT NOT NULL REFERENCES class_meetings(id),child_id TEXT NOT NULL REFERENCES children(id),status TEXT NOT NULL,PRIMARY KEY(meeting_id,child_id));
+CREATE TABLE IF NOT EXISTS staff_accounts(id TEXT PRIMARY KEY,name TEXT NOT NULL,username TEXT UNIQUE NOT NULL,role TEXT NOT NULL,permissions TEXT NOT NULL,groups_json TEXT NOT NULL,active INTEGER NOT NULL DEFAULT 1,salt TEXT NOT NULL DEFAULT '',password_hash TEXT NOT NULL DEFAULT '',invite_hash TEXT UNIQUE,invite_expires INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL);

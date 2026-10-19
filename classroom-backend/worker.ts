@@ -1,3 +1,5 @@
+import {staffAccess,authorizeStaff,filterCalendar,StaffError} from './staff';
+import {staffPermissions} from '../lib/staff';
 import {teacherTools} from './teacher-tools';
 import {readRewards,syncHomeworkRewards} from './rewards';
 import {rewardBadges} from '../lib/rewards';
@@ -42,7 +44,7 @@ export async function handle(request:Request,env:Env){
  if(['/register','/login','/teacher-login'].includes(path)&&request.method==='POST'){
  // Bound both account and IP attempts without logging credentials.
  const username=text(data.username,40).toLowerCase();const ip=request.headers.get('CF-Connecting-IP')||'local';
- for(const [scope,max] of [['ip:'+ip,100],['account:'+(path==='/teacher-login'?'teacher':username),10]] as const){
+ for(const [scope,max] of [['ip:'+ip,100],['account:'+(path==='/teacher-login'?'teacher:'+username:username),10]] as const){
  const key=await hash(scope+':'+Math.floor(now/900000));
  const limit=await env.DB.prepare('INSERT INTO login_limits(key,count,expires) VALUES(?,1,?) ON CONFLICT(key) DO UPDATE SET count=count+1 RETURNING count').bind(key,now+900000).first<{count:number}>();
  if((limit?.count||0)>max)throw new Failure('Too many attempts. Try again in 15 minutes.',429);
@@ -50,7 +52,9 @@ export async function handle(request:Request,env:Env){
  await env.DB.batch([env.DB.prepare('DELETE FROM student_sessions WHERE session_hash IN (SELECT hash FROM sessions WHERE expires<?)').bind(now),env.DB.prepare('DELETE FROM login_limits WHERE expires<?').bind(now),env.DB.prepare('DELETE FROM sessions WHERE expires<?').bind(now)]);
  const password=typeof data.password==='string'?data.password:'';if(password.length>128)throw new Failure('Password is too long.');
  let accountId:string|null=null;let role='parent';
- if(path==='/teacher-login'){if(!await equal(env.TEACHER_PASSWORD_HASH?await hash(password):password,env.TEACHER_PASSWORD_HASH||env.TEACHER_PASSWORD||''))throw new Failure('Incorrect teacher password.',401);role='teacher'}
+ if(path==='/teacher-login'){
+ if(username){const staff=await env.DB.prepare('SELECT id,salt,password_hash,active FROM staff_accounts WHERE username=?').bind(username).first<{id:string;salt:string;password_hash:string;active:number}>();const actual=await passwordHash(password,staff?.salt||'missing-staff');if(!staff?.active||!staff.password_hash||!await equal(actual,staff.password_hash))throw new Failure('Incorrect teacher login or inactive account.',401);accountId=staff.id;}
+ else if(!await equal(env.TEACHER_PASSWORD_HASH?await hash(password):password,env.TEACHER_PASSWORD_HASH||env.TEACHER_PASSWORD||''))throw new Failure('Incorrect teacher password.',401);role='teacher'}
  else{
  requireValue(username!==ROSTER_USERNAME&&/^[a-z0-9_-]{3,40}$/.test(username),'Use a login name with 3–40 letters, numbers, underscores or hyphens.');
  const account=await env.DB.prepare('SELECT * FROM accounts WHERE username=?').bind(username).first<{id:string;salt:string;password_hash:string}>();
@@ -61,6 +65,13 @@ export async function handle(request:Request,env:Env){
  }else{const actual=await passwordHash(password,account?.salt||'missing-account');if(!account||!await equal(actual,account.password_hash))throw new Failure('Incorrect login name or password.',401);accountId=account.id}
  }
  const token=random();await env.DB.prepare('INSERT INTO sessions VALUES(?,?,?,?)').bind(await hash(token),accountId,role,now+30*86400000).run();return respond({token,role});
+ }
+ if(path==='/staff-accept'&&request.method==='POST'){
+ const invite=text(data.invite,80),password=typeof data.password==='string'?data.password:'';
+ requireValue(/^[a-f0-9]{64}$/.test(invite)&&password.length>=10&&password.length<=128,'Use a valid teacher invitation and a password of 10–128 characters.');
+ const salt=random(),verifier=await passwordHash(password,salt);
+ const result=await env.DB.prepare('UPDATE staff_accounts SET salt=?,password_hash=?,invite_hash=NULL,invite_expires=0 WHERE invite_hash=? AND invite_expires>? AND active=1 RETURNING username').bind(salt,verifier,await hash(invite),now).first<{username:string}>();
+ requireValue(result,'This invitation has expired or was used. Ask the owner for a new one.');return respond({username:result!.username});
  }
  if(path==='/student-login'&&request.method==='POST'){
  const access=text(data.access,80);if(!/^[a-f0-9]{64}$/.test(access))throw new Failure('This homework QR is invalid.',401);
@@ -73,8 +84,36 @@ export async function handle(request:Request,env:Env){
  let scopedChild:string|null=null;
  if(session.role==='student'){const access=await env.DB.prepare('SELECT ss.child_id FROM student_sessions ss JOIN student_links sl ON sl.child_id=ss.child_id AND sl.access_hash=ss.access_hash WHERE ss.session_hash=?').bind(await hash(raw)).first<{child_id:string}>();if(!access)throw new Failure('This homework QR was replaced or disabled. Ask your teacher for a new QR.',401);scopedChild=access.child_id;}
  if(path==='/logout'&&request.method==='POST'){await env.DB.batch([env.DB.prepare('DELETE FROM student_sessions WHERE session_hash=?').bind(await hash(raw)),env.DB.prepare('DELETE FROM sessions WHERE hash=?').bind(await hash(raw))]);return respond({saved:true})}
+ const access=session.role==='teacher'?await staffAccess(env.DB,session.account_id):null;
+ const teacherPaths=['/teacher','/calendar','/schedule','/attendance','/delete-meeting','/rename-group','/delete-student','/delete-group','/rewards','/reward-award','/reward-undo','/groups','/invite','/teacher-students','/move-student','/student-link','/student-invite','/approve','/assignments','/delete-assignment'];
+ if(access&&(teacherPaths.includes(path)||path.startsWith('/staff')))await authorizeStaff(env.DB,access,path,data,new URL(request.url));
+ if(path==='/staff'&&request.method==='GET'){
+ if(!access?.owner)throw new Failure('Owner access required.',403);
+ const rows=await env.DB.prepare('SELECT id,name,username,role,permissions,groups_json,active,password_hash FROM staff_accounts ORDER BY created_at').all<{id:string;name:string;username:string;role:string;permissions:string;groups_json:string;active:number;password_hash:string}>();
+ return respond({teachers:rows.results.map(({password_hash,groups_json,permissions,...r})=>({...r,ready:Boolean(password_hash),permissions:JSON.parse(permissions),groups:JSON.parse(groups_json)}))});
+ }
+ if(path==='/staff-save'&&request.method==='POST'){
+ if(!access?.owner)throw new Failure('Owner access required.',403);
+ const name=text(data.name,60),username=text(data.username,40).toLowerCase(),role=text(data.role,20),id=text(data.id,80)||crypto.randomUUID();
+ requireValue(name&&/^[a-z0-9_-]{3,40}$/.test(username)&&['teacher','assistant'].includes(role),'Enter a name, login name and role.');
+ const permissions=Array.isArray(data.permissions)?[...new Set(data.permissions)]:[],groups=Array.isArray(data.groups)?[...new Set(data.groups)]:[];
+ requireValue(permissions.every(p=>staffPermissions.some(([key])=>key===p))&&groups.length<=100,'Choose valid permissions and classes.');
+ for(const group of groups)requireValue(typeof group==='string'&&await env.DB.prepare('SELECT id FROM groups WHERE id=?').bind(group).first(),'Choose existing classes.');
+ if(data.id)requireValue(await env.DB.prepare('SELECT id FROM staff_accounts WHERE id=?').bind(id).first(),'Teacher not found.');
+ const existing=await env.DB.prepare('SELECT id FROM staff_accounts WHERE username=?').bind(username).first<{id:string}>();requireValue(!existing||existing.id===id,'That teacher login name is already used.');
+ requireValue(typeof data.active==='boolean','Choose account status.');
+ await env.DB.prepare('INSERT INTO staff_accounts(id,name,username,role,permissions,groups_json,active,created_at) VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name,username=excluded.username,role=excluded.role,permissions=excluded.permissions,groups_json=excluded.groups_json,active=excluded.active').bind(id,name,username,role,JSON.stringify(permissions),JSON.stringify(groups),Number(data.active),now).run();
+ if(!data.active)await env.DB.prepare('DELETE FROM sessions WHERE account_id=? AND role=?').bind(id,'teacher').run();
+ return respond({id});
+ }
+ if(path==='/staff-invite'&&request.method==='POST'){
+ if(!access?.owner)throw new Failure('Owner access required.',403);
+ const id=text(data.id,80);requireValue(await env.DB.prepare('SELECT id FROM staff_accounts WHERE id=? AND active=1').bind(id).first(),'Choose an active teacher.');
+ const invite=random();await env.DB.batch([env.DB.prepare('UPDATE staff_accounts SET invite_hash=?,invite_expires=?,password_hash=?,salt=? WHERE id=?').bind(await hash(invite),now+7*86400000,'','',id),env.DB.prepare('DELETE FROM sessions WHERE account_id=? AND role=?').bind(id,'teacher')]);
+ return respond({invite});
+ }
  const teacher=()=>{if(session.role!=='teacher')throw new Failure('Teacher access required.',403)};
- if(['/calendar','/schedule','/attendance','/delete-meeting','/rename-group','/delete-student','/delete-group'].includes(path)){teacher();try{const result=await teacherTools(env.DB,path,request.method,data,new URL(request.url));if(result)return respond(result)}catch(e){if(e instanceof Error&&'status' in e)throw new Failure(e.message,Number(e.status));throw e}}
+ if(['/calendar','/schedule','/attendance','/delete-meeting','/rename-group','/delete-student','/delete-group'].includes(path)){teacher();try{const result=await teacherTools(env.DB,path,request.method,data,new URL(request.url));if(result)return respond(path==='/calendar'?filterCalendar(result,access!):result)}catch(e){if(e instanceof Error&&'status' in e)throw new Failure(e.message,Number(e.status));throw e}}
  const childAccess=async(id:unknown)=>{const c=await env.DB.prepare(scopedChild?'SELECT * FROM children WHERE id=? AND id=?':'SELECT * FROM children WHERE id=? AND parent_id=?').bind(text(id,80),scopedChild||session.account_id).first<{id:string;group_id:string;approved:number}>();if(!c)throw new Failure('Child profile not found.',404);return c};
  if(path==='/rewards'&&request.method==='GET'){
  const id=text(new URL(request.url).searchParams.get('child'),80);
@@ -101,7 +140,8 @@ export async function handle(request:Request,env:Env){
  teacher();const [groups,children,assignments,reports]=await Promise.all([
  env.DB.prepare('SELECT id,name FROM groups ORDER BY created_at').all(),env.DB.prepare("SELECT c.*,CASE WHEN a.id='teacher-managed-roster' THEN NULL ELSE a.username END AS username FROM children c JOIN accounts a ON a.id=c.parent_id ORDER BY c.created_at").all(),env.DB.prepare('SELECT * FROM assignments ORDER BY updated_at DESC').all(),
  env.DB.prepare('SELECT c.id AS child_id,a.id AS assignment_id,a.title,(SELECT COUNT(*) FROM attempts t WHERE t.child_id=c.id AND t.assignment_id=a.id) AS attempts,(SELECT COUNT(*) FROM attempts t WHERE t.child_id=c.id AND t.assignment_id=a.id AND t.correct=1) AS correct,(SELECT MAX(created_at) FROM attempts t WHERE t.child_id=c.id AND t.assignment_id=a.id) AS last_seen,(SELECT json_group_array(activity) FROM completions x WHERE x.child_id=c.id AND x.assignment_id=a.id) AS completed FROM children c JOIN assignments a ON a.group_id=c.group_id WHERE c.approved=1').all()]);
- return respond({groups:groups.results,children:children.results,assignments:assignments.results,reports:reports.results});
+ const visibleGroups=groups.results.filter((g:any)=>access!.owner||access!.groups.includes(g.id));const ids=visibleGroups.map((g:any)=>g.id);const visibleChildren=children.results.filter((c:any)=>ids.includes(c.group_id));const childIds=visibleChildren.map((c:any)=>c.id);const visibleAssignments=assignments.results.filter((a:any)=>ids.includes(a.group_id));const assignmentIds=visibleAssignments.map((a:any)=>a.id);
+ return respond({access,groups:visibleGroups,children:visibleChildren,assignments:visibleAssignments,reports:reports.results.filter((r:any)=>childIds.includes(r.child_id)&&assignmentIds.includes(r.assignment_id))});
  }
  if(path==='/groups'&&request.method==='POST'){
  teacher();const name=text(data.name,80);requireValue(name,'Enter a class name.');const invite=random(),id=crypto.randomUUID();await env.DB.prepare('INSERT INTO groups VALUES(?,?,?,?)').bind(id,name,await hash(invite),now).run();return respond({id,invite});
@@ -209,6 +249,6 @@ export async function handle(request:Request,env:Env){
  return respond({saved:true,rewards,duplicate:inserted[0].meta.changes===0,completed:completed.results});
  }
  throw new Failure('Page not found.',404);
- }catch(error){if(error instanceof Failure)return respond({error:error.message},error.status);return respond({error:'Could not save or load the classroom. Please try again.'},503)}
+ }catch(error){if(error instanceof Failure||error instanceof StaffError)return respond({error:error.message},error.status);return respond({error:'Could not save or load the classroom. Please try again.'},503)}
 }
 export default {fetch:handle};

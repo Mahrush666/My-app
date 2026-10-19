@@ -15,9 +15,9 @@ import '../app/globals.css';
 function App() {
  const params=new URLSearchParams(location.hash.slice(1));
  const query=new URLSearchParams(location.search);
- const online=params.get('view')==='classroom'||query.has('invite')||query.has('claim')||Boolean(studentAccess(new URL(location.href)));
+ const online=(params.get('view')==='classroom'||params.get('view')==='teacher')||query.has('invite')||query.has('claim')||Boolean(studentAccess(new URL(location.href)));
  const student=query.get('student')==='1'||query.has('settings')||params.has('settings');
- const [teacher,setTeacher]=useState(params.get('view')==='teacher');
+ const [teacher,setTeacher]=useState(params.get('view')==='materials');
  const [settings,setSettings]=useState<Settings>(()=>{try{return validateSettings(JSON.parse(localStorage.getItem('wordquest-unit-settings-v1')||'{}'),lessons.map(l=>l.id))}catch{return {}}});
  const [shared]=useState<Settings>(()=>{try{return validateSettings(JSON.parse(query.get('settings')||params.get('settings')||'{}'),lessons.map(l=>l.id))}catch{return {}}});
  const initialLesson=lessons.find(l=>l.id===(query.get('unit')||params.get('unit')));
@@ -32,8 +32,8 @@ function App() {
  function openBook(name:string){setBook(name);setChapter('');setLessonId('')}
  if(query.has('supabase-test'))return <main className="app classroom"><SupabaseTest/></main>;
  if(query.has('connection-test'))return <main className="app classroom"><ConnectionTest/></main>;
- if(online)return <main className="app"><Classroom onExit={()=>{location.href=location.pathname+'#view=teacher'}}/></main>;
- return <main className="app learning-app"><header className="top"><a className="brand" href={student?location.pathname+location.search+location.hash:'./'}>✦ Word<span className="brand-accent">Quest</span></a>{!student&&<button onClick={()=>{setTeacher(!teacher);history.replaceState(null,'',teacher?location.pathname:location.pathname+'#view=teacher')}}>{teacher?'Student view 学生页面':'Teacher view 老师设置'}</button>}</header>
+ if(online)return <main className="app"><Classroom onExit={()=>{location.href=location.pathname}}/></main>;
+ return <main className="app learning-app"><header className="top"><a className="brand" href={student?location.pathname+location.search+location.hash:'./'}>✦ Word<span className="brand-accent">Quest</span></a>{!student&&<button onClick={()=>{location.hash='view=teacher'}}>{teacher?'Student view 学生页面':'Teacher view 老师设置'}</button>}</header>
  {teacher&&!student&&<p className="classroom-shortcut"><a className="text-link" href="#view=classroom">Classes, assignments & family accounts 班级与家庭账号 →</a></p>}
  {!teacher&&!selected&&book&&<nav className="lesson-breadcrumbs" aria-label="Lesson location"><button onClick={allBooks}>Books 课本</button><span aria-hidden="true">›</span><button onClick={()=>openBook(book)}>{book}</button>{currentUnit&&<><span aria-hidden="true">›</span><button onClick={()=>setLessonId('')}>{currentUnit.title}</button></>}</nav>}
  {teacher&&!student?<TeacherGate><Teacher settings={settings} onSave={save} onExit={()=>{setTeacher(false);history.replaceState(null,'',location.pathname)}}/></TeacherGate>:selected?<><div className="section-heading practice-heading"><div><p className="eyebrow">{selected.book}{selected.unit?' · Unit '+selected.unit.number:''}</p><h2>{lessonLabel(selected)}</h2></div>{visibleLessons.length>1&&<button onClick={()=>setLessonId('')}>Choose lesson 选课程</button>}</div><Practice key={selected.id} vocabulary={selected.words} readings={selected.readings} readingStory={selected.readingStory} story={selected.story} videos={selected.videos} activities={configuredActivities(selected.id,shared,settings,student,selected.defaultActivities)}/></>:<>

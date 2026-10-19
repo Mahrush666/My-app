@@ -18,3 +18,6 @@ CREATE TABLE IF NOT EXISTS student_links(child_id TEXT PRIMARY KEY REFERENCES ch
 CREATE TABLE IF NOT EXISTS student_sessions(session_hash TEXT PRIMARY KEY REFERENCES sessions(hash),child_id TEXT NOT NULL REFERENCES children(id),access_hash TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS reward_events(id TEXT PRIMARY KEY, child_id TEXT NOT NULL REFERENCES children(id), source TEXT NOT NULL, kind TEXT NOT NULL, label TEXT NOT NULL, xp INTEGER NOT NULL, created_at INTEGER NOT NULL, revoked INTEGER NOT NULL DEFAULT 0, UNIQUE(child_id,source));
 CREATE INDEX IF NOT EXISTS reward_events_child ON reward_events(child_id,created_at);
+CREATE TABLE IF NOT EXISTS class_meetings(id TEXT PRIMARY KEY,group_id TEXT NOT NULL REFERENCES groups(id),day TEXT NOT NULL,time TEXT NOT NULL,duration INTEGER NOT NULL,UNIQUE(group_id,day,time));
+CREATE INDEX IF NOT EXISTS class_meetings_day ON class_meetings(day);
+CREATE TABLE IF NOT EXISTS attendance(meeting_id TEXT NOT NULL REFERENCES class_meetings(id),child_id TEXT NOT NULL REFERENCES children(id),status TEXT NOT NULL,PRIMARY KEY(meeting_id,child_id));

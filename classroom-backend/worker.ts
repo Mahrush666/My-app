@@ -1,3 +1,4 @@
+import {teacherTools} from './teacher-tools';
 import {readRewards,syncHomeworkRewards} from './rewards';
 import {rewardBadges} from '../lib/rewards';
 import {checkStoryAnswer} from '../lib/illustrated-reading';
@@ -73,6 +74,7 @@ export async function handle(request:Request,env:Env){
  if(session.role==='student'){const access=await env.DB.prepare('SELECT ss.child_id FROM student_sessions ss JOIN student_links sl ON sl.child_id=ss.child_id AND sl.access_hash=ss.access_hash WHERE ss.session_hash=?').bind(await hash(raw)).first<{child_id:string}>();if(!access)throw new Failure('This homework QR was replaced or disabled. Ask your teacher for a new QR.',401);scopedChild=access.child_id;}
  if(path==='/logout'&&request.method==='POST'){await env.DB.batch([env.DB.prepare('DELETE FROM student_sessions WHERE session_hash=?').bind(await hash(raw)),env.DB.prepare('DELETE FROM sessions WHERE hash=?').bind(await hash(raw))]);return respond({saved:true})}
  const teacher=()=>{if(session.role!=='teacher')throw new Failure('Teacher access required.',403)};
+ if(['/calendar','/schedule','/attendance','/delete-meeting','/rename-group','/delete-student','/delete-group'].includes(path)){teacher();try{const result=await teacherTools(env.DB,path,request.method,data,new URL(request.url));if(result)return respond(result)}catch(e){if(e instanceof Error&&'status' in e)throw new Failure(e.message,Number(e.status));throw e}}
  const childAccess=async(id:unknown)=>{const c=await env.DB.prepare(scopedChild?'SELECT * FROM children WHERE id=? AND id=?':'SELECT * FROM children WHERE id=? AND parent_id=?').bind(text(id,80),scopedChild||session.account_id).first<{id:string;group_id:string;approved:number}>();if(!c)throw new Failure('Child profile not found.',404);return c};
  if(path==='/rewards'&&request.method==='GET'){
  const id=text(new URL(request.url).searchParams.get('child'),80);

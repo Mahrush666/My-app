@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import { Check, Headphones, Volume2, Star, BookOpen, Gamepad2 } from 'lucide-react';
 import type { Word, Progress } from './words';
 import { speak, stopSpeaking } from './words';
@@ -7,6 +7,8 @@ import Reading from './reading';
 import { shuffle } from '@/lib/random';
 import { answerKey, lessonWords, sentenceTokens } from '@/lib/review-schedule';
 import type { ReadingPassage } from '@/lib/classroom-types';
+
+const SentenceSpeaking=lazy(()=>import('../github-pages/local-speech-trial'));
 
 type Stage = 'listen' | 'spell' | 'sentence' | 'read' | 'done';
 const stages = [{ id: 'listen', label: 'Listen 听' }, { id: 'spell', label: 'Spell 拼写' }, { id: 'sentence', label: 'Build 组句' }, { id: 'read', label: 'Read 朗读' }];
@@ -22,6 +24,7 @@ export default function GuidedLesson({ vocabulary, progress, readings, unitId, a
   // Hold a session's selection steady while background syncing refreshes progress.
   const [selected] = useState(() => allCards?vocabulary:lessonWords(vocabulary, progress, Date.now()));
   const [sentences] = useState(() => selected.filter(w => sentenceTokens(w.sentence || w.en).length > 1).slice(0, 4));
+  const [speaking,setSpeaking]=useState(false);
   const [stage, setStage] = useState<Stage>('listen'), [round, setRound] = useState(0);
   const [choices, setChoices] = useState<Word[]>([]), [tokens, setTokens] = useState<string[]>([]), [used, setUsed] = useState<number[]>([]);
   const [typed, setTyped] = useState(''), [feedback, setFeedback] = useState(''), [correct, setCorrect] = useState(false), [busy, setBusy] = useState(false), [mistaken, setMistaken] = useState(false), [showHint, setShowHint] = useState(false);
@@ -36,7 +39,7 @@ export default function GuidedLesson({ vocabulary, progress, readings, unitId, a
     return () => { clearInterval(timer); if (!saved.current && !writing.current && seconds.current >= 5) void report.current(seconds.current, false, counts.current.answers, counts.current.firstTry).catch(() => {}); stopSpeaking(); };
   }, []);
   useEffect(() => {
-    setUsed([]); setTyped(''); setCorrect(false); setMistaken(false); setFeedback(''); setShowHint(false);
+    setSpeaking(false); setUsed([]); setTyped(''); setCorrect(false); setMistaken(false); setFeedback(''); setShowHint(false);
     if (word) {
       setChoices(shuffle([word, ...shuffle(vocabulary.filter(w => w.en !== word.en)).slice(0, 3)]));
       const original = sentenceTokens(sentence); const scrambled = shuffle(original);
@@ -82,6 +85,7 @@ export default function GuidedLesson({ vocabulary, progress, readings, unitId, a
       {stage === 'listen' ? <><button className="listen-prompt" onClick={() => speak(word.en)} aria-label="Listen to the question"><Headphones size={38}/><span>Listen 听一听</span></button><p>Which word did you hear? 你听到了哪个词？</p><button className="hear-hint" onClick={()=>setShowHint(true)}>Can’t hear? Show the word 看单词</button>{showHint&&<p className="translation">{word.en} · {word.zh}</p>}<div className="answers">{choices.map(w => <button key={w.id || w.en} disabled={busy || correct} className={correct && w.en === word.en ? 'answer-correct' : ''} onClick={() => void check(w.en)}>{w.en}</button>)}</div>{correct && <p className="translation">{word.zh}</p>}</>
       : stage === 'spell' ? <><span className="word-emoji">{word.icon}</span><h2 lang="zh-CN">{word.zh}</h2><button className="hear-hint" onClick={() => speak(word.en)}><Volume2 size={20}/>Listen 听一听</button><form onSubmit={e => { e.preventDefault(); void check(typed); }}><label className="spell-label" htmlFor="lesson-spelling">Type the English word or phrase 输入英文</label><input id="lesson-spelling" className="lesson-spelling" value={typed} maxLength={80} disabled={busy || correct} autoComplete="off" autoCapitalize="none" spellCheck={false} onChange={e => setTyped(e.target.value)}/><button className="primary" disabled={busy || correct || !typed.trim()}>Check 检查</button></form></>
       : <><button className="hear-hint" onClick={() => speak(sentence)}><Volume2 size={20}/>Listen to the sentence 听句子</button><button className="hear-hint" onClick={()=>setShowHint(true)}>Show a hint 看提示</button>{showHint&&<p className="translation">{sentence}</p>}<p>Tap the words in order. 点击词语组成句子。</p><div className="sentence-output" aria-live="polite">{used.map(i => tokens[i]).join(' ') || '…'}</div><div className="letters">{tokens.map((token, i) => <button key={i} disabled={used.includes(i) || busy || correct} onClick={() => setUsed(ids => [...ids, i])}>{token}</button>)}</div><div className="sentence-actions"><button disabled={!used.length || busy || correct} onClick={() => setUsed(ids => ids.slice(0, -1))}>Undo 撤销</button><button disabled={!used.length || busy || correct} onClick={() => setUsed([])}>Start again 重组</button><button className="primary" disabled={used.length !== tokens.length || busy || correct} onClick={() => void check(used.map(i => tokens[i]).join(' '))}>Check 检查</button></div></>}
+      {stage==='sentence'&&<div style={{marginTop:16}}><button onClick={()=>setSpeaking(value=>!value)} aria-expanded={speaking}>🎤 {speaking?'Close speaking 关闭口语':'Say the sentence 说句子'}</button>{speaking&&<Suspense fallback={<p>Loading… 加载中…</p>}><SentenceSpeaking key={word.id||word.en} vocabulary={[word]} embedded/></Suspense>}</div>}
       <p className="feedback" aria-live="polite">{feedback}</p>{correct && <button className="primary" onClick={next}>{round + 1 === pool.length ? 'Next activity 下一项' : 'Next 下一题'}</button>}
     </section>}
   </section>;

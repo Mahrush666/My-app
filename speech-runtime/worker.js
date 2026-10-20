@@ -47,7 +47,7 @@ self.onmessage=async({data})=>{
  else if(data.type==='transcribe'){
  if(!transcriber)throw Error('Please enable speaking first.');
  const start=performance.now();
- const result=await transcriber(data.audio,{max_new_tokens:24,do_sample:false});
+ const result=await transcriber(data.audio,{max_new_tokens:64,do_sample:false});
  self.postMessage({type:'result',text:result.text,seconds:(performance.now()-start)/1000});
  }
  }catch(e){self.postMessage({type:'error',message:e.message||String(e)})}finally{working=false}

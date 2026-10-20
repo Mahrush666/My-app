@@ -1,6 +1,8 @@
-export function speechMatches(text:string,word:string){
- const normalized=text.toLowerCase().replace(/[^a-z\s']/g,' ').replace(/\s+/g,' ').trim();
- return normalized===word||normalized==='i can '+word;
+// Compare the entire sentence; a single target word is never enough.
+export function speechMatches(text:string,expected:string){
+ const normalize=(value:string)=>value.toLowerCase().replace(/[’‘]/g,"'").replace(/[^a-z\s']/g,' ').replace(/\b(i'm)\b/g,'i am').replace(/\b(it's)\b/g,'it is').replace(/\b(he's)\b/g,'he is').replace(/\b(she's)\b/g,'she is').replace(/\b(they're)\b/g,'they are').replace(/\b(we're)\b/g,'we are').replace(/\b(can't)\b/g,'cannot').replace(/\s+/g,' ').trim();
+ const target=normalize(expected);
+ return target.split(' ').length>1&&normalize(text)===target;
 }
 export function speechSamples(chunks:Float32Array[],rate:number){
  const total=chunks.reduce((n,c)=>n+c.length,0),input=new Float32Array(total);let offset=0;

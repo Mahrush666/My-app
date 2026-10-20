@@ -466,3 +466,12 @@ test('QR previews never create or rotate links; reusable display preserves sessi
  assert.equal((await preview()).body.access,undefined);assert.equal((await api('/student-login',{access:replacement})).status,401);
  await DB.sqlite.close();
 });
+
+test('Smart Phonics 2 Unit 1 is assignable with eight words and source story questions',async()=>{
+ const {api,DB}=await setup();const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Phonics class'},teacher)).body;
+ const task=await api('/assignments',{groupId:group.id,unitId:'smart-phonics2-u1',activities:['picture-listen','word-choice','spell','reading','story-quiz']},teacher);
+ assert.equal(task.status,200);const state=(await api('/teacher',undefined,teacher)).body;const row=state.assignments.find(a=>a.id===task.body.id);assert.equal(JSON.parse(row.word_ids).length,8);
+ assert.equal((await api('/assignments',{groupId:group.id,unitId:'smart-phonics2-u1',activities:['sentence-speak']},teacher)).status,400);
+ await DB.sqlite.close();
+});

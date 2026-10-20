@@ -1,0 +1,4 @@
+import type {Lesson} from './lessons';
+const sentences=['The cat is on the mat.','The cat has a can.','The cat is on the mat.','The cat has a hat.','The cat is on the mat.','The cat has a fan.','Oh! Good bye hat!'];
+const entries:[string,string][]=[['can','罐头盒'],['fan','风扇'],['man','男人'],['pan','平底锅'],['bat','球棒'],['cat','猫'],['hat','帽子'],['mat','垫子']];
+export const smartPhonics2Unit2:Lesson={id:'smart-phonics2-u2',book:'Smart Phonics 2',title:'Unit 2 · Short Vowel a',unit:{id:'smart-phonics2-unit2',number:2,title:'Unit 2 · Short Vowel a'},lessonTitle:'Short a · -an and -at',defaultAge:'6–12',defaultActivities:['word-sound','sound-word','sentence-speak'],words:entries.map(([en,zh])=>({id:'sp2-u2-'+en,en,zh,icon:'',sentence:en,category:en.endsWith('an')?'-an':'-at'})),sentencePractice:sentences.map((text,i)=>({id:'sp2-u2-sentence-'+i,text})),readings:[{id:'sp2-u2-story',title:'The cat',text:sentences.join(' '),level:'Reading',hint:''}]};

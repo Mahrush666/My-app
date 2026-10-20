@@ -494,3 +494,15 @@ test('phonics decoding homework tracks both audio directions and all six origina
  assert.equal((await post('sentence-speak','sp2-u1-dam','dam')).status,400);
  await DB.sqlite.close();
 });
+
+test('Smart Phonics Unit 2 checks every source sentence including repeated lines',async()=>{
+ const {api,DB}=await setup();const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Unit 2'},teacher)).body;
+ const child=(await api('/teacher-students',{groupId:group.id,names:['Reader']},teacher)).body.students[0].id;
+ const access=(await api('/student-link',{childId:child,reuse:true},teacher)).body.access;
+ const student=(await api('/student-login',{access})).body.token;
+ const task=await api('/assignments',{groupId:group.id,unitId:'smart-phonics2-u2',activities:['word-sound','sound-word','sentence-speak']},teacher);assert.equal(task.status,200);
+ const lines=['The cat is on the mat.','The cat has a can.','The cat is on the mat.','The cat has a hat.','The cat is on the mat.','The cat has a fan.','Oh! Goodbye hat!'];
+ for(let i=0;i<lines.length;i++){const r=await api('/progress',{childId:child,assignmentId:task.body.id,activity:'sentence-speak',wordId:'sp2-u2-sentence-'+i,answer:lines[i],eventId:crypto.randomUUID()},student);assert.equal(r.body.correct,true);assert.equal(r.body.completed.some(c=>c.activity==='sentence-speak'),i===6);}
+ await DB.sqlite.close();
+});

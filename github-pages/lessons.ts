@@ -1,3 +1,4 @@
+import {smartPhonics2Unit2} from './smart-phonics2-u2';
 import {smartPhonics2Unit1} from './smart-phonics2-u1';
 import {powerUp1Unit9Vocabulary2} from './pu1-u9-vocabulary2';
 import {powerUp1Unit9CrossCurricular} from './pu1-u9-cross-curricular';
@@ -36,6 +37,7 @@ const actionWords: Word[] = [
 ].map(([en,zh,icon])=>({id:'pu-starter-u7-'+en,en,zh,icon,picture:'lessons/pu-starter-u7-lesson1/'+en+'.webp',category:'Free time',sentence:'I can '+en+'.'}));
 export const lessons: Lesson[] = ([
  smartPhonics2Unit1,
+ smartPhonics2Unit2,
  powerUp1Unit7Vocabulary,
  powerUp1Unit9Vocabulary,
  powerUp1Unit9Reading,

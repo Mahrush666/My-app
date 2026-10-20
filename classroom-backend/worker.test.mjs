@@ -440,3 +440,29 @@ test('assigned sentence speaking validates complete sentences and finishes witho
  assert.equal((await api('/progress',{childId:child,assignmentId:task.body.id,activity:'sentence-speak',wordId:'pu-starter-u7-run',answer:'I can run.',eventId:crypto.randomUUID()},parent)).status,400);
  await DB.sqlite.close();
 });
+
+test('QR previews never create or rotate links; reusable display preserves sessions and legacy links need consent',async()=>{
+ const {api,DB}=await setup();const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'QR class'},teacher)).body;
+ const child=(await api('/teacher-students',{groupId:group.id,names:['Lele']},teacher)).body.students[0].id;
+ const preview=()=>api('/student-link',{childId:child,preview:true,reuse:true},teacher);
+ assert.equal((await preview()).body.access,undefined);
+ assert.equal((await DB.prepare('SELECT COUNT(*) AS n FROM student_links').first()).n,0);
+ const access=(await api('/student-link',{childId:child,reuse:true},teacher)).body.access;
+ const token=(await api('/student-login',{access})).body.token;
+ assert.equal((await preview()).body.access,access);
+ assert.equal((await api('/student-link',{childId:child,reuse:true},teacher)).body.access,access);
+ assert.equal((await api('/family',undefined,token)).status,200);
+ await DB.prepare('DELETE FROM config WHERE key=?').bind('student_qr:'+child).run();
+ assert.equal((await preview()).body.needsReplacement,true);
+ assert.equal((await api('/student-link',{childId:child,reuse:true},teacher)).body.needsReplacement,true);
+ assert.equal((await api('/student-login',{access})).status,200);
+ const replacement=(await api('/student-link',{childId:child,reuse:true,replace:true},teacher)).body.access;
+ assert.notEqual(replacement,access);assert.equal((await api('/student-login',{access})).status,401);
+ assert.equal((await preview()).body.access,replacement);
+ const student=(await api('/student-login',{access:replacement})).body.token;
+ assert.equal((await api('/student-link',{childId:child,preview:true},student)).status,403);
+ await api('/student-link',{childId:child,revoke:true},teacher);
+ assert.equal((await preview()).body.access,undefined);assert.equal((await api('/student-login',{access:replacement})).status,401);
+ await DB.sqlite.close();
+});

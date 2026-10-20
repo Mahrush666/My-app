@@ -176,8 +176,24 @@ export async function handle(request:Request,env:Env){
  }
  if(path==='/student-link'&&request.method==='POST'){
  teacher();const id=text(data.childId,80);requireValue(await env.DB.prepare('SELECT id FROM children WHERE id=?').bind(id).first(),'Student not found.');
- if(data.revoke===true){await env.DB.batch([env.DB.prepare('DELETE FROM student_sessions WHERE child_id=?').bind(id),env.DB.prepare('DELETE FROM student_links WHERE child_id=?').bind(id)]);return respond({saved:true});}
- const access=random();await env.DB.batch([env.DB.prepare('DELETE FROM student_sessions WHERE child_id=?').bind(id),env.DB.prepare('INSERT INTO student_links VALUES(?,?) ON CONFLICT(child_id) DO UPDATE SET access_hash=excluded.access_hash').bind(id,await hash(access))]);return respond({access});
+ if(data.revoke===true){await env.DB.batch([env.DB.prepare('DELETE FROM student_sessions WHERE child_id=?').bind(id),env.DB.prepare('DELETE FROM student_links WHERE child_id=?').bind(id),env.DB.prepare('DELETE FROM config WHERE key=?').bind('student_qr:'+id)]);return respond({saved:true});}
+ // Only staff authorized to manage this student's class reach this endpoint.
+ const key='student_qr:'+id;
+ const existing=await env.DB.prepare('SELECT access_hash FROM student_links WHERE child_id=?').bind(id).first<{access_hash:string}>();
+ const saved=await env.DB.prepare('SELECT value FROM config WHERE key=?').bind(key).first<{value:string}>();
+ const reusable=Boolean(existing&&saved&&await hash(saved.value)===existing.access_hash);
+ if(data.preview===true)return respond(reusable?{access:saved!.value}:{needsReplacement:Boolean(existing)});
+ if(data.reuse===true&&data.replace!==true){
+  if(reusable)return respond({access:saved!.value});
+  if(existing)return respond({needsReplacement:true});
+  // Concurrent first opens share the same token instead of invalidating one another.
+  await env.DB.prepare('INSERT OR IGNORE INTO config(key,value) VALUES(?,?)').bind(key,random()).run();
+  const stored=await env.DB.prepare('SELECT value FROM config WHERE key=?').bind(key).first<{value:string}>();
+  await env.DB.prepare('INSERT OR IGNORE INTO student_links VALUES(?,?)').bind(id,await hash(stored!.value)).run();
+  const current=await env.DB.prepare('SELECT access_hash FROM student_links WHERE child_id=?').bind(id).first<{access_hash:string}>();
+  return respond(current?.access_hash===await hash(stored!.value)?{access:stored!.value}:{needsReplacement:true});
+ }
+ const access=random();await env.DB.batch([env.DB.prepare('DELETE FROM student_sessions WHERE child_id=?').bind(id),env.DB.prepare('INSERT INTO student_links VALUES(?,?) ON CONFLICT(child_id) DO UPDATE SET access_hash=excluded.access_hash').bind(id,await hash(access)),env.DB.prepare('INSERT INTO config(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value').bind(key,access)]);return respond({access});
  }
  if(path==='/student-invite'&&request.method==='POST'){
  teacher();const id=text(data.childId,80);requireValue(await env.DB.prepare('SELECT id FROM children WHERE id=? AND parent_id=?').bind(id,ROSTER_ID).first(),'This student is already linked to a parent, or could not be found.');const claim=random();

@@ -17,7 +17,7 @@ import { words, type Word } from '../app/words';
 import { passages } from '../app/passages';
 import { illustrations } from '../lib/story-illustrations';
 import type { ReadingPassage } from '../lib/classroom-types';
-export type Lesson = { id: string; book: string; title: string; unit?:{id:string;number:number;title:string}; lessonTitle?:string; words: Word[]; readings: ReadingPassage[]; story?:PictureStory; readingStory?:IllustratedReading; videos?:LessonVideo[]; defaultAge?:string; defaultActivities?:ActivityId[] };
+export type Lesson = { id: string; book: string; title: string; unit?:{id:string;number:number;title:string}; lessonTitle?:string; words: Word[]; readings: ReadingPassage[]; story?:PictureStory; readingStory?:IllustratedReading; videos?:LessonVideo[]; sentencePractice?:import('../lib/sentence-practice').SentencePractice[]; defaultAge?:string; defaultActivities?:ActivityId[] };
 const vocabulary = [
  ['delicious coconuts','美味的椰子','🥥','These are delicious coconuts.'],
  ['every day','每天','📅','I read every day.'],

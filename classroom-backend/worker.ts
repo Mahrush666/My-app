@@ -1,3 +1,4 @@
+import {sentencePracticeWords} from '../lib/sentence-practice';
 import {speechMatches} from '../lib/local-speech';
 import {studentDashboard} from './student-dashboard';
 import {staffAccess,authorizeStaff,filterCalendar,StaffError} from './staff';
@@ -213,7 +214,7 @@ export async function handle(request:Request,env:Env){
  const wordIds=Array.isArray(data.wordIds)?[...new Set(data.wordIds)]:unit.words.map(w=>w.id);
  requireValue(wordIds.every(id=>unit.words.some(w=>w.id===id)),'Choose words from this lesson.');
  if(activities.some(a=>!['video','story','reading','story-quiz','story-order','sentence-speak'].includes(String(a))))requireValue(wordIds.length>=4,'Choose at least four words for vocabulary activities.');
- if(activities.includes('sentence-speak'))requireValue(unit.words.some(w=>wordIds.includes(w.id)&&w.sentence.trim().split(/\s+/).length>1),'Choose at least one sentence.');
+ if(activities.includes('sentence-speak'))requireValue(Boolean(unit.sentencePractice?.length)||unit.words.some(w=>wordIds.includes(w.id)&&w.sentence.trim().split(/\s+/).length>1),'Choose at least one sentence.');
  const due=text(data.dueDate,10);requireValue(!due||/^\d{4}-\d{2}-\d{2}$/.test(due),'Choose a valid due date.');
  const id=text(data.id,80)||crypto.randomUUID();if(data.id)requireValue(await env.DB.prepare('SELECT id FROM assignments WHERE id=? AND group_id=?').bind(id,groupId).first(),'Assignment not found.');
  // Editing an assignment keeps word reviews but resets its checklist for the revised work.
@@ -257,7 +258,7 @@ export async function handle(request:Request,env:Env){
  const itemId=text(data.wordId,100),answer=text(data.answer,1000);
  let correct:boolean|null=null,required=0;
  if(activity==='sentence-speak'){
-  const sentences=unit?.words.filter(w=>JSON.parse(assignment!.word_ids).includes(w.id)&&w.sentence.trim().split(/\s+/).length>1)||[];
+  const sentences=unit?.sentencePractice?sentencePracticeWords(unit.sentencePractice):unit?.words.filter(w=>JSON.parse(assignment!.word_ids).includes(w.id)&&w.sentence.trim().split(/\s+/).length>1)||[];
   const word=sentences.find(w=>w.id===itemId);requireValue(word,'This sentence is not assigned.');
   correct=speechMatches(answer,word!.sentence);required=sentences.length;
  }else{requireValue(story,'This story is unavailable.');correct=checkStoryAnswer(story!,activity,itemId,answer);required=activity==='story-quiz'?story!.questions.length:story!.orders.length;}

@@ -472,6 +472,25 @@ test('Smart Phonics 2 Unit 1 is assignable with eight words and source story que
  const group=(await api('/groups',{name:'Phonics class'},teacher)).body;
  const task=await api('/assignments',{groupId:group.id,unitId:'smart-phonics2-u1',activities:['picture-listen','word-choice','spell','reading','story-quiz']},teacher);
  assert.equal(task.status,200);const state=(await api('/teacher',undefined,teacher)).body;const row=state.assignments.find(a=>a.id===task.body.id);assert.equal(JSON.parse(row.word_ids).length,8);
- assert.equal((await api('/assignments',{groupId:group.id,unitId:'smart-phonics2-u1',activities:['sentence-speak']},teacher)).status,400);
+ assert.equal((await api('/assignments',{groupId:group.id,unitId:'smart-phonics2-u1',activities:['sentence-speak']},teacher)).status,200);
+ await DB.sqlite.close();
+});
+
+test('phonics decoding homework tracks both audio directions and all six original spoken sentences',async()=>{
+ const {api,DB}=await setup();const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'CVC readers'},teacher)).body;
+ const child=(await api('/teacher-students',{groupId:group.id,names:['Reader']},teacher)).body.students[0].id;
+ const access=(await api('/student-link',{childId:child,reuse:true},teacher)).body.access;
+ const student=(await api('/student-login',{access})).body.token;
+ const task=await api('/assignments',{groupId:group.id,unitId:'smart-phonics2-u1',activities:['word-sound','sound-word','sentence-speak']},teacher);assert.equal(task.status,200);
+ let result;
+ const post=(activity,wordId,answer,correct=true)=>api('/progress',{childId:child,assignmentId:task.body.id,activity,wordId,answer,correct,eventId:crypto.randomUUID()},student);
+ for(const mode of ['word-sound','sound-word'])for(const word of ['dam','ham','jam','ram','cap','lap','map','nap']){result=await post(mode,'sp2-u1-'+word);assert.equal(result.status,200);}
+ assert.equal(result.body.completed.length,2);
+ assert.equal((await post('sentence-speak','sp2-u1-cap-sentence-0','cap')).body.correct,false);
+ const texts=[['cap','The ram has a cap.','The ram has jam.','Oh! The ram has jam on his cap.'],['nap','The ram has a map.','The ram has a nap.','Oh! The ram has a nap on his map.']];
+ for(const [part,...sentences]of texts)for(const [i,text]of sentences.entries()){result=await post('sentence-speak',`sp2-u1-${part}-sentence-${i}`,text);assert.equal(result.body.correct,true);}
+ assert.equal(result.body.completed.length,3);
+ assert.equal((await post('sentence-speak','sp2-u1-dam','dam')).status,400);
  await DB.sqlite.close();
 });

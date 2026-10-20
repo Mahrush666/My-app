@@ -6,6 +6,8 @@ const definedActivityOptions = [
  ['sound-picture','🖼️','Flashcards · Listen → choose the picture','Pre-readers. Hear a sentence and choose its picture. Spaced repetition.'],
  ['yes-no','✅','Listen · Yes or no','Pre-readers. Look at a picture, hear a question and choose yes or no.'],
  ['picture-listen','🔊','Flashcards · Picture → choose the sound','Ages 3–5. Listening cards with spaced repetition.'],
+ ['word-sound','🔊','Read → choose the sound · 读词选音','Read a word, listen to choices, and select its pronunciation.'],
+ ['sound-word','🔤','Listen → choose the word · 听音选词','Hear a word and choose its written spelling.'],
  ['sentence-speak','🎤','Sentence speaking · 说句子','Listen and say full sentences. Checked on the device.'],
  ['lesson','✨','Guided lesson','Listening, spelling, sentences and reading.'],
  ['cards','📚','Flashcards · Read & recall','Ages 6–12. Read the word and review with spaced repetition.'],

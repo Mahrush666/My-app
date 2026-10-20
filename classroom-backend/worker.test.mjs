@@ -422,3 +422,21 @@ test('student dashboard is class-scoped and extra practice saves SRS without hom
  assert.notEqual((await api('/practice-progress',body,student)).status,200);
  }finally{await DB.sqlite.close();}
 });
+
+test('assigned sentence speaking validates complete sentences and finishes without changing word reviews',async()=>{
+ const {api,DB}=await setup();
+ const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Sentence class'},teacher)).body;
+ const parent=(await api('/register',{username:'sentence_parent',password:'parent-password',consent:true})).body.token;
+ const child=(await api('/children',{name:'Speaker',invite:group.invite},parent)).body.id;
+ await api('/approve',{childId:child,approved:true},teacher);
+ const task=await api('/assignments',{groupId:group.id,unitId:'pu-starter-u7-lesson1',activities:['sentence-speak'],wordIds:['pu-starter-u7-swim'],title:'Say a sentence'},teacher);
+ assert.equal(task.status,200);
+ const post=answer=>api('/progress',{childId:child,assignmentId:task.body.id,activity:'sentence-speak',wordId:'pu-starter-u7-swim',answer,correct:true,eventId:crypto.randomUUID()},parent);
+ let result=await post('swim');assert.equal(result.body.correct,false);assert.equal(result.body.completed.length,0);
+ result=await post('I cannot swim.');assert.equal(result.body.correct,false);
+ result=await post('I can swim.');assert.equal(result.body.correct,true);assert.ok(result.body.completed.some(c=>c.activity==='sentence-speak'));
+ const hw=await api('/homework?child='+child,undefined,parent);assert.deepEqual(hw.body.progress,{});
+ assert.equal((await api('/progress',{childId:child,assignmentId:task.body.id,activity:'sentence-speak',wordId:'pu-starter-u7-run',answer:'I can run.',eventId:crypto.randomUUID()},parent)).status,400);
+ await DB.sqlite.close();
+});

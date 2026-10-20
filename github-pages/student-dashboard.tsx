@@ -21,7 +21,7 @@ export default function StudentDashboard({name,data,rewards,progress,unfinished,
  const dueCount=new Set(dueLessons.flatMap(l=>due(l).map(w=>w.id))).size;
  async function back(){setSelected(null);setScreen('home');setBusy(true);setError('');try{await onRefresh()}catch{setError('Could not refresh. Please try again. 暂时无法刷新，请重试。')}finally{setBusy(false)}}
  function openLesson(l:Lesson){setReviewProgress(screen==='review'?Object.fromEntries(l.words.map(w=>[w.id!,saved[w.id!]||{step:0,due:Number.MAX_SAFE_INTEGER}])):saved);setSelected(l);setError('')}
- async function save(event:ActivityDraft){if(typeof event.correct!=='boolean'||!event.wordId||!selected?.words.some(w=>w.id===event.wordId))return;const result=await request('/practice-progress',{unitId:selected.id,wordId:event.wordId,correct:event.correct,correction:event.detail.correction===true});setSaved(result.progress)}
+ async function save(event:ActivityDraft){if(event.detail.exercise==='sentence-speak')return;if(typeof event.correct!=='boolean'||!event.wordId||!selected?.words.some(w=>w.id===event.wordId))return;const result=await request('/practice-progress',{unitId:selected.id,wordId:event.wordId,correct:event.correct,correction:event.detail.correction===true});setSaved(result.progress)}
  const maxXP=Math.max(1,...(data?.classmates.map(c=>c.xp)||[]));
  const earned=rewardBadges.filter(b=>rewards?.badges.includes(b.id));
  let activities:ActivityId[]=selected?enabledActivities(selected.defaultActivities||['word-choice']).filter(a=>supportsActivity(a,selected)):[];

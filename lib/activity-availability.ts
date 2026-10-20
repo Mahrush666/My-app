@@ -3,6 +3,7 @@ import type {Lesson} from '../github-pages/lessons';
 export function supportsActivity(activity:ActivityId,lesson:Pick<Lesson,'words'|'videos'|'story'|'readings'|'readingStory'>){
  if(activity==='story-quiz')return Boolean(lesson.readingStory?.questions.length);
  if(activity==='story-order')return Boolean(lesson.readingStory?.orders.length);
+ if(activity==='sentence-speak')return lesson.words.some(w=>w.sentence?.trim().split(/\s+/).length>1);
  if(activity==='video')return Boolean(lesson.videos?.length);
  if(activity==='story')return Boolean(lesson.story);
  if(activity==='reading')return lesson.readings.length>0;

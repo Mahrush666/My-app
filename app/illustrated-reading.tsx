@@ -5,11 +5,11 @@ import {speak,stopSpeaking,playAnswerSound} from '../lib/audio';
 import {publicAsset} from '../lib/public-runtime';
 import {checkStoryAnswer,type IllustratedReading} from '../lib/illustrated-reading';
 export function StoryReader({story}:{story:IllustratedReading}){
- const [index,setIndex]=useState(0),[easy,setEasy]=useState(true),[active,setActive]=useState(-1);
+ const [index,setIndex]=useState(0),[active,setActive]=useState(-1);
  useEffect(()=>()=>stopSpeaking(),[]);
  const scene=story.scenes[index];
  function move(n:number){stopSpeaking();setIndex(n);setActive(-1)}
- return <section className="story-reader"><div className="story-toolbar"><span>{index+1} / {story.scenes.length}</span><div className="story-mode" aria-label="Reading support"><button aria-pressed={easy} onClick={()=>{stopSpeaking();setEasy(true);setActive(-1)}}>Short text 简易</button><button aria-pressed={!easy} onClick={()=>{stopSpeaking();setEasy(false);setActive(-1)}}>Full text 完整</button></div></div><img className="reading-scene" src={publicAsset(scene.image)} alt={scene.label}/><div className="story-sentences">{(easy?scene.easy:scene.full).map((text,i)=><button key={text} className={active===i?'is-speaking':''} onClick={()=>{setActive(i);speak(text)}} aria-label={'Listen: '+text}><Volume2 size={20}/><span>{text}</span></button>)}</div><div className="story-toolbar"><button disabled={index===0} onClick={()=>move(index-1)}><ArrowLeft/>Back</button><button className="primary" disabled={index===story.scenes.length-1} onClick={()=>move(index+1)}>Next<ArrowRight/></button></div></section>
+ return <section className="story-reader"><div className="story-toolbar"><span>{index+1} / {story.scenes.length}</span></div><img className="reading-scene" src={publicAsset(scene.image)} alt={scene.label}/><div className="story-sentences">{scene.full.map((text,i)=><button key={text} className={active===i?'is-speaking':''} onClick={()=>{setActive(i);speak(text)}} aria-label={'Listen: '+text}><Volume2 size={20}/><span>{text}</span></button>)}</div><div className="story-toolbar"><button disabled={index===0} onClick={()=>move(index-1)}><ArrowLeft/>Back</button><button className="primary" disabled={index===story.scenes.length-1} onClick={()=>move(index+1)}>Next<ArrowRight/></button></div></section>
 }
 export function StoryPractice({story,activities,onAnswer}:{story:IllustratedReading;activities:string[];onAnswer:(activity:string,item:string,answer:string,correct:boolean)=>Promise<void>}){
  const modes=['story-quiz','story-order'].filter(a=>activities.includes(a));

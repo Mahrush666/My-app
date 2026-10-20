@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { lazy, Suspense, useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BookOpen } from 'lucide-react';
 import Teacher from './teacher';
@@ -12,6 +12,7 @@ import Practice from '../app/practice';
 import { lessons } from './lessons';
 import {bookUnits,lessonLabel} from './lesson-groups';
 import '../app/globals.css';
+const LocalSpeechTrial=lazy(()=>import('./local-speech-trial'));
 function App() {
  const params=new URLSearchParams(location.hash.slice(1));
  const query=new URLSearchParams(location.search);
@@ -30,6 +31,7 @@ function App() {
  const menuLessons=visibleLessons.filter(l=>l.book===book&&(!units.length||l.unit?.id===chapter));
  function allBooks(){setBook('');setChapter('');setLessonId('')}
  function openBook(name:string){setBook(name);setChapter('');setLessonId('')}
+ if(query.has('speech-trial'))return <Suspense fallback={<main className="app">Opening speaking trial…</main>}><LocalSpeechTrial/></Suspense>;
  if(query.has('supabase-test'))return <main className="app classroom"><SupabaseTest/></main>;
  if(query.has('connection-test'))return <main className="app classroom"><ConnectionTest/></main>;
  if(online)return <main className="app"><Classroom onExit={()=>{location.href=location.pathname}}/></main>;

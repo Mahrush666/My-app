@@ -177,3 +177,11 @@
 .classroom .campus-controls .campus-switcher{max-width:calc(100% - 52px)}
 .classroom .campus-add-trigger{flex-shrink:0;display:grid;place-items:center;width:40px;height:40px;min-height:40px;padding:0;border-radius:12px;font-size:24px;box-shadow:none}
 .classroom .campus-create{max-width:460px}
+
+/* Picture questions stay readable in the archer's full-screen phone arena. */
+.reactor-overlay .reactor-listen{display:flex;align-items:center;justify-content:center;gap:14px;min-height:60px;background:#fff8e9;color:#283d35;border:2px solid #e4b34b;border-radius:18px;padding:10px 24px}
+.reactor-overlay .reactor-picture-answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:min(100%,400px);margin:10px auto}
+.reactor-overlay .reactor-picture-answers button{padding:6px;min-height:90px;border-radius:16px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.reactor-picture-answers img{display:block;width:100%;height:clamp(80px,18dvh,150px);object-fit:contain;border-radius:10px}
+.reactor-picture-icon{font-size:64px;line-height:1.3}
+@media(max-height:500px){.reactor-expanded .reactor-overlay .reactor-picture-answers{grid-template-columns:repeat(4,minmax(0,1fr));max-width:95%;width:620px}.reactor-picture-answers img{height:80px}.reactor-overlay .reactor-listen{min-height:48px;padding:4px 20px}}

@@ -25,7 +25,9 @@ export function speak(text:string) {
  stopSpeaking();const token=generation;const src=audioSource(text);
  window.dispatchEvent(new CustomEvent('wordquest-audio-clear'));
  if(src){
-  if(!player){player=new Audio();player.className='lesson-audio-player';player.hidden=true;document.body.appendChild(player);}player.preload='auto';player.src=src;player.volume=1;player.muted=false;
+  // A fresh element prevents mobile WebViews from replaying a previous option's buffer.
+  player?.remove();player=new Audio();player.className='lesson-audio-player';player.hidden=true;
+  player.preload='auto';player.src=src;player.volume=1;player.muted=false;document.body.appendChild(player);
   // Start in the click handler; awaiting a fetch first loses mobile playback permission.
   void player.play().catch(()=>{if(token===generation)report('Tap the audio player below to listen. 请点击下方播放器。',src);});
   return;

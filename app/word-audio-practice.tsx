@@ -1,14 +1,14 @@
 import {useEffect,useMemo,useRef,useState} from 'react';
 import {Volume2} from 'lucide-react';
 import {speak,stopSpeaking,type Word,type Progress} from './words';
-import {shuffle} from '../lib/random';
+import {wordAudioChoices} from '../lib/word-audio-choices';
 import {reviewCards} from '../lib/review-schedule';
 type Mode='word-sound'|'sound-word';
 export default function WordAudioPractice({mode,vocabulary,progress,allCards=false,onAnswer}:{mode:Mode;vocabulary:Word[];progress:Progress;allCards?:boolean;onAnswer:(word:Word,correct:boolean,mode:string,correction:boolean)=>Promise<void>}){
  const [queue]=useState(()=>allCards?vocabulary:reviewCards(vocabulary,progress,Date.now()));
  const [index,setIndex]=useState(0),[choice,setChoice]=useState(-1),[correct,setCorrect]=useState(false),[feedback,setFeedback]=useState(''),[saving,setSaving]=useState(false);
  const busy=useRef(false),marked=useRef(false),word=queue[index];
- const choices=useMemo(()=>word?shuffle([word,...shuffle(vocabulary.filter(w=>(w.id||w.en)!==(word.id||word.en))).slice(0,3)]):[],[word,vocabulary]);
+ const choices=useMemo(()=>word?wordAudioChoices(word,vocabulary):[],[word,vocabulary]);
  useEffect(()=>{setChoice(-1);setCorrect(false);setFeedback('');marked.current=false;return stopSpeaking},[word]);
  async function check(){if(!word||choice<0||busy.current||correct)return;busy.current=true;setSaving(true);const ok=choices[choice].en===word.en;try{await onAnswer(word,ok,mode,marked.current);marked.current=true;setCorrect(ok);setFeedback(ok?'✓ Correct! 答对了！':'Try again 再试一次');}catch{setFeedback('Could not save. Tap OK to retry. 保存失败，请重试。')}finally{busy.current=false;setSaving(false)}}
  if(!word)return <section className="quiz-surface"><h2>⭐ Finished! 已完成！</h2></section>;

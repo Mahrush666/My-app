@@ -8,13 +8,13 @@ for(const lesson of [unit1,unit2]){
 const duplicated=[...lesson.words,{...lesson.words[0],id:'duplicate-can',en:' '+lesson.words[0].en.toUpperCase()+' '}];
 for(const word of lesson.words)for(let round=0;round<100;round++){
  const options=wordAudioChoices(word,duplicated);
- assert.equal(options.length,2);
+ assert.equal(options.length,4);
  for(let i=0;i<options.length;i++)for(let j=i+1;j<options.length;j++)assert.equal(similarReadingWords(options[i].en,options[j].en),false);
  assert.equal(options.filter(w=>audioKey(w.en)===audioKey(word.en)).length,1);
- assert.equal(new Set(options.map(w=>audioSource(w.en))).size,2);
+ assert.equal(new Set(options.map(w=>audioSource(w.en))).size,4);
 }
 }
 assert.equal(similarReadingWords('can','cat'),true);
 assert.equal(similarReadingWords('can','fan'),true);
 assert.equal(similarReadingWords('can','hat'),false);
-console.log('PASS: 1600 Unit 1/2 questions contain two distinct choices, no minimal pairs and exactly one correct option.');
+console.log('PASS: 1600 Unit 1/2 questions contain four distinct choices, no minimal pairs and exactly one correct option.');

@@ -1,6 +1,8 @@
 import type {Word} from '../app/words';
 import {audioKey,audioSource} from './audio';
 import {shuffle} from './random';
+import {smartPhonics2Unit1} from '../github-pages/smart-phonics2-u1';
+import {smartPhonics2Unit2} from '../github-pages/smart-phonics2-u2';
 
 // Avoid minimal pairs (one letter changed, added or removed) in beginner choices.
 export function similarReadingWords(first:string,second:string):boolean{
@@ -16,14 +18,26 @@ export function similarReadingWords(first:string,second:string):boolean{
 }
 
 export function wordAudioChoices(word:Word,vocabulary:Word[]):Word[]{
- const labels=new Set([audioKey(word.en)]);
- const sounds=new Set([audioSource(word.en)||audioKey(word.en)]);
- const alternatives:Word[]=[];
- for(const candidate of shuffle(vocabulary)){
+ // Extra choices only: the review queue and credit still belong to the current unit.
+ const pool=word.id?.startsWith('sp2-u')
+  ?[...vocabulary,...smartPhonics2Unit1.words,...smartPhonics2Unit2.words]:vocabulary;
+ const labels=new Set([audioKey(word.en)]),sounds=new Set([audioSource(word.en)||audioKey(word.en)]);
+ const candidates:Word[]=[];
+ for(const candidate of shuffle(pool)){
   const label=audioKey(candidate.en),sound=audioSource(candidate.en)||label;
-  if(labels.has(label)||sounds.has(sound)||[word,...alternatives].some(w=>similarReadingWords(w.en,candidate.en)))continue;
-  labels.add(label);sounds.add(sound);alternatives.push(candidate);
-  if(alternatives.length===3)break;
+  if(labels.has(label)||sounds.has(sound)||similarReadingWords(word.en,candidate.en))continue;
+  labels.add(label);sounds.add(sound);candidates.push(candidate);
  }
- return shuffle([word,...alternatives]);
+ let best:Word[]=[];
+ function choose(start:number,chosen:Word[]):boolean{
+  if(chosen.length>best.length)best=[...chosen];
+  if(chosen.length===3)return true;
+  for(let i=start;i<candidates.length;i++){
+   if(chosen.some(w=>similarReadingWords(w.en,candidates[i].en)))continue;
+   if(choose(i+1,[...chosen,candidates[i]]))return true;
+  }
+  return false;
+ }
+ choose(0,[]);
+ return shuffle([word,...best]);
 }

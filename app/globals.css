@@ -204,3 +204,5 @@
 .spelling-tiles button{min-width:44px;height:48px;padding:6px;font-size:24px}
 .spelling-tiles button:disabled{opacity:.25}
 @media(max-width:380px){.spelling-slot,.spelling-fixed{min-width:23px;font-size:21px}.spelling-part{gap:2px;margin:0 3px}.spelling-practice{padding:8px}}
+
+.reactor-task{width:100%;max-width:620px;margin:auto}.reactor-task h2{font-size:clamp(18px,4vw,26px)}.reactor-task-picture{display:block;width:130px;height:110px;object-fit:contain;margin:8px auto}.reactor-task .spelling-slots,.reactor-task .spelling-tiles,.reactor-task .spelling-actions{margin:12px 0}.reactor-task .spelling-slot{color:#242038;background:#fff}.reactor-task .answers{margin-top:12px}

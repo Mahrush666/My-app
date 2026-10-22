@@ -1,4 +1,6 @@
 "use client";
+import ReactorTask from './reactor-task';
+import {reactorTaskTypes,type ReactorTaskType} from '../lib/reactor-tasks';
 import { useEffect, useRef, useState } from 'react';
 import { Shield, Zap, Star, Pause, Volume2, Maximize2, Minimize2, ArrowLeft } from 'lucide-react';
 import type { Progress, Word } from './words';
@@ -27,6 +29,9 @@ export default function WordReactor({ vocabulary, progress, onAnswer, onExit, al
   const [status, setStatus] = useState<Status>('ready'), [hud, setHud] = useState(snapshot(game.current)), [role, setRole] = useState('spark');
   const roleRef = useRef(role); roleRef.current = role;
   const [question, setQuestion] = useState<Word | null>(null), [options, setOptions] = useState<Word[]>([]), [hint, setHint] = useState(''), [correctWords, setCorrectWords] = useState(0);
+  const taskBag=useRef<ReactorTaskType[]>([]);
+  const [taskType,setTaskType]=useState<ReactorTaskType>('meaning');
+  const [questionNumber,setQuestionNumber]=useState(0);
   const [upgrades, setUpgrades] = useState({ spark: 0, shield: 0, speed: 0 });
   const currentQuestion = useRef<Word | null>(null), remaining = useRef<Word[]>([]);
   useEffect(() => {
@@ -67,17 +72,19 @@ export default function WordReactor({ vocabulary, progress, onAnswer, onExit, al
   function start() {
     if (!art.current) return;
     expand();const g = fresh();g.y=world.current.height/2; if (roleRef.current === 'shield') g.shield = 88; else g.damage = 2;
-    game.current = g; facing.current = 1; setCorrectWords(0); setUpgrades({ spark: 0, shield: 0, speed: 0 }); remaining.current = []; currentQuestion.current = null; setQuestion(null); setHint(''); change('playing');
+    game.current = g; facing.current = 1; setCorrectWords(0); setUpgrades({ spark: 0, shield: 0, speed: 0 }); remaining.current = []; taskBag.current=[]; currentQuestion.current = null; setQuestion(null); setHint(''); change('playing');
   }
   function ask() {
     if (!remaining.current.length) remaining.current = allCards?shuffle(vocabulary):lessonWords(vocabulary, progressRef.current, Date.now(), Math.min(6, vocabulary.length));
     const word = remaining.current.shift(); if (!word) return;
+    if(!taskBag.current.length)taskBag.current=shuffle([...reactorTaskTypes]);
+    setTaskType(taskBag.current.shift()!);setQuestionNumber(n=>n+1);
     currentQuestion.current = word; setQuestion(word); setOptions(shuffle([word, ...shuffle(vocabulary.filter(w => w.en !== word.en)).slice(0, 3)])); setHint(''); change('quiz');
   }
   function answer(word: Word) {
     const expected = currentQuestion.current; if (statusRef.current !== 'quiz' || !expected) return;
     const correct = word.en === expected.en; onAnswer?.(expected, correct, 'reactor');
-    if (!correct) { setHint(preReader?'↻ 🔊':`Try again: ${expected.zh} means ${expected.en}. 再试一次。`); speak(expected.en); return; }
+    if (!correct) { setHint(preReader?'↻ 🔊':'Listen and try again. 听一听，再试一次。'); speak(expected.en); return; }
     currentQuestion.current = null; setCorrectWords(n => n + 1); game.current.score += 12; game.current.level++; speak(expected.en); change('upgrade');
   }
   function upgrade(type: 'spark' | 'shield' | 'speed') {
@@ -161,7 +168,7 @@ export default function WordReactor({ vocabulary, progress, onAnswer, onExit, al
   return <section ref={surface} className={'survival reactor'+(expanded?' reactor-expanded':'')}><div className="reactor-toolbar"><button onClick={leave} aria-label="Back to games"><ArrowLeft size={18}/>Back 返回</button><div><button onClick={expanded?shrink:expand} aria-label={expanded?'Shrink game':'Expand game'}>{expanded?<Minimize2 size={18}/>:<Maximize2 size={18}/>}<span>{expanded?'Shrink 缩小':'Full screen 全屏'}</span></button><button disabled={status!=='playing'} onClick={()=>change('paused')} aria-label="Pause game"><Pause size={18}/><span>Pause 暂停</span></button></div></div><div className="quiz-top"><h3>Word Reactor 能量单词</h3><span>Lantern Street · 灯笼街 · 2 min</span></div><div className="hud"><span><Shield size={18}/>{hud.hp} / 4</span><span><Zap size={18}/>Level {hud.level}</span><span><Star size={18}/>{hud.score}</span><span>{Math.max(0, 120 - hud.time)}s</span></div>
     <div ref={arena} className={'arena ' + (status === 'playing' ? '' : 'with-overlay')}><canvas width={600} height={440} ref={canvas} aria-label="Word Reactor arena. Drag your finger to move, or use arrow keys. Your archer fires arrows automatically. Cartoon jiangshi hop towards you." onPointerDown={e => { if (statusRef.current !== 'playing') return; e.currentTarget.setPointerCapture(e.pointerId); pointer(e); }} onPointerMove={e => { if (e.currentTarget.hasPointerCapture(e.pointerId)) pointer(e); }} onPointerUp={() => { target.current = null; }} onPointerCancel={() => { target.current = null; }} onLostPointerCapture={() => { target.current = null; }}/>
       {status !== 'playing' && <div className="game-overlay reactor-overlay">{status === 'ready' ? <><p className="eyebrow">CHOOSE YOUR ARCHER</p><h2>Guard Lantern Street! 守护灯笼街</h2><div className="role-picker"><button aria-pressed={role === 'spark'} onClick={() => setRole('spark')}><img src={ART+"archer.png"} alt="" className="archer-choice"/>Swift archer<br/><small>Stronger arrows 强力弓箭</small></button><button aria-pressed={role === 'shield'} onClick={() => setRole('shield')}><img src={ART+"archer.png"} alt="" className="archer-choice"/>Guardian archer<br/><small>Wider shield 广域护盾</small></button></div><p>Dodge hopping jiangshi and practise words to power up.<br/>躲开小僵尸，练习单词，选择升级。</p>{artError?<><p role="alert">Artwork could not load. Please try again. 图片暂时无法加载。</p><button onClick={()=>setArtAttempt(n=>n+1)}>Reload artwork 重试</button></>:<button className="primary" disabled={!vocabulary.length||!artReady} onClick={start}>{artReady?"Start 开始":"Loading the street… 正在加载"}</button>}</>
-      : status === 'quiz' && question ? <>{preReader?<><button className="reactor-listen" aria-label="Listen and choose a picture" onClick={()=>speak(question.en)}><Volume2 size={42}/><span aria-hidden="true">👂 → 🖼️</span></button><div className="answers reactor-picture-answers">{options.map((w,i)=><button key={w.id||w.en} aria-label={'Choose picture '+(i+1)} onClick={()=>answer(w)}>{w.picture?<img src={publicAsset(w.picture)} alt=""/>:<span className="reactor-picture-icon" aria-hidden="true">{w.icon}</span>}</button>)}</div></>:<><p className="eyebrow">WORD POWER · 单词能量</p><h2 lang="zh-CN">{question.zh}</h2><div className="answers">{options.map(w => <button key={w.id || w.en} onClick={() => answer(w)}>{w.en}</button>)}</div><button className="hear-hint" onClick={() => speak(question.en)}><Volume2 size={18}/>Listen 听一听</button></>}<p aria-live="polite">{hint}</p></>
+      : status === 'quiz' && question ? <>{preReader?<><button className="reactor-listen" aria-label="Listen and choose a picture" onClick={()=>speak(question.en)}><Volume2 size={42}/><span aria-hidden="true">👂 → 🖼️</span></button><div className="answers reactor-picture-answers">{options.map((w,i)=><button key={w.id||w.en} aria-label={'Choose picture '+(i+1)} onClick={()=>answer(w)}>{w.picture?<img src={publicAsset(w.picture)} alt=""/>:<span className="reactor-picture-icon" aria-hidden="true">{w.icon}</span>}</button>)}</div></>:<ReactorTask key={questionNumber} type={taskType} word={question} options={options} onAnswer={text=>answer({...question,en:text})}/>}<p aria-live="polite">{hint}</p></>
       : status === 'upgrade' ? <><h2>Choose a power! 选择升级</h2><div className="power-choices"><button onClick={() => upgrade('spark')}><Zap/>Arrows +1<span>Stronger arrows 弓箭升级</span></button><button onClick={() => upgrade('shield')}><Shield/>Shield +1<span>Wider shield + one heart 护盾和生命</span></button><button onClick={() => upgrade('speed')}><Star/>Speed +1<span>Move faster 移动升级</span></button></div></>
       : status === 'paused' ? <><h2>Take a break 休息一下</h2><button className="primary" onClick={() => change('playing')}>Resume 继续</button></>
       : <><h2>{status === 'won' ? 'Street protected! 守护成功！' : 'Nice practice! 再试一次！'}</h2><p>{correctWords} words practised · {hud.score} energy<br/>{hud.bossDefeated ? 'Final challenge cleared! 挑战成功！' : 'Keep building your word power. 继续练习单词。'}</p><button className="primary" onClick={start}>Play again 再玩一次</button></>}</div>}

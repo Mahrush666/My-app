@@ -17,7 +17,7 @@ const definedActivityOptions = [
  ['reading','📖','Read & listen','Read illustrated paragraphs and listen to the story.'],
  ['reactor','🏹','Word Reactor','Action game with written word questions.'],
  ['match','🧩','Word Match','Match English and Chinese words.'],
- ['spell','🔤','Letter Builder','Spell the English word.'],
+ ['spell','🔤','Spelling · Build the word','Five steps: copy, fill gaps, then spell independently. Three words per round.'],
  ['ward','🛡️','Word Guardians','Action game with written questions.'],
  ['sprint','⭐','Star Sprint','Action game with written questions.'],
 ] as const;

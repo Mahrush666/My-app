@@ -18,3 +18,11 @@ for(const word of ['swim','play football','a heart','you are very nice to me','g
  }
 }
 console.log('PASS: five spelling stages, repeated letters, short words, phrases, punctuation, progressively hidden letters.');
+await build({stdin:{contents:"export {lessons} from './github-pages/lessons';export {supportsActivity} from './lib/activity-availability';",resolveDir:process.cwd(),loader:'ts'},bundle:true,platform:'node',format:'esm',outfile:'.wrangler/spelling-test/scope.mjs'});
+const {lessons,supportsActivity}=await import('../.wrangler/spelling-test/scope.mjs');
+for(const lesson of lessons.filter(l=>l.book==='Power Up 1')){
+ const vocabulary=lesson.id.includes('-vocabulary');
+ assert.equal(supportsActivity('spell',lesson),vocabulary,lesson.id);
+ assert.equal(lesson.defaultActivities.includes('spell'),vocabulary,lesson.id);
+}
+console.log('PASS: Power Up 1 spelling is offered only for vocabulary lessons.');

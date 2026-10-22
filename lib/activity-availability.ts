@@ -1,6 +1,7 @@
 import type {ActivityId} from './unit-activities';
 import type {Lesson} from '../github-pages/lessons';
-export function supportsActivity(activity:ActivityId,lesson:Pick<Lesson,'words'|'videos'|'story'|'readings'|'readingStory'|'sentencePractice'>){
+export function supportsActivity(activity:ActivityId,lesson:Pick<Lesson,'words'|'videos'|'story'|'readings'|'readingStory'|'sentencePractice'>&{id?:string}){
+ if(activity==='spell'&&lesson.id?.startsWith('pu1-'))return lesson.id.includes('-vocabulary')&&lesson.words.length>0;
  if(activity==='story-quiz')return Boolean(lesson.readingStory?.questions.length);
  if(activity==='story-order')return Boolean(lesson.readingStory?.orders.length);
  if(activity==='sentence-speak')return Boolean(lesson.sentencePractice?.length)||lesson.words.some(w=>w.sentence?.trim().split(/\s+/).length>1);

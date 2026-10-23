@@ -4,7 +4,7 @@
     {
       "id": "laura-1",
       "label": "Laura’s postcard · The beach",
-      "image": "lessons/pu1-u9-cross-curricular/laura.webp",
+      "image": "lessons/pu1-u9-cross-curricular/laura-postcard.webp",
       "full": [
         "Dear Paula,",
         "I'm on holiday with my family in the Canary Islands.",
@@ -18,7 +18,7 @@
     {
       "id": "laura-2",
       "label": "Laura’s postcard · Black sand",
-      "image": "lessons/pu1-u9-cross-curricular/laura.webp",
+      "image": "lessons/pu1-u9-cross-curricular/laura-postcard.webp",
       "full": [
         "The sand is black!",
         "It's black because there's a volcano on the island."
@@ -31,7 +31,7 @@
     {
       "id": "laura-3",
       "label": "Laura’s postcard · Animals and shells",
-      "image": "lessons/pu1-u9-cross-curricular/laura.webp",
+      "image": "lessons/pu1-u9-cross-curricular/laura-postcard.webp",
       "full": [
         "There are lots of interesting animals on Tenerife.",
         "I love the lizards.",
@@ -46,7 +46,7 @@
     {
       "id": "hugo-1",
       "label": "Hugo’s postcard · The forest",
-      "image": "lessons/pu1-u9-cross-curricular/hugo.webp",
+      "image": "lessons/pu1-u9-cross-curricular/hugo-postcard.webp",
       "full": [
         "Dear Mark,",
         "I'm on holiday with my family in Australia.",
@@ -61,7 +61,7 @@
     {
       "id": "hugo-2",
       "label": "Hugo’s postcard · Nature",
-      "image": "lessons/pu1-u9-cross-curricular/hugo.webp",
+      "image": "lessons/pu1-u9-cross-curricular/hugo-postcard.webp",
       "full": [
         "There are lots of birds in the trees.",
         "There are beautiful flowers too.",
@@ -76,7 +76,7 @@
     {
       "id": "hugo-3",
       "label": "Hugo’s postcard · Having fun",
-      "image": "lessons/pu1-u9-cross-curricular/hugo.webp",
+      "image": "lessons/pu1-u9-cross-curricular/hugo-postcard.webp",
       "full": [
         "We can ride our bikes every day.",
         "We can ride horses too.",

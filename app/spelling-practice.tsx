@@ -2,10 +2,9 @@ import {useEffect,useMemo,useRef,useState} from 'react';
 import {Volume2} from 'lucide-react';
 import {speak,stopSpeaking,type Word} from './words';
 import {publicAsset} from '../lib/public-runtime';
-import {playAnswerSound} from '../lib/audio';
 import {spellingGaps,spellingOrder,spellingTiles} from '../lib/spelling-steps';
 type Saved=Record<string,number>;
-export default function SpellingPractice({vocabulary,scope,onAnswer}:{vocabulary:Word[];scope?:string;onAnswer:(w:Word,correct:boolean,correction:boolean)=>Promise<void>}){
+export default function SpellingPractice({vocabulary,scope,onAnswer}:{vocabulary:Word[];scope?:string;onAnswer:(w:Word,correct:boolean,correction:boolean,stage:number)=>Promise<void>}){
  const key='wordquest-spelling-v1:'+ (scope||'guest')+':'+vocabulary.map(w=>(w.id||w.en)+'='+w.en).join('|');
  const [saved,setSaved]=useState<Saved>(()=>{try{const v=JSON.parse(localStorage.getItem(key)||'{}');return v&&typeof v==='object'?v:{}}catch{return {}}});
  const rounds=useMemo(()=>Array.from({length:Math.ceil(vocabulary.length/3)},(_,i)=>vocabulary.slice(i*3,i*3+3)),[vocabulary]);
@@ -25,8 +24,8 @@ export default function SpellingPractice({vocabulary,scope,onAnswer}:{vocabulary
   const ok=gaps.every((position,i)=>word.en[position].toLowerCase()===tiles[chosen[i]].letter.toLowerCase());
   busy.current=true;setSaving(true);
   try{
-   // Earlier stages are scaffolding. Only the independent fifth spelling counts.
-   if(stage===4){await onAnswer(word,ok,marked.current);marked.current=true;}else playAnswerSound(ok);
+   // All stages are reported; only the independent fifth spelling completes a word.
+   await onAnswer(word,ok,marked.current,stage+1);marked.current=true;
    setCorrect(ok);setMessage(ok?'✓ Well done! 真棒！':'Try again 再试一次');
    if(!ok)setChosen([]);
   }catch{setMessage('Could not save. Tap OK to retry. 保存失败，请重试。')}

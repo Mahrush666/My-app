@@ -1,0 +1,21 @@
+import {useRef,useState} from 'react';
+import type {HomeworkReport} from '../lib/homework-report';
+import type {SchoolChild} from '../lib/teacher-dashboard';
+import {homeworkFinished} from '../lib/homework-completion';
+type Assignment={id:string;group_id:string;title:string;activities:string};
+type Summary={child_id:string;assignment_id:string;attempts:number;completed:string};
+export default function HomeworkReports({children,assignments,reports,request}:{children:SchoolChild[];assignments:Assignment[];reports:Summary[];request:<T>(path:string)=>Promise<T>}){
+ const [report,setReport]=useState<HomeworkReport|null>(null),[loading,setLoading]=useState(''),[error,setError]=useState(''),[mistakesOnly,setMistakesOnly]=useState(false);
+ const sequence=useRef(0);
+ async function open(child:string,assignment:string){const seq=++sequence.current;setLoading(child+assignment);setError('');setReport(null);setMistakesOnly(false);try{const data=await request<HomeworkReport>('/homework-report?child='+encodeURIComponent(child)+'&assignment='+encodeURIComponent(assignment));if(seq===sequence.current)setReport(data)}catch(e){if(seq===sequence.current)setError((e as Error).message)}finally{if(seq===sequence.current)setLoading('')}}
+ const questions=report?.exercises.flatMap(e=>e.questions)||[],answered=questions.filter(q=>q.attempts.length),mistakes=answered.filter(q=>q.attempts.some(a=>!a.correct));
+ return <section className="panel homework-reports"><h2>Homework reports 作业报告</h2><p className="small-note">Teachers only · 仅老师可见</p>
+ {children.filter(c=>c.approved).map(child=>{const tasks=assignments.filter(a=>a.group_id===child.group_id).filter(a=>reports.some(r=>r.child_id===child.id&&r.assignment_id===a.id&&r.attempts>0));return tasks.length?<details key={child.id}><summary>{child.name} · {tasks.length}</summary>{tasks.map(a=>{const result=reports.find(r=>r.child_id===child.id&&r.assignment_id===a.id)!;const done=homeworkFinished(a,JSON.parse(result.completed).map((activity:string)=>({assignment_id:a.id,activity})));return <div className="classroom-row" key={a.id}><span>{a.title} · {done?'✓ Finished 已完成':'In progress 练习中'}</span><button disabled={Boolean(loading)} onClick={()=>void open(child.id,a.id)}>{loading===child.id+a.id?'Loading…':'Open report 查看报告'}</button></div>})}</details>:null})}
+ {!reports.some(r=>r.attempts>0)&&<p>No answers recorded yet. 暂无答题记录。</p>}
+ {error&&<p role="alert">{error}</p>}
+ {report&&<div className="homework-report-detail"><div className="section-heading"><h3>{report.student} · {report.title}</h3><button onClick={()=>{sequence.current++;setReport(null)}}>Close 关闭</button></div><p>{report.lesson} · {report.finished?'✓ Finished 已完成':'In progress 练习中'}</p><p>{answered.length} questions answered 已答题 · {mistakes.length} with mistakes 有错误</p><label><input type="checkbox" checked={mistakesOnly} onChange={e=>setMistakesOnly(e.target.checked)}/> Show mistakes only 只看错题</label>
+ <p className="small-note">Results show the tested question or word and every saved attempt. Earlier homework may have fewer saved steps. The selected wrong option was not stored. 显示题目或词汇及已保存的答题结果；早期记录可能不完整，未保存所选错误选项。</p>
+ {report.exercises.map(exercise=>{const items=exercise.questions.filter(q=>!mistakesOnly||q.attempts.some(a=>!a.correct));if(!items.length)return null;return <section key={exercise.id}><h3>{exercise.title}</h3>{items.map(q=>{const wrong=q.attempts.some(a=>!a.correct),latest=q.attempts.at(-1);return <details className="homework-report-question" key={q.id}><summary><span>{q.expected}</span><strong className={!latest?'':wrong?'report-mistake':'report-correct'}>{!latest?'No saved answer 暂无记录':wrong?(latest.correct?'Corrected after a mistake 订正后正确':'Mistake 答错'):'✓ Correct 答对'}</strong></summary><p>{q.prompt}</p><p>Expected 正确答案: {q.expected}</p><ol>{q.attempts.map((attempt,i)=><li key={i}>{attempt.correct?'✓ Correct 正确':'✗ Incorrect 错误'} · {new Date(attempt.at).toLocaleString('en-GB',{timeZone:'Asia/Shanghai'})}</li>)}</ol></details>})}</section>})}
+ </div>}
+ </section>;
+}

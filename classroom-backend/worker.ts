@@ -1,3 +1,4 @@
+import {homeworkReport,type ReportAttempt} from '../lib/homework-report';
 import {sentencePracticeWords} from '../lib/sentence-practice';
 import {speechMatches} from '../lib/local-speech';
 import {studentDashboard} from './student-dashboard';
@@ -95,7 +96,7 @@ export async function handle(request:Request,env:Env){
  if(path==='/campuses'&&request.method==='GET')return respond({campuses:(await env.DB.prepare('SELECT id,name FROM campuses ORDER BY name').all()).results});
  if(path==='/move-class-campus'&&request.method==='POST'){const id=text(data.groupId,80),campusId=text(data.campusId,80);requireValue(await env.DB.prepare('SELECT id FROM groups WHERE id=?').bind(id).first(),'Class not found.');requireValue(await env.DB.prepare('SELECT id FROM campuses WHERE id=?').bind(campusId).first(),'Campus not found.');await env.DB.prepare('INSERT INTO group_campuses(group_id,campus_id) VALUES(?,?) ON CONFLICT(group_id) DO UPDATE SET campus_id=excluded.campus_id').bind(id,campusId).run();return respond({saved:true});}
  }
- const teacherPaths=['/teacher','/calendar','/schedule','/attendance','/delete-meeting','/rename-group','/delete-student','/delete-group','/rewards','/reward-award','/reward-undo','/groups','/invite','/teacher-students','/move-student','/student-link','/student-invite','/approve','/assignments','/delete-assignment'];
+ const teacherPaths=['/homework-report','/teacher','/calendar','/schedule','/attendance','/delete-meeting','/rename-group','/delete-student','/delete-group','/rewards','/reward-award','/reward-undo','/groups','/invite','/teacher-students','/move-student','/student-link','/student-invite','/approve','/assignments','/delete-assignment'];
  if(access&&(teacherPaths.includes(path)||path.startsWith('/staff')))await authorizeStaff(env.DB,access,path,data,new URL(request.url));
  if(path==='/staff'&&request.method==='GET'){
  if(!access?.owner)throw new Failure('Owner access required.',403);
@@ -147,6 +148,16 @@ export async function handle(request:Request,env:Env){
  }
  if(path==='/reward-undo'&&request.method==='POST'){
  teacher();const childId=text(data.childId,80),id=text(data.id,80);const entry=await env.DB.prepare('SELECT kind FROM reward_events WHERE id=? AND child_id=?').bind(id,childId).first<{kind:string}>();requireValue(entry&&entry.kind!=='homework','Only teacher awards can be undone.');await env.DB.prepare('UPDATE reward_events SET revoked=1 WHERE id=? AND child_id=?').bind(id,childId).run();return respond(await readRewards(env.DB,childId));
+ }
+ if(path==='/homework-report'&&request.method==='GET'){
+ teacher();const url=new URL(request.url),childId=text(url.searchParams.get('child'),80),assignmentId=text(url.searchParams.get('assignment'),80);
+ const child=await env.DB.prepare('SELECT id,name,group_id FROM children WHERE id=?').bind(childId).first<{id:string;name:string;group_id:string}>();
+ const assignment=await env.DB.prepare('SELECT * FROM assignments WHERE id=?').bind(assignmentId).first<{id:string;group_id:string;unit_id:string;title:string;activities:string;word_ids:string;updated_at:number}>();
+ requireValue(child&&assignment&&child.group_id===assignment.group_id,'Homework report not found.');
+ const lesson=lessons.find(l=>l.id===assignment!.unit_id);requireValue(lesson,'Lesson unavailable.');
+ const attempts=await env.DB.prepare('SELECT id,activity,word_id,correct,created_at FROM attempts WHERE child_id=? AND assignment_id=? ORDER BY created_at,id').bind(childId,assignmentId).all<ReportAttempt>();
+ const completed=await env.DB.prepare('SELECT activity FROM completions WHERE child_id=? AND assignment_id=?').bind(childId,assignmentId).all<{activity:string}>();
+ return respond(homeworkReport(child!.name,assignment!,lesson!,attempts.results,completed.results.map(c=>c.activity)));
  }
  if(path==='/teacher'&&request.method==='GET'){
  teacher();const [groups,children,assignments,reports]=await Promise.all([
@@ -276,15 +287,15 @@ export async function handle(request:Request,env:Env){
  return respond({saved:true,rewards,correct,duplicate:inserted[0].meta.changes===0,completed:completed.results});
  }
  requireValue(typeof data.correct==='boolean','An answer result is required.');const wordId=text(data.wordId,100);requireValue(JSON.parse(assignment!.word_ids).includes(wordId),'This word is not assigned.');
- const stage=text(data.stage,20);const attemptActivity=activity==='lesson'?activity+':'+stage:activity;
+ const stage=text(data.stage,20);const scaffold=activity==='spell'&&/^step[1-4]$/.test(stage);const reactorStage=activity==='reactor'&&/^reactor:(build|spelling|meaning)$/.test(stage);const attemptActivity=reactorStage?stage:activity==='lesson'||scaffold?activity+':'+stage:activity;
  if(activity==='lesson')requireValue(['listen','spell','sentence'].includes(stage),'Unknown lesson exercise.');
  const answerTime=Math.max(now,Number(assignment!.updated_at));
  const id=text(data.eventId,80);requireValue(/^[a-zA-Z0-9-]{16,80}$/.test(id),'An answer identifier is required.');
  // One atomic batch: an already acknowledged answer never changes the review schedule twice.
  const inserted=await env.DB.batch([
  env.DB.prepare('INSERT OR IGNORE INTO attempts VALUES(?,?,?,?,?,?,?)').bind(id,child.id,assignment!.id,attemptActivity,wordId,Number(data.correct),answerTime),
- ...(data.correction===true?[]:[env.DB.prepare(`INSERT INTO reviews(child_id,word_id,step,due) SELECT ?,?, ?,? WHERE changes()=1 ON CONFLICT(child_id,word_id) DO UPDATE SET step=CASE WHEN ?=0 THEN 0 WHEN reviews.due>? THEN reviews.step ELSE MIN(reviews.step+1,4) END,due=CASE WHEN ?=0 THEN ? WHEN reviews.due>? THEN reviews.due ELSE ?+CASE MIN(reviews.step+1,4) WHEN 1 THEN 86400000 WHEN 2 THEN 259200000 WHEN 3 THEN 604800000 ELSE 1209600000 END END`).bind(child.id,wordId,data.correct?1:0,now+(data.correct?86400000:600000),Number(data.correct),now,Number(data.correct),now+600000,now,now)]),
- ...(requiresAnswers(activity)?[env.DB.prepare(`INSERT OR IGNORE INTO completions(child_id,assignment_id,activity,completed_at) SELECT ?,?,?,? WHERE (SELECT COUNT(DISTINCT activity || word_id) FROM attempts WHERE child_id=? AND assignment_id=? AND correct=1 AND created_at>=? AND ${activity==='lesson'?"activity IN ('lesson:listen','lesson:spell','lesson:sentence')":'activity=?'} )>=?`).bind(child.id,assignment!.id,activity,answerTime,child.id,assignment!.id,assignment!.updated_at,...(activity==='lesson'?[]:[activity]),activity==='lesson'?JSON.parse(assignment!.word_ids).length*2+Math.min(4,lessons.find(l=>l.id===assignment!.unit_id)!.words.filter(w=>JSON.parse(assignment!.word_ids).includes(w.id)&&w.sentence.trim().split(/\s+/).length>1).length):JSON.parse(assignment!.word_ids).length)]:[])
+ ...(data.correction===true||scaffold?[]:[env.DB.prepare(`INSERT INTO reviews(child_id,word_id,step,due) SELECT ?,?, ?,? WHERE changes()=1 ON CONFLICT(child_id,word_id) DO UPDATE SET step=CASE WHEN ?=0 THEN 0 WHEN reviews.due>? THEN reviews.step ELSE MIN(reviews.step+1,4) END,due=CASE WHEN ?=0 THEN ? WHEN reviews.due>? THEN reviews.due ELSE ?+CASE MIN(reviews.step+1,4) WHEN 1 THEN 86400000 WHEN 2 THEN 259200000 WHEN 3 THEN 604800000 ELSE 1209600000 END END`).bind(child.id,wordId,data.correct?1:0,now+(data.correct?86400000:600000),Number(data.correct),now,Number(data.correct),now+600000,now,now)]),
+ ...(!scaffold&&requiresAnswers(activity)?[env.DB.prepare(`INSERT OR IGNORE INTO completions(child_id,assignment_id,activity,completed_at) SELECT ?,?,?,? WHERE (SELECT COUNT(DISTINCT ${activity==='reactor'?'word_id':'activity || word_id'}) FROM attempts WHERE child_id=? AND assignment_id=? AND correct=1 AND created_at>=? AND ${activity==='lesson'?"activity IN ('lesson:listen','lesson:spell','lesson:sentence')":activity==='reactor'?"activity IN ('reactor','reactor:build','reactor:spelling','reactor:meaning')":'activity=?'} )>=?`).bind(child.id,assignment!.id,activity,answerTime,child.id,assignment!.id,assignment!.updated_at,...(['lesson','reactor'].includes(activity)?[]:[activity]),activity==='lesson'?JSON.parse(assignment!.word_ids).length*2+Math.min(4,lessons.find(l=>l.id===assignment!.unit_id)!.words.filter(w=>JSON.parse(assignment!.word_ids).includes(w.id)&&w.sentence.trim().split(/\s+/).length>1).length):JSON.parse(assignment!.word_ids).length)]:[])
  ]);
  await syncHomeworkRewards(env.DB,child.id,[assignment!],now);
  const rewards=await readRewards(env.DB,child.id);

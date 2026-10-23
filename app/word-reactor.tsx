@@ -83,7 +83,7 @@ export default function WordReactor({ vocabulary, progress, onAnswer, onExit, al
   }
   function answer(word: Word) {
     const expected = currentQuestion.current; if (statusRef.current !== 'quiz' || !expected) return;
-    const correct = word.en === expected.en; onAnswer?.(expected, correct, 'reactor');
+    const correct = word.en === expected.en; onAnswer?.(expected, correct, preReader?'reactor':'reactor:'+taskType);
     if (!correct) { setHint(preReader?'↻ 🔊':'Listen and try again. 听一听，再试一次。'); speak(expected.en); return; }
     currentQuestion.current = null; setCorrectWords(n => n + 1); game.current.score += 12; game.current.level++; speak(expected.en); change('upgrade');
   }

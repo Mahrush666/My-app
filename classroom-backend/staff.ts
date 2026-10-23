@@ -17,6 +17,7 @@ export async function authorizeStaff(db:D1Database,access:StaffAccess,path:strin
  const group=(id:unknown)=>{if(typeof id!=='string'||!access.groups.includes(id))deny()};
  const child=async(id:unknown)=>{const row=await db.prepare('SELECT group_id FROM children WHERE id=?').bind(typeof id==='string'?id:'').first<{group_id:string}>();group(row?.group_id)};
  if(path==='/teacher'||path==='/calendar')return;
+ if(path==='/homework-report'){await child(url.searchParams.get('child'));const row=await db.prepare('SELECT group_id FROM assignments WHERE id=?').bind(url.searchParams.get('assignment')||'').first<{group_id:string}>();group(row?.group_id);return;}
  if(path==='/rewards'){await child(url.searchParams.get('child'));return;}
  if(path==='/groups'||path.startsWith('/staff')||path==='/delete-group')deny();
  if(['/teacher-students','/move-student','/approve','/invite','/student-link','/student-invite','/rename-group'].includes(path))need('students');

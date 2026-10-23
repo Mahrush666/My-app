@@ -44,6 +44,14 @@ test('parent registration, child approval, class-specific assignments, protected
  for(const wordId of payload.wordIds.slice(1))await api('/progress',{...event,wordId,eventId:crypto.randomUUID()},parent);
  assert.equal((await api('/homework?child='+kid,undefined,parent)).body.completed.length,1);
  const reports=(await api('/teacher',undefined,teacher)).body.reports;assert.equal(reports[0].attempts,6);assert.equal(reports[0].correct,5);
+ const detailPath='/homework-report?child='+kid+'&assignment='+assignmentId;
+ assert.equal((await api(detailPath)).status,401);
+ assert.equal((await api(detailPath,undefined,parent)).status,403);
+ assert.equal((await api(detailPath,undefined,other)).status,403);
+ const detail=await api(detailPath,undefined,teacher);assert.equal(detail.status,200);assert.equal(detail.body.finished,true);
+ assert.equal(detail.body.exercises[0].questions.length,4);
+ const climb=detail.body.exercises[0].questions.find(q=>q.expected==='climb');assert.deepEqual(climb.attempts.map(a=>a.correct),[true,false,true]);
+
  // Revised assignments preserve word schedules but reset the automatic answer requirements.
  await api('/assignments',{...payload,id:assignmentId,title:'Updated homework'},teacher);
  homework=(await api('/homework?child='+kid,undefined,parent)).body;assert.equal(homework.assignments[0].title,'Updated homework');assert.equal(homework.completed.length,0);assert.deepEqual(homework.progress['pu-starter-u7-climb'],review);
@@ -326,6 +334,7 @@ test('individual teachers activate once, remain class-scoped, and obey live owne
  const assignment=(await api('/assignments',homework,owner)).body.id;
  assert.equal((await api('/assignments',homework,token)).status,403);
  assert.equal((await api('/delete-assignment',{id:assignment},token)).status,403);
+ assert.equal((await api('/homework-report?child='+kidB+'&assignment='+assignment,undefined,token)).status,403);
  assert.equal((await api('/assignments',{...homework,groupId:a},token)).status,200);
  assert.equal((await api('/teacher-students',{groupId:a,names:['New pupil']},token)).status,200);
  // Current session observes permission and class changes without re-login.
@@ -504,5 +513,33 @@ test('Smart Phonics Unit 2 checks every source sentence including repeated lines
  const task=await api('/assignments',{groupId:group.id,unitId:'smart-phonics2-u2',activities:['word-sound','sound-word','sentence-speak']},teacher);assert.equal(task.status,200);
  const lines=['The cat is on the mat.','The cat has a can.','The cat is on the mat.','The cat has a hat.','The cat is on the mat.','The cat has a fan.','Oh! Goodbye hat!'];
  for(let i=0;i<lines.length;i++){const r=await api('/progress',{childId:child,assignmentId:task.body.id,activity:'sentence-speak',wordId:'sp2-u2-sentence-'+i,answer:lines[i],eventId:crypto.randomUUID()},student);assert.equal(r.body.correct,true);assert.equal(r.body.completed.some(c=>c.activity==='sentence-speak'),i===6);}
+ await DB.sqlite.close();
+});
+
+test('spelling scaffolding is reported without completing homework or advancing spaced review',async()=>{
+ const {api,DB}=await setup();const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Spelling'},teacher)).body;
+ const parent=(await api('/register',{username:'spelling_family',password:'parent-password',consent:true})).body.token;
+ const child=(await api('/children',{name:'Amy',invite:group.invite},parent)).body.id;await api('/approve',{childId:child,approved:true},teacher);
+ const task=(await api('/assignments',{groupId:group.id,unitId:'pu1-u9-vocabulary1',activities:['spell'],wordIds:['boots','cap','dress','glasses'].map(w=>'pu1-u9-clothes-'+w)},teacher)).body.id;
+ const post=(stage,correct,word='boots')=>api('/progress',{childId:child,assignmentId:task,activity:'spell',stage,wordId:'pu1-u9-clothes-'+word,correct,eventId:crypto.randomUUID()},parent);
+ for(const stage of ['step1','step2','step3','step4'])assert.equal((await post(stage,true)).status,200);
+ let state=(await api('/homework?child='+child,undefined,parent)).body;assert.equal(state.completed.length,0);assert.equal(state.progress['pu1-u9-clothes-boots'],undefined);
+ assert.equal((await post('step5',false)).status,200);assert.equal((await post('step5',true)).status,200);
+ assert.equal((await api('/homework?child='+child,undefined,parent)).body.completed.length,0);
+ for(const word of ['cap','dress','glasses'])await post('step5',true,word);
+ const detail=(await api('/homework-report?child='+child+'&assignment='+task,undefined,teacher)).body;
+ assert.equal(detail.finished,true);assert.equal(detail.exercises[0].questions.length,8);
+ assert.deepEqual(detail.exercises[0].questions.find(q=>q.id==='spell:pu1-u9-clothes-boots').attempts.map(a=>a.correct),[false,true]);
+ const qr=(await api('/student-link',{childId:child},teacher)).body;const student=(await api('/student-login',{access:qr.access})).body.token;
+ assert.ok(student);assert.equal((await api('/homework-report?child='+child+'&assignment='+task,undefined,student)).status,403);
+ const game=(await api('/assignments',{groupId:group.id,unitId:'pu1-u9-vocabulary1',activities:['reactor'],wordIds:['boots','cap','dress','glasses'].map(w=>'pu1-u9-clothes-'+w)},teacher)).body.id;
+ const play=(word,stage)=>api('/progress',{childId:child,assignmentId:game,activity:'reactor',stage,wordId:'pu1-u9-clothes-'+word,correct:true,eventId:crypto.randomUUID()},parent);
+ for(const stage of ['reactor:build','reactor:spelling','reactor:meaning'])assert.equal((await play('boots',stage)).status,200);
+ assert.equal((await api('/homework?child='+child,undefined,parent)).body.completed.filter(c=>c.assignment_id===game).length,0);
+ for(const word of ['cap','dress','glasses'])await play(word,'reactor:meaning');
+ const gameReport=(await api('/homework-report?child='+child+'&assignment='+game,undefined,teacher)).body;assert.equal(gameReport.finished,true);
+ assert.equal(gameReport.exercises[0].questions.filter(q=>q.expected==='boots').length,3);
+
  await DB.sqlite.close();
 });

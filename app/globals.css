@@ -208,3 +208,5 @@
 .reactor-task{width:100%;max-width:620px;margin:auto}.reactor-task h2{font-size:clamp(18px,4vw,26px)}.reactor-task-picture{display:block;width:130px;height:110px;object-fit:contain;margin:8px auto}.reactor-task .spelling-slots,.reactor-task .spelling-tiles,.reactor-task .spelling-actions{margin:12px 0}.reactor-task .spelling-slot{color:#242038;background:#fff}.reactor-task .answers{margin-top:12px}
 
 .homework-reports>details{padding:12px 0;border-bottom:1px solid #dedbea}.homework-reports summary{cursor:pointer}.homework-report-detail{margin-top:20px;padding-top:16px;border-top:1px solid #dedbea}.homework-report-question{margin:10px 0;padding:12px;background:#f7f7fc;border-radius:12px}.homework-report-question summary{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.homework-report-question strong{font-size:13px}.report-mistake{color:#a13e29}.report-correct{color:#176152}
+
+.picture-written-word{font-size:clamp(24px,5vw,34px);font-weight:750;text-align:center;margin:12px 0 18px;line-height:1.35;overflow-wrap:anywhere}

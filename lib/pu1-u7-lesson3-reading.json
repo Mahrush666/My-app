@@ -1,0 +1,200 @@
+{
+  "title": "Can I…? Can we…?",
+  "scenes": [
+    {
+      "id": "pu1-u7-l3-rule",
+      "image": "lessons/pu1-u7-lesson3/grammar-rule.webp",
+      "label": "Can we play tennis?",
+      "full": [
+        "Can we play tennis?",
+        "Yes, you can, but you can’t play here."
+      ],
+      "easy": [
+        "Can we play tennis?",
+        "Yes, you can, but you can’t play here."
+      ]
+    },
+    {
+      "id": "pu1-u7-l3-dialogue",
+      "image": "lessons/pu1-u7-lesson3/dialogue.webp",
+      "label": "Can we play football?",
+      "full": [
+        "Mum! Can we play football?",
+        "Yes, you can, but you can’t play in the garden.",
+        "Can we go to the park, please?",
+        "That’s a good idea. Let’s go to the park.",
+        "Great. We can all play football in the park."
+      ],
+      "easy": [
+        "Mum! Can we play football?",
+        "Yes, you can, but you can’t play in the garden.",
+        "Can we go to the park, please?",
+        "That’s a good idea. Let’s go to the park.",
+        "Great. We can all play football in the park."
+      ]
+    },
+    {
+      "id": "pu1-u7-l3-permission-1",
+      "image": "lessons/pu1-u7-lesson3/permission-1.webp",
+      "label": "Can I throw the ball?",
+      "full": [
+        "Can we ride our skateboards in the park?",
+        "Can I throw the ball for your dog?"
+      ],
+      "easy": [
+        "Can we ride our skateboards in the park?",
+        "Can I throw the ball for your dog?"
+      ]
+    },
+    {
+      "id": "pu1-u7-l3-permission-2",
+      "image": "lessons/pu1-u7-lesson3/permission-2.webp",
+      "label": "Can we eat some cake?",
+      "full": [
+        "Can we eat some cake, please?",
+        "Can we go on the train, please?"
+      ],
+      "easy": [
+        "Can we eat some cake, please?",
+        "Can we go on the train, please?"
+      ]
+    },
+    {
+      "id": "pu1-u7-l3-permission-3",
+      "image": "lessons/pu1-u7-lesson3/permission-3.webp",
+      "label": "Can I watch television?",
+      "full": [
+        "Can I watch television, please?",
+        "Can we play badminton in the garden?"
+      ],
+      "easy": [
+        "Can I watch television, please?",
+        "Can we play badminton in the garden?"
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "pu1-u7-l3-q1",
+      "scene": "pu1-u7-l3-dialogue",
+      "text": "Where can the children play football?",
+      "options": [
+        "In the garden.",
+        "In the park.",
+        "On the train.",
+        "In the house."
+      ],
+      "answer": 1,
+      "explanation": "They can all play football in the park."
+    },
+    {
+      "id": "pu1-u7-l3-q2",
+      "scene": "pu1-u7-l3-dialogue",
+      "text": "Where can’t the children play football?",
+      "options": [
+        "In the park.",
+        "At school.",
+        "In the garden.",
+        "On the beach."
+      ],
+      "answer": 2,
+      "explanation": "They can’t play in the garden."
+    },
+    {
+      "id": "pu1-u7-l3-q3",
+      "scene": "pu1-u7-l3-permission-1",
+      "text": "Choose the question about the dog.",
+      "options": [
+        "I can throw the ball for your dog?",
+        "Can I throwing the ball for your dog?",
+        "Can I throws the ball for your dog?",
+        "Can I throw the ball for your dog?"
+      ],
+      "answer": 3,
+      "explanation": "Can I throw the ball for your dog?"
+    },
+    {
+      "id": "pu1-u7-l3-q4",
+      "scene": "pu1-u7-l3-permission-1",
+      "text": "Choose the question about skateboards.",
+      "options": [
+        "Can we ride our skateboards in the park?",
+        "Can we riding our skateboards in the park?",
+        "We can ride our skateboards in the park?",
+        "Can we rides our skateboards in the park?"
+      ],
+      "answer": 0,
+      "explanation": "Can we ride our skateboards in the park?"
+    },
+    {
+      "id": "pu1-u7-l3-q5",
+      "scene": "pu1-u7-l3-permission-2",
+      "text": "Choose the question about cake.",
+      "options": [
+        "Can we eating some cake, please?",
+        "Can we eat some cake, please?",
+        "We can eat some cake, please?",
+        "Can we eats some cake, please?"
+      ],
+      "answer": 1,
+      "explanation": "Can we eat some cake, please?"
+    },
+    {
+      "id": "pu1-u7-l3-q6",
+      "scene": "pu1-u7-l3-permission-2",
+      "text": "Choose the question about the train.",
+      "options": [
+        "We can go on the train, please?",
+        "Can we going on the train, please?",
+        "Can we go on the train, please?",
+        "Can we goes on the train, please?"
+      ],
+      "answer": 2,
+      "explanation": "Can we go on the train, please?"
+    },
+    {
+      "id": "pu1-u7-l3-q7",
+      "scene": "pu1-u7-l3-permission-3",
+      "text": "Choose the question about television.",
+      "options": [
+        "Can I watch television, please?",
+        "Can I watching television, please?",
+        "I can watch television, please?",
+        "Can I watches television, please?"
+      ],
+      "answer": 0,
+      "explanation": "Can I watch television, please?"
+    },
+    {
+      "id": "pu1-u7-l3-q8",
+      "scene": "pu1-u7-l3-permission-3",
+      "text": "Choose the question about badminton.",
+      "options": [
+        "Can we playing badminton in the garden?",
+        "We can play badminton in the garden?",
+        "Can we plays badminton in the garden?",
+        "Can we play badminton in the garden?"
+      ],
+      "answer": 3,
+      "explanation": "Can we play badminton in the garden?"
+    }
+  ],
+  "orders": [],
+  "references": [
+    {
+      "title": "Listen and number · Sports chant",
+      "image": "lessons/pu1-u7-lesson3/chant.webp",
+      "audio": "lessons/pu1-u7-lesson3/chant.m4a"
+    },
+    {
+      "title": "Listen and colour",
+      "image": "lessons/pu1-u7-lesson3/listen-colour.webp",
+      "audio": "lessons/pu1-u7-lesson3/listen-colour.m4a"
+    },
+    {
+      "title": "Which sport do they play?",
+      "image": "lessons/pu1-u7-lesson3/sports-listening.webp",
+      "audio": "lessons/pu1-u7-lesson3/sports-listening.m4a"
+    }
+  ]
+}

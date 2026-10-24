@@ -606,3 +606,28 @@ test('Power Up 1 Unit 7 Lesson 2 can be assigned and all story and grammar answe
  hw=(await api('/homework?child='+kid,undefined,parent)).body;assert.equal(hw.completed.filter(c=>c.assignment_id===assignmentId).length,2,'Video and reading do not require parent ticks');assert.deepEqual(hw.progress,{});
  await DB.sqlite.close();
 });
+
+test('Unit 7 Lesson 3 vocabulary and permission questions are assignable and checked for homework',async()=>{
+ const {api,DB}=await setup();
+ const story=JSON.parse((await import('node:fs')).readFileSync(new URL('../lib/pu1-u7-lesson3-reading.json',import.meta.url),'utf8'));
+ const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Sports and permission'},teacher)).body;
+ const child=(await api('/teacher-students',{groupId:group.id,names:['Reader']},teacher)).body.students[0].id;
+ const access=(await api('/student-link',{childId:child,reuse:true},teacher)).body.access;
+ const student=(await api('/student-login',{access})).body.token;
+ const task=await api('/assignments',{groupId:group.id,unitId:'pu1-u7-vocabulary2',activities:['look-listen','video','reading','story-quiz','spell']},teacher);
+ assert.equal(task.status,200);
+ const hw=(await api('/homework?child='+child,undefined,student)).body;
+ const ids=JSON.parse(hw.assignments[0].word_ids);assert.equal(ids.length,9);assert.ok(ids.includes('pu1-u7-l3-catching'));
+ const post=(activity,wordId,answer,stage)=>api('/progress',{childId:child,assignmentId:task.body.id,activity,wordId,answer,stage,correct:true,eventId:crypto.randomUUID()},student);
+ const first=story.questions[0];assert.equal((await post('story-quiz',first.id,String((first.answer+1)%4))).body.correct,false);
+ assert.equal((await post('story-quiz','unknown-question','0')).status,400);
+ for(const q of story.questions)assert.equal((await post('story-quiz',q.id,String(q.answer))).body.correct,true);
+ let report=(await api('/homework-report?child='+child+'&assignment='+task.body.id,undefined,teacher)).body;
+ assert.equal(report.finished,false,'Spelling remains required');
+ for(const id of ids)assert.equal((await post('spell',id,undefined,'step5')).status,200);
+ report=(await api('/homework-report?child='+child+'&assignment='+task.body.id,undefined,teacher)).body;
+ assert.equal(report.finished,true,'Ungraded reading, listening and video do not require parent ticks');
+ assert.equal((await api('/homework-report?child='+child+'&assignment='+task.body.id,undefined,student)).status,403);
+ await DB.sqlite.close();
+});

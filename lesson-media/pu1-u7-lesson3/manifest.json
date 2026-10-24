@@ -1,0 +1,44 @@
+{
+  "assets": [
+    {
+      "file": "chant.m4a",
+      "sha256": "67db6ed1d7df2b47968e7d946cceaa5c7dc98504b73ed0e73634557b7e20676d",
+      "parts": [
+        "chant.m4a-1.bin",
+        "chant.m4a-2.bin",
+        "chant.m4a-3.bin"
+      ]
+    },
+    {
+      "file": "chant.mp4",
+      "sha256": "d5321b04aedfe5b0714e950b72db20104b776b87d54cc5050c81f5d69b782c29",
+      "parts": [
+        "chant.mp4-1.bin",
+        "chant.mp4-2.bin",
+        "chant.mp4-3.bin",
+        "chant.mp4-4.bin",
+        "chant.mp4-5.bin",
+        "chant.mp4-6.bin",
+        "chant.mp4-7.bin",
+        "chant.mp4-8.bin"
+      ]
+    },
+    {
+      "file": "listen-colour.m4a",
+      "sha256": "0dc452840c771bbb755179160f93a1689a48c6231f71252043552ee8b87e3d40",
+      "parts": [
+        "listen-colour.m4a-1.bin",
+        "listen-colour.m4a-2.bin",
+        "listen-colour.m4a-3.bin"
+      ]
+    },
+    {
+      "file": "sports-listening.m4a",
+      "sha256": "d4b1bd72c5f7d62d12961e936c039d7061494d39050df7aa480eb6e9b8c0903c",
+      "parts": [
+        "sports-listening.m4a-1.bin",
+        "sports-listening.m4a-2.bin"
+      ]
+    }
+  ]
+}

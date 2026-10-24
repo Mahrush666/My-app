@@ -8,5 +8,5 @@ export const powerUp1Unit7Lesson3:Lesson={
  words:vocabulary.map(([en,zh,sentence])=>({id:'pu1-u7-l3-'+en,en,zh,sentence,icon:'',category:'Sports and actions',picture:'lessons/pu1-u7-lesson3/'+en+'.webp'})),
  readingStory,readings:readingStory.scenes.map(s=>({id:s.id,title:s.label,text:s.full.join(' '),level:'Reading',hint:''})),
  sentencePractice:readingStory.scenes.flatMap(s=>s.full.map((text,i)=>({id:s.id+'-line-'+(i+1),text}))),
- videos:[{title:'Sports chant',kind:'lesson',src:'lessons/pu1-u7-lesson3/chant.mp4',poster:'lessons/pu1-u7-lesson3/chant-poster.webp'}]
+ videos:[{title:'Sports chant',kind:'song',src:'lessons/pu1-u7-lesson3/chant.mp4',poster:'lessons/pu1-u7-lesson3/chant-poster.webp'}]
 };

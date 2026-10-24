@@ -1,1 +1,1 @@
-export type LessonVideo={title:string;kind?:'story'|'lesson';src:string;poster?:string};
+export type LessonVideo={title:string;kind?:'story'|'lesson'|'song';src:string;poster?:string};

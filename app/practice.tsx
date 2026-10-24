@@ -1,4 +1,4 @@
-import {orderHomeworkActivities,homeworkTabs,preReaderAge} from '../lib/homework-order';
+import {orderHomeworkActivities,homeworkTabs,preReaderAge,hasLessonSong} from '../lib/homework-order';
 import SpellingPractice from './spelling-practice';
 import WordAudioPractice from './word-audio-practice';
 import {sentencePracticeWords,type SentencePractice} from '../lib/sentence-practice';
@@ -31,7 +31,7 @@ export default function Practice({spellingScope,vocabulary=words,readings=passag
  const orderedHomework=homework&&homeworkSequence;
  const lessonData={id:unitId,words:vocabulary,readings,videos,story,readingStory,sentencePractice};
  const supported=enabledActivities(requestedActivities).filter(a=>supportsActivity(a,lessonData));
- const activities=orderedHomework&&!onlyDue?orderHomeworkActivities(supported,supportsActivity('look-listen',lessonData)):supported;
+ const activities=onlyDue?supported:orderHomeworkActivities(supported,orderedHomework&&supportsActivity('look-listen',lessonData),hasLessonSong(videos));
  const progressiveSpelling=Boolean(unitId?.startsWith('pu1-')&&unitId.includes('-vocabulary'));
  const gameIds=progressiveSpelling?['reactor','match','ward','sprint']:['reactor','match','spell','ward','sprint'];
  const games=activities.filter(a=>gameIds.includes(a));

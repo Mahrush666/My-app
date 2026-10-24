@@ -23,6 +23,7 @@ export async function authorizeStaff(db:D1Database,access:StaffAccess,path:strin
  if(['/teacher-students','/move-student','/approve','/invite','/student-link','/student-invite','/rename-group'].includes(path))need('students');
  else if(path==='/attendance')need('attendance');
  else if(path==='/schedule'||path==='/delete-meeting')need('schedule');
+ else if(path==='/lesson-settings')need('materials');
  else if(path==='/assignments')need('assignments');
  else if(path==='/delete-assignment'){need('delete');need('assignments');}
  else if(path==='/delete-student'){need('delete');need('students');}

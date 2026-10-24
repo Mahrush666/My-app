@@ -1,3 +1,4 @@
+import {publishedSettings,assignmentSettingsUpdates} from './lesson-settings';
 import {homeworkReport,type ReportAttempt} from '../lib/homework-report';
 import {sentencePracticeWords} from '../lib/sentence-practice';
 import {speechMatches} from '../lib/local-speech';
@@ -12,7 +13,7 @@ import {requiresAnswers} from '../lib/homework-completion';
 import {supportsActivity} from '../lib/activity-availability';
 import type {D1Database} from '@cloudflare/workers-types';
 import {lessons} from '../github-pages/lessons';
-import {activityOptions,type ActivityId} from '../lib/unit-activities';
+import {activityOptions,validateSettings,type ActivityId} from '../lib/unit-activities';
 export type Env={DB:D1Database;ALLOWED_ORIGINS:string;TEACHER_PASSWORD?:string;TEACHER_PASSWORD_HASH?:string};
 const ROSTER_ID='teacher-managed-roster';
 const ROSTER_USERNAME='__teacher_roster__';
@@ -45,6 +46,10 @@ export async function handle(request:Request,env:Env){
  if(!data||typeof data!=='object'||Array.isArray(data))throw new Failure('Invalid request.');
  }
  const now=Date.now();
+ if(path==='/lesson-settings'&&request.method==='GET'){
+ return respond({settings:await publishedSettings(env.DB,lessons)});
+ }
+
  if(['/register','/login','/teacher-login'].includes(path)&&request.method==='POST'){
  // Bound both account and IP attempts without logging credentials.
  const username=text(data.username,40).toLowerCase();const ip=request.headers.get('CF-Connecting-IP')||'local';
@@ -96,7 +101,7 @@ export async function handle(request:Request,env:Env){
  if(path==='/campuses'&&request.method==='GET')return respond({campuses:(await env.DB.prepare('SELECT id,name FROM campuses ORDER BY name').all()).results});
  if(path==='/move-class-campus'&&request.method==='POST'){const id=text(data.groupId,80),campusId=text(data.campusId,80);requireValue(await env.DB.prepare('SELECT id FROM groups WHERE id=?').bind(id).first(),'Class not found.');requireValue(await env.DB.prepare('SELECT id FROM campuses WHERE id=?').bind(campusId).first(),'Campus not found.');await env.DB.prepare('INSERT INTO group_campuses(group_id,campus_id) VALUES(?,?) ON CONFLICT(group_id) DO UPDATE SET campus_id=excluded.campus_id').bind(id,campusId).run();return respond({saved:true});}
  }
- const teacherPaths=['/homework-report','/teacher','/calendar','/schedule','/attendance','/delete-meeting','/rename-group','/delete-student','/delete-group','/rewards','/reward-award','/reward-undo','/groups','/invite','/teacher-students','/move-student','/student-link','/student-invite','/approve','/assignments','/delete-assignment'];
+ const teacherPaths=['/lesson-settings','/homework-report','/teacher','/calendar','/schedule','/attendance','/delete-meeting','/rename-group','/delete-student','/delete-group','/rewards','/reward-award','/reward-undo','/groups','/invite','/teacher-students','/move-student','/student-link','/student-invite','/approve','/assignments','/delete-assignment'];
  if(access&&(teacherPaths.includes(path)||path.startsWith('/staff')))await authorizeStaff(env.DB,access,path,data,new URL(request.url));
  if(path==='/staff'&&request.method==='GET'){
  if(!access?.owner)throw new Failure('Owner access required.',403);
@@ -148,6 +153,19 @@ export async function handle(request:Request,env:Env){
  }
  if(path==='/reward-undo'&&request.method==='POST'){
  teacher();const childId=text(data.childId,80),id=text(data.id,80);const entry=await env.DB.prepare('SELECT kind FROM reward_events WHERE id=? AND child_id=?').bind(id,childId).first<{kind:string}>();requireValue(entry&&entry.kind!=='homework','Only teacher awards can be undone.');await env.DB.prepare('UPDATE reward_events SET revoked=1 WHERE id=? AND child_id=?').bind(id,childId).run();return respond(await readRewards(env.DB,childId));
+ }
+ if(path==='/lesson-settings'&&request.method==='POST'){
+ teacher();const settings=validateSettings(data.settings,lessons.map(l=>l.id));
+ requireValue(Object.keys(settings).length>0,'Choose valid lesson settings.');
+ for(const [id,value] of Object.entries(settings)){const unit=lessons.find(l=>l.id===id)!;requireValue(value.activities.every(a=>supportsActivity(a,unit)),'Choose supported lesson activities.');}
+ const changes=Object.entries(settings).map(([id,value])=>env.DB.prepare('INSERT INTO config(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value').bind('lesson_settings:'+id,JSON.stringify(value)));
+ let updatedAssignments=0;
+ if(access!.owner||access!.permissions.includes('assignments')){
+ const assignments=await env.DB.prepare('SELECT id,group_id,unit_id,word_ids,updated_at FROM assignments').all<{id:string;group_id:string;unit_id:string;word_ids:string;updated_at:number}>();
+ for(const assignment of assignments.results){const value=settings[assignment.unit_id];if(!value||(!access!.owner&&!access!.groups.includes(assignment.group_id)))continue;changes.push(...assignmentSettingsUpdates(env.DB,assignment,lessons.find(l=>l.id===assignment.unit_id)!,value.activities));updatedAssignments++;}
+ }
+ await env.DB.batch(changes);
+ return respond({settings,saved:true,updatedAssignments});
  }
  if(path==='/homework-report'&&request.method==='GET'){
  teacher();const url=new URL(request.url),childId=text(url.searchParams.get('child'),80),assignmentId=text(url.searchParams.get('assignment'),80);
@@ -248,7 +266,7 @@ export async function handle(request:Request,env:Env){
  const [assignments,reviews,completed]=await Promise.all([env.DB.prepare('SELECT * FROM assignments WHERE group_id=? ORDER BY due_date,updated_at').bind(child.group_id).all(),env.DB.prepare('SELECT word_id,step,due FROM reviews WHERE child_id=?').bind(child.id).all(),env.DB.prepare('SELECT assignment_id,activity FROM completions WHERE child_id=?').bind(child.id).all()]);
  await syncHomeworkRewards(env.DB,child.id,assignments.results as {id:string;activities:string;title:string;updated_at:number}[],now);
  const rewards=await readRewards(env.DB,child.id);
- return respond({dashboard:await studentDashboard(env.DB,child,now),rewards,assignments:assignments.results,progress:Object.fromEntries(reviews.results.map(r=>[r.word_id,{step:r.step,due:r.due}])),completed:completed.results,pending:false});
+ return respond({lessonSettings:await publishedSettings(env.DB,lessons),dashboard:await studentDashboard(env.DB,child,now),rewards,assignments:assignments.results,progress:Object.fromEntries(reviews.results.map(r=>[r.word_id,{step:r.step,due:r.due}])),completed:completed.results,pending:false});
  }
  if(path==='/practice-progress'&&request.method==='POST'){
  const child=await childAccess(data.childId);requireValue(child.approved,'Your teacher needs to approve this profile.');

@@ -554,3 +554,27 @@ test('Power Up 1 Unit 8 At home is assignable with all nine vocabulary words',as
  const progress=await api('/progress',{childId:child,assignmentId:saved.body.id,activity:'spell',stage:'step1',wordId:ids[0],correct:true,eventId:crypto.randomUUID()},parent);assert.equal(progress.status,200);assert.equal(progress.body.completed.length,0);
  await DB.sqlite.close();
 });
+
+test('published lesson settings update old shared links and class homework while preserving attempts and reviews',async()=>{
+ const {api,DB}=await setup();const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ assert.deepEqual((await api('/lesson-settings')).body.settings,{});
+ const group=(await api('/groups',{name:'Live lessons'},teacher)).body;
+ const parent=(await api('/register',{username:'live_family',password:'parent-password',consent:true})).body.token;
+ const child=(await api('/children',{name:'Amy',invite:group.invite},parent)).body.id;await api('/approve',{childId:child,approved:true},teacher);
+ const ids=['climb','swim','walk','jump'].map(w=>'pu-starter-u7-'+w);
+ const task=(await api('/assignments',{groupId:group.id,unitId:'pu-starter-u7-lesson1',activities:['picture-listen'],wordIds:ids},teacher)).body.id;
+ for(const id of ids)await api('/progress',{childId:child,assignmentId:task,activity:'picture-listen',wordId:id,correct:true,eventId:crypto.randomUUID()},parent);
+ const before=(await api('/homework?child='+child,undefined,parent)).body;assert.equal(before.completed.length,1);
+ const settings={'pu-starter-u7-lesson1':{activities:['picture-listen','sound-picture'],age:'3–5'}};
+ assert.equal((await api('/lesson-settings',{settings},parent)).status,403);
+ assert.equal((await api('/lesson-settings',{settings})).status,401);
+ assert.equal((await api('/lesson-settings',{settings:{'pu-starter-u7-lesson1':{activities:['story-order'],age:'3–5'}}},teacher)).status,400);
+ const publish=await api('/lesson-settings',{settings},teacher);assert.equal(publish.status,200);assert.equal(publish.body.updatedAssignments,1);
+ const publicSettings=(await api('/lesson-settings')).body;assert.deepEqual(publicSettings.settings,settings);assert.deepEqual(Object.keys(publicSettings),['settings']);
+ const after=(await api('/homework?child='+child,undefined,parent)).body;
+ assert.deepEqual(JSON.parse(after.assignments[0].activities),['picture-listen','sound-picture']);assert.equal(after.assignments[0].updated_at,before.assignments[0].updated_at);assert.deepEqual(after.progress,before.progress);assert.equal(after.completed.length,1);assert.equal(after.completed[0].activity,'picture-listen');assert.deepEqual(after.lessonSettings,settings);
+ await api('/lesson-settings',{settings:{'pu-starter-u7-lesson1':{activities:['picture-listen'],age:'3–5'}}},teacher);
+ assert.equal((await api('/homework?child='+child,undefined,parent)).body.completed.length,1);
+ const report=(await api('/homework-report?child='+child+'&assignment='+task,undefined,teacher)).body;assert.equal(report.finished,true);assert.equal(report.exercises[0].questions.flatMap(q=>q.attempts).length,4);
+ await DB.sqlite.close();
+});

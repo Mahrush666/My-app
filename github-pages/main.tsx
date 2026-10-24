@@ -14,6 +14,7 @@ import Practice from '../app/practice';
 import { lessons } from './lessons';
 import {bookUnits,lessonLabel} from './lesson-groups';
 import '../app/globals.css';
+import './academy.css';
 const LocalSpeechTrial=lazy(()=>import('./local-speech-trial'));
 function App() {
  const params=new URLSearchParams(location.hash.slice(1));

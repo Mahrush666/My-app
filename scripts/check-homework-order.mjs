@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import{build}from'esbuild';
+fs.mkdirSync('.wrangler/homework-order-test',{recursive:true});
+await build({stdin:{contents:"export{orderHomeworkActivities,homeworkTabs}from'./lib/homework-order';export{homeworkFinished}from'./lib/homework-completion'",resolveDir:process.cwd(),loader:'ts'},bundle:true,platform:'node',format:'esm',outfile:'.wrangler/homework-order-test/index.mjs'});
+const{orderHomeworkActivities,homeworkTabs,homeworkFinished}=await import('../.wrangler/homework-order-test/index.mjs');
+const input=['reactor','spell','word-choice','sound-picture','picture-listen'];
+assert.deepEqual(orderHomeworkActivities(input,true),['look-listen','picture-listen','sound-picture','word-choice','spell','reactor']);
+assert.equal(input[0],'reactor','Input assignments are not modified');
+assert.deepEqual(orderHomeworkActivities(['reactor','picture-listen','sound-picture'],true),['look-listen','picture-listen','sound-picture','reactor']);
+assert.deepEqual(orderHomeworkActivities(['sound-word','word-sound'],false),['word-sound','sound-word']);
+assert.deepEqual(orderHomeworkActivities(['look-listen','reactor','look-listen'],true),['look-listen','reactor']);
+assert.deepEqual(homeworkTabs(orderHomeworkActivities(['reactor','spell','story-quiz','story-order','reading'],true)),['look-listen','reading','story-practice','spell','reactor']);
+assert.equal(homeworkFinished({id:'a',activities:JSON.stringify(orderHomeworkActivities(['word-choice','spell'],true))},[{assignment_id:'a',activity:'spell'},{assignment_id:'a',activity:'word-choice'}]),true,'Ungraded preparation does not add answer requirements');
+console.log('PASS: ordered homework, optional formats, duplicate removal, phonics, story grouping and preserved completion requirements.');

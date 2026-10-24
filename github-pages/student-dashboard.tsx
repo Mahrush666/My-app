@@ -1,3 +1,4 @@
+import {publicAsset} from '../lib/public-runtime';
 import {BookOpen,CalendarDays,ChevronRight,Home,RotateCcw,Sparkles,Trophy,Users} from 'lucide-react';
 import {useEffect,useState} from 'react';
 import {lessons,type Lesson} from './lessons';
@@ -29,7 +30,7 @@ export default function StudentDashboard({lessonSettings,studentId,name,data,rew
  if(screen==='review'&&selected)activities=[selected.defaultAge?.startsWith('3')?'picture-listen':'word-choice'];
  return <div className="student-dashboard">
  <div className="student-brand"><span>✦ Word<span>Quest</span></span><span className="student-avatar" aria-label={name}>{name.slice(0,1).toUpperCase()}</span></div>
- <header className="student-dash-heading"><div><h1>{screen==='home'?`Hi, ${name}!`:screen==='rewards'?'My rewards 我的奖励':screen==='class'?'My class 我的班级':'Let’s practise 一起练习'}</h1>{screen==='home'&&<p>Ready for a little adventure? 今天一起学习吧！</p>}</div>{screen!=='home'&&<button disabled={busy} onClick={()=>void back()}>← Dashboard 主页</button>}</header>
+ <header className={screen==='home'?'student-dash-heading student-welcome':'student-dash-heading'}>{screen==='home'&&<img className="student-welcome-archer" src={publicAsset('mascots/archer-welcome.webp')} width={128} height={128} alt="" aria-hidden="true" decoding="async"/>}<div className="student-welcome-copy"><h1>{screen==='home'?`Hi, ${name}!`:screen==='rewards'?'My rewards 我的奖励':screen==='class'?'My class 我的班级':'Let’s practise 一起练习'}</h1>{screen==='home'&&<p>Ready for a little adventure? 今天一起学习吧！</p>}</div>{screen!=='home'&&<button disabled={busy} onClick={()=>void back()}>← Dashboard 主页</button>}</header>
  {error&&<p role="alert" className="notice">{error}</p>}
  {screen==='home'&&<>
  <section className="student-homework-hero"><div className="student-hero-label"><BookOpen size={26}/><span>Your homework 作业</span></div>{unfinished.length?<><h2>{unfinished[0].title}</h2>{unfinished[0].due_date&&<p>Due 截止 {unfinished[0].due_date}</p>}<button className="primary" onClick={()=>onHomework(unfinished[0].id)}>Continue 继续 <ChevronRight size={20}/></button>{unfinished.length>1&&<button className="student-all-homework" onClick={()=>setScreen('homework')}>All homework 全部作业 ({unfinished.length}) →</button>}</>:<><h2>All homework finished! 已全部完成！</h2><p>Great work. Try a little review! 做得好，来复习一下吧！</p></>}</section>

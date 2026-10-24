@@ -1,3 +1,4 @@
+import FinishCelebration,{DoneSticker} from './finish-celebration';
 import {useEffect,useMemo,useRef,useState} from 'react';
 import {Volume2} from 'lucide-react';
 import {speak,stopSpeaking,type Word} from './words';
@@ -17,7 +18,7 @@ export default function SpellingPractice({vocabulary,scope,onAnswer}:{vocabulary
  const tiles=useMemo(()=>word?spellingTiles(word.en,gaps):[],[word,gaps]);
  useEffect(()=>{setChosen([]);setCorrect(false);setMessage('');marked.current=false;stopSpeaking()},[round,step]);
  useEffect(()=>()=>stopSpeaking(),[]);
- function remember(next:number){if(round===null)return;const update={...saved,[round]:next};setSaved(update);try{localStorage.setItem(key,JSON.stringify(update))}catch{}}
+ function remember(next:number){if(round===null)return;const update:Saved={...saved,[round]:next};setSaved(update);if(rounds.every((words,i)=>(update[i]||0)>=words.length*5))window.dispatchEvent(new CustomEvent('wordquest-exercise-finished',{detail:{kind:'exercise'}}));try{localStorage.setItem(key,JSON.stringify(update))}catch{}}
  function open(i:number){setChosen([]);setCorrect(false);setMessage('');const at=saved[i];setStep(Number.isInteger(at)&&at>=0&&at<rounds[i].length*5?at:0);setRound(i);}
  async function check(){
   if(!word||busy.current||correct||chosen.length!==gaps.length)return;
@@ -31,8 +32,8 @@ export default function SpellingPractice({vocabulary,scope,onAnswer}:{vocabulary
   }catch{setMessage('Could not save. Tap OK to retry. 保存失败，请重试。')}
   finally{busy.current=false;setSaving(false)}
  }
- if(round===null)return <section className="spelling-practice"><h3>Build the word 拼单词</h3><p>Three words at a time · 每轮三个词</p><div className="spelling-rounds">{rounds.map((words,i)=><button key={i} onClick={()=>open(i)}><strong>Round {i+1} 第{i+1}轮</strong><span>{words.length} words · {Math.min(saved[i]||0,words.length*5)}/{words.length*5} ✓</span></button>)}</div></section>;
- if(!word||stage>=5)return <section className="spelling-practice"><h3>⭐ Round finished! 本轮完成！</h3><button className="primary" onClick={()=>setRound(null)}>Choose a round 选择一轮</button></section>;
+ if(round===null)return <section className="spelling-practice"><h3>Build the word 拼单词</h3><p>Three words at a time · 每轮三个词</p><div className="spelling-rounds">{rounds.map((words,i)=><button key={i} onClick={()=>open(i)}><strong>Round {i+1} 第{i+1}轮</strong>{(saved[i]||0)>=words.length*5&&<DoneSticker/>}<span>{words.length} words · {Math.min(saved[i]||0,words.length*5)}/{words.length*5} ✓</span></button>)}</div></section>;
+ if(!word||stage>=5)return <section className="spelling-practice">{step>0&&<FinishCelebration kind="round" title="Round complete! 本轮完成！"/>}<h3>⭐ Round finished! 本轮完成！</h3><button className="primary" onClick={()=>setRound(null)}>Choose a round 选择一轮</button></section>;
  return <section className="spelling-practice"><div className="quiz-top"><button disabled={saving} onClick={()=>{stopSpeaking();setRound(null)}}>← Rounds 返回</button><span>Round {round+1} · {step+1}/{group.length*5}</span></div>
  <p>Step {stage+1}/5 · {stage===0?'Look and build 看词拼写':'Fill the gaps 补全单词'}</p>
  {word.picture?<img className="spelling-picture" src={publicAsset(word.picture)} alt=""/>:<div className="word-emoji" aria-hidden="true">{word.icon}</div>}

@@ -660,3 +660,26 @@ test('Unit 7 Lesson 4 Body Power homework checks source questions and sentence r
  assert.equal((await api('/homework-report?child='+child+'&assignment='+task.body.id,undefined,student)).status,403);
  await DB.sqlite.close();
 });
+
+test('student partial homework progress persists and Reactor rankings deduplicate words and protect names',async()=>{
+ const {api,DB}=await setup();const owner=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const ga=(await api('/groups',{name:'Archers A'},owner)).body,gb=(await api('/groups',{name:'Archers B'},owner)).body;
+ const ca=(await api('/teacher-students',{groupId:ga.id,names:['Private Amy']},owner)).body.students[0].id,cb=(await api('/teacher-students',{groupId:gb.id,names:['Private Ben']},owner)).body.students[0].id;
+ const token=async(id)=>(await api('/student-login',{access:(await api('/student-link',{childId:id,reuse:true},owner)).body.access})).body.token;
+ const a=await token(ca),b=await token(cb),ids=['boots','cap','dress','glasses'].map(w=>'pu1-u9-clothes-'+w);
+ const task=async(groupId)=>(await api('/assignments',{groupId,unitId:'pu1-u9-vocabulary1',activities:['spell','reactor'],wordIds:ids},owner)).body.id;
+ const aa=await task(ga.id),ab=await task(gb.id);
+ const post=(childId,assignmentId,activity,wordId,correct,stage,t)=>api('/progress',{childId,assignmentId,activity,wordId,correct,stage,eventId:crypto.randomUUID()},t);
+ let r=await post(ca,aa,'spell',ids[0],false,'step1',a);assert.equal(r.body.homeworkProgress[aa].done,0);
+ r=await post(ca,aa,'spell',ids[0],true,'step1',a);assert.equal(r.body.homeworkProgress[aa].done,1);assert.equal(r.body.homeworkProgress[aa].total,24);assert.ok(r.body.homeworkProgress[aa].percent>0&&r.body.homeworkProgress[aa].percent<100);
+ await post(ca,aa,'spell',ids[0],true,'step1',a);await post(ca,aa,'reactor',ids[0],true,'reactor:build',a);await post(ca,aa,'reactor',ids[0],true,'reactor:meaning',a);
+ assert.equal((await api('/homework?child='+ca,undefined,a)).body.homeworkProgress[aa].done,2);
+ for(const id of ids)await post(cb,ab,'reactor',id,true,'reactor:meaning',b);
+ assert.equal((await api('/reactor-leaderboard',{childId:ca})).status,401);
+ assert.equal((await api('/reactor-leaderboard',{childId:cb},a)).status,404);
+ const board=(await api('/reactor-leaderboard',{childId:ca},a)).body;
+ assert.equal(board.class.entries.length,1);assert.equal(board.class.you.points,10);assert.equal(board.class.you.name,'Private Amy');assert.equal(board.all.entries[0].points,40);assert.equal(board.all.you.rank,2);assert.ok(board.all.entries.every(e=>/^Archer [0-9A-F]{8}$/.test(e.name)));assert.ok(!JSON.stringify(board.all).includes('Private'));assert.ok(!JSON.stringify(board).includes(cb));
+ for(const id of ids)await post(ca,aa,'reactor',id,true,'reactor:meaning',a);
+ const progress=(await api('/homework?child='+ca,undefined,a)).body.homeworkProgress[aa];assert.equal(progress.exercises.find(e=>e.activity==='reactor').finished,true);assert.equal(progress.exercises.find(e=>e.activity==='spell').finished,false);
+ await DB.sqlite.close();
+});

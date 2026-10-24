@@ -1,3 +1,4 @@
+import FinishCelebration from './finish-celebration';
 "use client";
 import { useEffect, useState } from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -17,7 +18,7 @@ export default function Reading({lessonPassages=passages,onComplete,onRead,readI
  function choose(value:string){stopSpeaking();setId(value)}
  function markRead(){if(!p||readIds.includes(p.id))return;setCompleted(ids=>[...ids,p.id]);onRead?.(p);onComplete?.(p)}
  if(!p)return <div className="empty"><h2>No story in this unit yet.</h2><p>Your teacher can add one. 老师可以添加故事。</p></div>;
- return <>
+ return <>{completed.length===lessonPassages.length&&<FinishCelebration/>}
  <div className="section-heading"><div><p className="eyebrow">STORY TIME</p><h2>Read & listen 阅读与听故事</h2></div><span className="pill">{position+1} / {lessonPassages.length}</span></div>
  <Tabs value={p.id} onValueChange={choose}><TabsList className="reading-levels">{lessonPassages.map((x,i)=><TabsTrigger key={x.id} value={x.id} aria-label={x.title}>{lessonPassages.length>3?i+1:x.level}</TabsTrigger>)}</TabsList></Tabs>
  <div className="paragraph-navigation"><button disabled={position===0} onClick={()=>choose(lessonPassages[position-1].id)}>Previous 上一段</button><span>{position+1} / {lessonPassages.length}</span><button disabled={position===lessonPassages.length-1} onClick={()=>choose(lessonPassages[position+1].id)}>Next 下一段</button></div>

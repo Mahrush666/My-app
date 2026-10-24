@@ -1,3 +1,4 @@
+import {readStudentProgress,reactorLeaderboard} from './student-progress';
 import {publishedSettings,assignmentSettingsUpdates} from './lesson-settings';
 import {homeworkReport,type ReportAttempt} from '../lib/homework-report';
 import {sentencePracticeWords} from '../lib/sentence-practice';
@@ -261,12 +262,13 @@ export async function handle(request:Request,env:Env){
  const name=text(data.name,60);requireValue(name,'Enter a child’s name or nickname.');const count=await env.DB.prepare('SELECT COUNT(*) AS n FROM children WHERE parent_id=?').bind(session.account_id).first<{n:number}>();requireValue((count?.n||0)<10,'This account already has ten child profiles.');
  const id=crypto.randomUUID();await env.DB.prepare('INSERT INTO children VALUES(?,?,?,?,0,?)').bind(id,session.account_id,group!.id,name,now).run();return respond({id});
  }
+ if(path==='/reactor-leaderboard'&&request.method==='POST'){const child=await childAccess(data.childId);requireValue(child.approved,'Your teacher needs to approve this profile.');return respond(await reactorLeaderboard(env.DB,child,now));}
  if(path==='/homework'&&request.method==='GET'){
  const child=await childAccess(new URL(request.url).searchParams.get('child'));if(!child.approved)return respond({assignments:[],progress:{},completed:[],pending:true});
  const [assignments,reviews,completed]=await Promise.all([env.DB.prepare('SELECT * FROM assignments WHERE group_id=? ORDER BY due_date,updated_at').bind(child.group_id).all(),env.DB.prepare('SELECT word_id,step,due FROM reviews WHERE child_id=?').bind(child.id).all(),env.DB.prepare('SELECT assignment_id,activity FROM completions WHERE child_id=?').bind(child.id).all()]);
  await syncHomeworkRewards(env.DB,child.id,assignments.results as {id:string;activities:string;title:string;updated_at:number}[],now);
  const rewards=await readRewards(env.DB,child.id);
- return respond({lessonSettings:await publishedSettings(env.DB,lessons),dashboard:await studentDashboard(env.DB,child,now),rewards,assignments:assignments.results,progress:Object.fromEntries(reviews.results.map(r=>[r.word_id,{step:r.step,due:r.due}])),completed:completed.results,pending:false});
+ return respond({homeworkProgress:await readStudentProgress(env.DB,child.id,assignments.results,completed.results),lessonSettings:await publishedSettings(env.DB,lessons),dashboard:await studentDashboard(env.DB,child,now),rewards,assignments:assignments.results,progress:Object.fromEntries(reviews.results.map(r=>[r.word_id,{step:r.step,due:r.due}])),completed:completed.results,pending:false});
  }
  if(path==='/practice-progress'&&request.method==='POST'){
  const child=await childAccess(data.childId);requireValue(child.approved,'Your teacher needs to approve this profile.');
@@ -302,7 +304,7 @@ export async function handle(request:Request,env:Env){
  await syncHomeworkRewards(env.DB,child.id,[assignment!],now);
  const rewards=await readRewards(env.DB,child.id);
  const completed=await env.DB.prepare('SELECT assignment_id,activity FROM completions WHERE child_id=?').bind(child.id).all();
- return respond({saved:true,rewards,correct,duplicate:inserted[0].meta.changes===0,completed:completed.results});
+ return respond({homeworkProgress:await readStudentProgress(env.DB,child.id,[assignment!],completed.results),saved:true,rewards,correct,duplicate:inserted[0].meta.changes===0,completed:completed.results});
  }
  requireValue(typeof data.correct==='boolean','An answer result is required.');const wordId=text(data.wordId,100);requireValue(JSON.parse(assignment!.word_ids).includes(wordId),'This word is not assigned.');
  const stage=text(data.stage,20);const scaffold=activity==='spell'&&/^step[1-4]$/.test(stage);const reactorStage=activity==='reactor'&&/^reactor:(build|spelling|meaning)$/.test(stage);const attemptActivity=reactorStage?stage:activity==='lesson'||scaffold?activity+':'+stage:activity;
@@ -318,7 +320,7 @@ export async function handle(request:Request,env:Env){
  await syncHomeworkRewards(env.DB,child.id,[assignment!],now);
  const rewards=await readRewards(env.DB,child.id);
  const completed=await env.DB.prepare('SELECT assignment_id,activity FROM completions WHERE child_id=?').bind(child.id).all();
- return respond({saved:true,rewards,duplicate:inserted[0].meta.changes===0,completed:completed.results});
+ return respond({homeworkProgress:await readStudentProgress(env.DB,child.id,[assignment!],completed.results),saved:true,rewards,duplicate:inserted[0].meta.changes===0,completed:completed.results});
  }
  throw new Failure('Page not found.',404);
  }catch(error){if(error instanceof Failure||error instanceof StaffError)return respond({error:error.message},error.status);return respond({error:'Could not save or load the classroom. Please try again.'},503)}

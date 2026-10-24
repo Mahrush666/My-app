@@ -1,3 +1,4 @@
+import FinishCelebration from './finish-celebration';
 "use client";
 import ReactorTask from './reactor-task';
 import {reactorTaskTypes,type ReactorTaskType} from '../lib/reactor-tasks';
@@ -171,7 +172,7 @@ export default function WordReactor({ vocabulary, progress, onAnswer, onExit, al
       : status === 'quiz' && question ? <>{preReader?<><button className="reactor-listen" aria-label="Listen and choose a picture" onClick={()=>speak(question.en)}><Volume2 size={42}/><span aria-hidden="true">👂 → 🖼️</span></button><div className="answers reactor-picture-answers">{options.map((w,i)=><button key={w.id||w.en} aria-label={'Choose picture '+(i+1)} onClick={()=>answer(w)}>{w.picture?<img src={publicAsset(w.picture)} alt=""/>:<span className="reactor-picture-icon" aria-hidden="true">{w.icon}</span>}</button>)}</div></>:<ReactorTask key={questionNumber} type={taskType} word={question} options={options} onAnswer={text=>answer({...question,en:text})}/>}<p aria-live="polite">{hint}</p></>
       : status === 'upgrade' ? <><h2>Choose a power! 选择升级</h2><div className="power-choices"><button onClick={() => upgrade('spark')}><Zap/>Arrows +1<span>Stronger arrows 弓箭升级</span></button><button onClick={() => upgrade('shield')}><Shield/>Shield +1<span>Wider shield + one heart 护盾和生命</span></button><button onClick={() => upgrade('speed')}><Star/>Speed +1<span>Move faster 移动升级</span></button></div></>
       : status === 'paused' ? <><h2>Take a break 休息一下</h2><button className="primary" onClick={() => change('playing')}>Resume 继续</button></>
-      : <><h2>{status === 'won' ? 'Street protected! 守护成功！' : 'Nice practice! 再试一次！'}</h2><p>{correctWords} words practised · {hud.score} energy<br/>{hud.bossDefeated ? 'Final challenge cleared! 挑战成功！' : 'Keep building your word power. 继续练习单词。'}</p><button className="primary" onClick={start}>Play again 再玩一次</button></>}</div>}
+      : <><FinishCelebration title={status==='won'?'Street protected! 守护成功！':'Great practice! 练习完成！'}/><h2>{status === 'won' ? 'Street protected! 守护成功！' : 'Nice practice! 再试一次！'}</h2><p>{correctWords} words practised · {hud.score} energy<br/>{hud.bossDefeated ? 'Final challenge cleared! 挑战成功！' : 'Keep building your word power. 继续练习单词。'}</p><button className="primary" onClick={start}>Play again 再玩一次</button></>}</div>}
     </div><div className="reactor-upgrades"><span>ϟ {upgrades.spark}</span><span>◇ {upgrades.shield}</span><span>✦ {upgrades.speed}</span><span>Words 单词: {correctWords}</span></div><p className="instructions">Drag anywhere in the street to move. Your bow fires automatically. 在街道上拖动手指，弓箭自动攻击。<br/>Arrow keys / WASD on a computer.</p>
   </section>;
 }

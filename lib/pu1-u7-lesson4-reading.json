@@ -1,0 +1,160 @@
+{
+  "title": "Body Power",
+  "scenes": [
+    {
+      "id": "pu1-u7-l4-exercise",
+      "label": "Exercise",
+      "image": "lessons/pu1-u7-lesson4/exercise.webp",
+      "full": [
+        "Children need to exercise every day.",
+        "Running, playing football, riding a bike and dancing help make your bones and muscles strong."
+      ],
+      "easy": [
+        "Children need to exercise every day.",
+        "Running, playing football, riding a bike and dancing help make your bones and muscles strong."
+      ]
+    },
+    {
+      "id": "pu1-u7-l4-play-outside",
+      "label": "Play outside",
+      "image": "lessons/pu1-u7-lesson4/play-outside.webp",
+      "full": [
+        "Vitamin D is important for your bones.",
+        "Vitamin D comes from the sun.",
+        "It’s good to play outside, but remember to use sun cream when you are in the sun!"
+      ],
+      "easy": [
+        "Vitamin D is important for your bones.",
+        "Vitamin D comes from the sun.",
+        "It’s good to play outside, but remember to use sun cream when you are in the sun!"
+      ]
+    },
+    {
+      "id": "pu1-u7-l4-water-reading",
+      "label": "Drink water",
+      "image": "lessons/pu1-u7-lesson4/water-reading.webp",
+      "full": [
+        "It’s important to drink a lot of water.",
+        "Drink more water when you do exercise and when it’s hot."
+      ],
+      "easy": [
+        "It’s important to drink a lot of water.",
+        "Drink more water when you do exercise and when it’s hot."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "pu1-u7-l4-q1",
+      "scene": "pu1-u7-l4-exercise",
+      "text": "How often do children need to exercise?",
+      "options": [
+        "Every day.",
+        "Only on Mondays.",
+        "Once a month.",
+        "Only on holidays."
+      ],
+      "answer": 0,
+      "explanation": "Children need to exercise every day."
+    },
+    {
+      "id": "pu1-u7-l4-q2",
+      "scene": "pu1-u7-l4-exercise",
+      "text": "What does exercise help make strong?",
+      "options": [
+        "Your clothes.",
+        "Your books.",
+        "Your bones and muscles.",
+        "Your shoes."
+      ],
+      "answer": 2,
+      "explanation": "Exercise helps make your bones and muscles strong."
+    },
+    {
+      "id": "pu1-u7-l4-q3",
+      "scene": "pu1-u7-l4-exercise",
+      "text": "Which activity is in the text?",
+      "options": [
+        "Watching television.",
+        "Riding a bike.",
+        "Playing computer games.",
+        "Reading a book."
+      ],
+      "answer": 1,
+      "explanation": "Running, playing football, riding a bike and dancing help make your bones and muscles strong."
+    },
+    {
+      "id": "pu1-u7-l4-q4",
+      "scene": "pu1-u7-l4-play-outside",
+      "text": "Where does vitamin D come from?",
+      "options": [
+        "The moon.",
+        "A television.",
+        "A book.",
+        "The sun."
+      ],
+      "answer": 3,
+      "explanation": "Vitamin D comes from the sun."
+    },
+    {
+      "id": "pu1-u7-l4-q5",
+      "scene": "pu1-u7-l4-play-outside",
+      "text": "What should you remember to use in the sun?",
+      "options": [
+        "Sun cream.",
+        "A tennis racket.",
+        "A skateboard.",
+        "A computer."
+      ],
+      "answer": 0,
+      "explanation": "Remember to use sun cream when you are in the sun!"
+    },
+    {
+      "id": "pu1-u7-l4-q6",
+      "scene": "pu1-u7-l4-play-outside",
+      "text": "What is vitamin D important for?",
+      "options": [
+        "Your shoes.",
+        "Your bones.",
+        "Your pencil.",
+        "Your television."
+      ],
+      "answer": 1,
+      "explanation": "Vitamin D is important for your bones."
+    },
+    {
+      "id": "pu1-u7-l4-q7",
+      "scene": "pu1-u7-l4-water-reading",
+      "text": "What is it important to drink a lot of?",
+      "options": [
+        "Juice.",
+        "Cola.",
+        "Water.",
+        "Lemonade."
+      ],
+      "answer": 2,
+      "explanation": "It’s important to drink a lot of water."
+    },
+    {
+      "id": "pu1-u7-l4-q8",
+      "scene": "pu1-u7-l4-water-reading",
+      "text": "When should you drink more water?",
+      "options": [
+        "Only at night.",
+        "Only on Sundays.",
+        "Only in winter.",
+        "When you do exercise and when it’s hot."
+      ],
+      "answer": 3,
+      "explanation": "Drink more water when you do exercise and when it’s hot."
+    }
+  ],
+  "orders": [],
+  "references": [
+    {
+      "title": "Listen and do the warm-up",
+      "image": "lessons/pu1-u7-lesson4/warm-up-pictures.webp",
+      "audio": "lessons/pu1-u7-lesson4/warm-up.m4a"
+    }
+  ]
+}

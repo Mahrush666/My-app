@@ -1,0 +1,43 @@
+{
+  "assets": [
+    {
+      "file": "warm-up.m4a",
+      "sha256": "d6b7af29456ee826c3c72fa0411fede9c234a71ba5d4b40d156aae02f5621eea",
+      "parts": [
+        "warm-up.m4a-1.bin",
+        "warm-up.m4a-2.bin",
+        "warm-up.m4a-3.bin"
+      ]
+    },
+    {
+      "file": "warm-up.mp4",
+      "sha256": "a7f02efabc6e915f5168f39c3908a308511f83ac942bae066ec57d334f7860df",
+      "parts": [
+        "warm-up.mp4-1.bin",
+        "warm-up.mp4-2.bin",
+        "warm-up.mp4-3.bin",
+        "warm-up.mp4-4.bin",
+        "warm-up.mp4-5.bin",
+        "warm-up.mp4-6.bin",
+        "warm-up.mp4-7.bin",
+        "warm-up.mp4-8.bin",
+        "warm-up.mp4-9.bin",
+        "warm-up.mp4-10.bin",
+        "warm-up.mp4-11.bin",
+        "warm-up.mp4-12.bin",
+        "warm-up.mp4-13.bin",
+        "warm-up.mp4-14.bin",
+        "warm-up.mp4-15.bin",
+        "warm-up.mp4-16.bin",
+        "warm-up.mp4-17.bin",
+        "warm-up.mp4-18.bin",
+        "warm-up.mp4-19.bin",
+        "warm-up.mp4-20.bin",
+        "warm-up.mp4-21.bin",
+        "warm-up.mp4-22.bin",
+        "warm-up.mp4-23.bin",
+        "warm-up.mp4-24.bin"
+      ]
+    }
+  ]
+}

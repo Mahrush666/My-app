@@ -29,6 +29,15 @@ for(const asset of lesson3Media.assets){
  mkdirSync(root+'/public/lessons/pu1-u7-lesson3',{recursive:true});
  writeFileSync(root+'/public/lessons/pu1-u7-lesson3/'+asset.file,data);
 }
+// Lesson 4's original workout video and warm-up recording.
+const lesson4Dir=root+'/lesson-media/pu1-u7-lesson4';
+const lesson4Media=JSON.parse(readFileSync(lesson4Dir+'/manifest.json','utf8')) as {assets:{file:string;sha256:string;parts:string[]}[]};
+for(const asset of lesson4Media.assets){
+ const data=Buffer.concat(asset.parts.map(part=>readFileSync(lesson4Dir+'/'+part)));
+ if(createHash('sha256').update(data).digest('hex')!==asset.sha256)throw Error('Unit 7 Lesson 4 media is incomplete');
+ mkdirSync(root+'/public/lessons/pu1-u7-lesson4',{recursive:true});
+ writeFileSync(root+'/public/lessons/pu1-u7-lesson4/'+asset.file,data);
+}
 export default defineConfig({
   root: root + '/github-pages',
   base: process.env.PAGES_BASE || './',

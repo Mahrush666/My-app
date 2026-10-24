@@ -631,3 +631,22 @@ test('Unit 7 Lesson 3 vocabulary and permission questions are assignable and che
  assert.equal((await api('/homework-report?child='+child+'&assignment='+task.body.id,undefined,student)).status,403);
  await DB.sqlite.close();
 });
+
+test('Unit 7 Lesson 4 Body Power homework checks source questions and sentence reading',async()=>{
+ const {api,DB}=await setup();const story=JSON.parse((await import('node:fs')).readFileSync(new URL('../lib/pu1-u7-lesson4-reading.json',import.meta.url),'utf8'));
+ const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Body Power'},teacher)).body;
+ const child=(await api('/teacher-students',{groupId:group.id,names:['Reader']},teacher)).body.students[0].id;
+ const access=(await api('/student-link',{childId:child,reuse:true},teacher)).body.access;
+ const student=(await api('/student-login',{access})).body.token;
+ const task=await api('/assignments',{groupId:group.id,unitId:'pu1-u7-cross-curricular',activities:['look-listen','video','reading','story-quiz','sentence-speak']},teacher);assert.equal(task.status,200);
+ const hw=(await api('/homework?child='+child,undefined,student)).body;assert.equal(JSON.parse(hw.assignments[0].word_ids).length,11);
+ const post=(activity,wordId,answer)=>api('/progress',{childId:child,assignmentId:task.body.id,activity,wordId,answer,correct:true,eventId:crypto.randomUUID()},student);
+ assert.equal((await post('story-quiz',story.questions[0].id,'3')).body.correct,false);
+ for(const q of story.questions)assert.equal((await post('story-quiz',q.id,String(q.answer))).body.correct,true);
+ assert.equal((await api('/homework-report?child='+child+'&assignment='+task.body.id,undefined,teacher)).body.finished,false);
+ for(const s of story.scenes)for(const [i,text]of s.full.entries())assert.equal((await post('sentence-speak',s.id+'-line-'+(i+1),text)).body.correct,true);
+ const report=(await api('/homework-report?child='+child+'&assignment='+task.body.id,undefined,teacher)).body;assert.equal(report.finished,true);
+ assert.equal((await api('/homework-report?child='+child+'&assignment='+task.body.id,undefined,student)).status,403);
+ await DB.sqlite.close();
+});

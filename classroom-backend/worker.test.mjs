@@ -284,6 +284,12 @@ test('teacher calendar, recurring sessions, attendance history and protected ros
  assert.equal((await api('/attendance',{meetingId,childId:kids[0].id,status:'present'},teacher)).status,200);
  await api('/attendance',{meetingId,childId:kids[0].id,status:'late'},teacher);
  result=(await calendar()).body;assert.equal(result.marks.find(m=>m.meeting_id===meetingId&&m.child_id===kids[0].id).status,'late');
+ assert.equal((await api('/attendance',{meetingId,marks:[{childId:kids[0].id,status:'present'},{childId:kids[1].id,status:'absent'}]},teacher)).status,200);
+ result=(await calendar()).body;assert.equal(result.marks.find(m=>m.meeting_id===meetingId&&m.child_id===kids[0].id).status,'present');assert.equal(result.marks.find(m=>m.meeting_id===meetingId&&m.child_id===kids[1].id).status,'absent');
+ assert.equal((await api('/attendance',{meetingId,marks:[{childId:kids[0].id,status:'late'},{childId:outsider.id,status:'present'}]},teacher)).status,400);
+ assert.equal((await api('/attendance',{meetingId,marks:[{childId:kids[0].id,status:'late'},{childId:kids[1].id,status:'invented'}]},teacher)).status,400);
+ assert.equal((await api('/attendance',{meetingId,marks:[{childId:kids[0].id,status:'late'},{childId:kids[0].id,status:'absent'}]},teacher)).status,400);
+ result=(await calendar()).body;assert.equal(result.marks.find(m=>m.meeting_id===meetingId&&m.child_id===kids[0].id).status,'present','Invalid batch leaves all attendance unchanged');
  await api('/move-student',{childId:kids[0].id,groupId:g2},teacher);
  assert.equal((await api('/attendance',{meetingId,childId:kids[0].id,status:'present'},teacher)).status,200,'Saved roster keeps attendance history across transfers');
  assert.equal((await api('/delete-group',{id:g,confirm:true},teacher)).status,400,'Cannot delete a populated class');
@@ -324,6 +330,8 @@ test('individual teachers activate once, remain class-scoped, and obey live owne
  const calendar=(await api('/calendar?from=2026-10-19&to=2026-10-25',undefined,token)).body;assert.equal(calendar.meetings.length,1);assert.ok(calendar.marks.every(m=>m.child_id===kidA));
  assert.equal((await api('/attendance',{meetingId:calendar.meetings[0].id,childId:kidA,status:'present'},token)).status,200);
  assert.equal((await api('/attendance',{meetingId:calendar.meetings[0].id,childId:kidB,status:'present'},token)).status,403);
+ assert.equal((await api('/attendance',{meetingId:calendar.meetings[0].id,marks:[{childId:kidA,status:'present'}]},token)).status,200);
+ assert.equal((await api('/attendance',{meetingId:calendar.meetings[0].id,marks:[{childId:kidA,status:'present'},{childId:kidB,status:'absent'}]},token)).status,403);
  const permissions=['students','attendance','schedule','assignments','rewards','materials','delete'];
  await api('/staff-save',{...config,id:staff,permissions},owner);
  assert.equal((await api('/teacher-students',{groupId:b,names:['No']},token)).status,403);

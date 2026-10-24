@@ -29,10 +29,20 @@ export async function teacherTools(db:D1Database,path:string,method:string,data:
  await db.batch(statements);return {saved:true};
  }
  if(path==='/attendance'&&method==='POST'){
- const id=str(data.meetingId),childId=str(data.childId),status=str(data.status);
+ const id=str(data.meetingId);
+ const entries=Array.isArray(data.marks)?data.marks:[{childId:data.childId,status:data.status}];
+ check(entries.length>0&&entries.length<=500,'Choose 1–500 attendance records.');
+ const roster=await db.prepare('SELECT c.id FROM children c JOIN class_meetings m ON m.id=? WHERE ((c.group_id=m.group_id AND c.approved=1) OR EXISTS(SELECT 1 FROM attendance a WHERE a.meeting_id=m.id AND a.child_id=c.id))').bind(id).all<{id:string}>();
+ const allowed=new Set(roster.results.map(c=>c.id)),seen=new Set<string>(),statements=[];
+ for(const entry of entries){
+ check(entry&&typeof entry==='object','Choose an attendance record.');
+ const row=entry as Record<string,unknown>,childId=str(row.childId),status=str(row.status);
  check(['present','absent','late','excused','unmarked'].includes(status),'Choose an attendance status.');
- check(await db.prepare('SELECT c.id FROM children c JOIN class_meetings m ON m.id=? WHERE c.id=? AND ((c.group_id=m.group_id AND c.approved=1) OR EXISTS(SELECT 1 FROM attendance a WHERE a.meeting_id=m.id AND a.child_id=c.id))').bind(id,childId).first(),'This student is not in this class.');
- await db.prepare('INSERT INTO attendance(meeting_id,child_id,status) VALUES(?,?,?) ON CONFLICT(meeting_id,child_id) DO UPDATE SET status=excluded.status').bind(id,childId,status).run();return {saved:true};
+ check(allowed.has(childId),'This student is not in this class.');
+ check(!seen.has(childId),'A student can only appear once.');seen.add(childId);
+ statements.push(db.prepare('INSERT INTO attendance(meeting_id,child_id,status) VALUES(?,?,?) ON CONFLICT(meeting_id,child_id) DO UPDATE SET status=excluded.status').bind(id,childId,status));
+ }
+ await db.batch(statements);return {saved:true,count:statements.length};
  }
  if(path==='/delete-meeting'&&method==='POST'){
  const id=str(data.id);await db.batch([db.prepare('DELETE FROM attendance WHERE meeting_id=?').bind(id),db.prepare('DELETE FROM class_meetings WHERE id=?').bind(id)]);return {saved:true};

@@ -35,6 +35,12 @@ export async function authorizeStaff(db:D1Database,access:StaffAccess,path:strin
  if(path==='/rename-group')group(data.id);
  if(path==='/delete-assignment'||path==='/assignments'&&data.id){const row=await db.prepare('SELECT group_id FROM assignments WHERE id=?').bind(String(data.id||'')).first<{group_id:string}>();group(row?.group_id)}
  if(path==='/attendance'||path==='/delete-meeting'){const row=await db.prepare('SELECT group_id FROM class_meetings WHERE id=?').bind(String(path==='/attendance'?data.meetingId:data.id)).first<{group_id:string}>();group(row?.group_id)}
+ if(path==='/attendance'&&Array.isArray(data.marks)){
+ const ids=[...new Set(data.marks.map(m=>m&&typeof m==='object'?String((m as Record<string,unknown>).childId||''):''))];
+ if(!ids.length||ids.length>500||ids.includes(''))deny();
+ const students=await db.prepare('SELECT id,group_id FROM children WHERE id IN ('+ids.map(()=>'?').join(',')+')').bind(...ids).all<{id:string;group_id:string}>();
+ if(students.results.length!==ids.length)deny();for(const row of students.results)group(row.group_id);
+ }
  // Staff cannot use roster creation to attach children to an arbitrary parent's account.
  if(path==='/teacher-students'&&data.parentUsername)deny();
  // A replay identifier may never target a session belonging to another class.

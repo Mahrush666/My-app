@@ -22,7 +22,7 @@ export default function TeacherHome({groups,children,assignments,reports,request
  useEffect(()=>{let live=true;setLoading(true);setError('');setMeetings([]);ref.current<{meetings:ClassMeeting[]}>(`/calendar?from=${today}&to=${addDays(today,13)}`).then(d=>{if(live)setMeetings(d.meetings)}).catch(e=>{if(live)setError(e instanceof Error?e.message:'Could not load classes.')}).finally(()=>{if(live)setLoading(false)});return()=>{live=false}},[today,groups,retry]);
  const start=(m:ClassMeeting)=>Date.parse(m.day+'T'+m.time+':00+08:00');
  const upcoming=meetings.filter(m=>groups.some(g=>g.id===m.group_id)&&start(m)+m.duration*60000>now).sort((a,b)=>start(a)-start(b)).slice(0,5);
- const recent=recentHomework(groups,children,assignments,reports,now);
+ const recent=recentHomework(groups,children,assignments,reports,now).slice(0,4);
  const date=(value:number)=>new Date(value).toLocaleString('en-GB',{timeZone:'Asia/Shanghai',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
  return <section className="teacher-home"><div className="section-heading"><h2>Your teaching day 教师主页</h2><span className="small-note">{new Date(now).toLocaleDateString('en-GB',{timeZone:'Asia/Shanghai',weekday:'long',day:'numeric',month:'long'})} · China time</span></div>
  <div className="academy-stats"><section><span>Classes today 今日课程</span><strong>{loading?'…':error?'—':meetings.filter(m=>m.day===today&&groups.some(g=>g.id===m.group_id)).length}</strong></section><section><span>Active students 在读学生</span><strong>{children.filter(c=>c.approved).length}</strong></section><section><span>Finished · last 7 days 近七天完成</span><strong>{reports.filter(r=>recentHomework(groups,children,assignments,[r],now).some(a=>a.finished)).length}</strong></section></div>

@@ -11,6 +11,15 @@ const video = Buffer.concat(mediaManifest.parts.map(part=>readFileSync(mediaDir 
 if (createHash('sha256').update(video).digest('hex') !== mediaManifest.sha256) throw new Error('Landscape video is incomplete');
 mkdirSync(root + '/public/lessons/pu1-u9-cross-curricular', {recursive:true});
 writeFileSync(root + '/public/lessons/pu1-u9-cross-curricular/video.mp4', video);
+// Lesson 2 media is split only for repository transfer; browsers receive normal media files.
+const unit7MediaDir=root+'/lesson-media/pu1-u7-lesson2';
+const unit7Media=JSON.parse(readFileSync(unit7MediaDir+'/manifest.json','utf8')) as {assets:{file:string;sha256:string;parts:string[]}[]};
+for(const asset of unit7Media.assets){
+ const data=Buffer.concat(asset.parts.map(part=>readFileSync(unit7MediaDir+'/'+part)));
+ if(createHash('sha256').update(data).digest('hex')!==asset.sha256)throw Error('Unit 7 Lesson 2 media is incomplete');
+ mkdirSync(root+'/public/lessons/pu1-u7-lesson2',{recursive:true});
+ writeFileSync(root+'/public/lessons/pu1-u7-lesson2/'+asset.file,data);
+}
 export default defineConfig({
   root: root + '/github-pages',
   base: process.env.PAGES_BASE || './',

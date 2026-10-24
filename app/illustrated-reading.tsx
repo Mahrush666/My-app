@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from 'react';
+import {useEffect,useState,useRef} from 'react';
 import {Volume2,ArrowLeft,ArrowRight} from 'lucide-react';
 import {speak,stopSpeaking,playAnswerSound} from '../lib/audio';
 import {publicAsset} from '../lib/public-runtime';
@@ -7,9 +7,11 @@ import {checkStoryAnswer,type IllustratedReading} from '../lib/illustrated-readi
 export function StoryReader({story}:{story:IllustratedReading}){
  const [index,setIndex]=useState(0),[active,setActive]=useState(-1);
  useEffect(()=>()=>stopSpeaking(),[]);
+ const reader=useRef<HTMLElement>(null);
+ const pauseAudio=(except?:HTMLAudioElement)=>reader.current?.querySelectorAll('audio').forEach(audio=>{if(audio!==except)audio.pause()});
  const scene=story.scenes[index];
- function move(n:number){stopSpeaking();setIndex(n);setActive(-1)}
- return <section className="story-reader"><div className="story-toolbar"><span>{index+1} / {story.scenes.length}</span></div><img className="reading-scene" src={publicAsset(scene.image)} alt={scene.label}/><div className="story-sentences">{scene.full.map((text,i)=><button key={text} className={active===i?'is-speaking':''} onClick={()=>{setActive(i);speak(text)}} aria-label={'Listen: '+text}><Volume2 size={20}/><span>{text}</span></button>)}</div><div className="story-toolbar"><button disabled={index===0} onClick={()=>move(index-1)}><ArrowLeft/>Back</button><button className="primary" disabled={index===story.scenes.length-1} onClick={()=>move(index+1)}>Next<ArrowRight/></button></div></section>
+ function move(n:number){pauseAudio();stopSpeaking();setIndex(n);setActive(-1)}
+ return <section className="story-reader" ref={reader}>{story.audio&&<div className="source-story-audio"><span>Original story audio 故事原音</span><audio controls preload="none" src={publicAsset(story.audio)} onPlay={e=>{stopSpeaking();pauseAudio(e.currentTarget)}}/></div>}<div className="story-toolbar"><span>{index+1} / {story.scenes.length}</span></div><img className="reading-scene" src={publicAsset(scene.image)} alt={scene.label}/><div className="story-sentences">{scene.full.map((text,i)=><button key={text} className={active===i?'is-speaking':''} onClick={()=>{pauseAudio();setActive(i);speak(text)}} aria-label={'Listen: '+text}><Volume2 size={20}/><span>{text}</span></button>)}</div><div className="story-toolbar"><button disabled={index===0} onClick={()=>move(index-1)}><ArrowLeft/>Back</button><button className="primary" disabled={index===story.scenes.length-1} onClick={()=>move(index+1)}>Next<ArrowRight/></button></div>{story.references?.length&&<details className="story-resources"><summary>Grammar & listening 语法与听力</summary>{story.references.map(r=><section key={r.title}><h3>{r.title}</h3><img src={publicAsset(r.image)} alt={r.title} loading="lazy"/><audio controls preload="none" src={publicAsset(r.audio)} onPlay={e=>{stopSpeaking();pauseAudio(e.currentTarget)}}/></section>)}</details>}</section>
 }
 export function StoryPractice({story,activities,onAnswer}:{story:IllustratedReading;activities:string[];onAnswer:(activity:string,item:string,answer:string,correct:boolean)=>Promise<void>}){
  const modes=['story-quiz','story-order'].filter(a=>activities.includes(a));

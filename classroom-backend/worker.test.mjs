@@ -586,3 +586,23 @@ test('published lesson settings update old shared links and class homework while
  const report=(await api('/homework-report?child='+child+'&assignment='+task,undefined,teacher)).body;assert.equal(report.finished,true);assert.equal(report.exercises[0].questions.flatMap(q=>q.attempts).length,4);
  await DB.sqlite.close();
 });
+
+test('Power Up 1 Unit 7 Lesson 2 can be assigned and all story and grammar answers finish homework',async()=>{
+ const {api,DB}=await setup();
+ const story=JSON.parse((await import('node:fs')).readFileSync(new URL('../lib/friendly-farm-u7-reading.json',import.meta.url),'utf8'));
+ const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Unit 7 Story'},teacher)).body;
+ const parent=(await api('/register',{username:'friendly_farm_family',password:'parent-password',consent:true})).body.token;
+ const kid=(await api('/children',{name:'Farm reader',invite:group.invite},parent)).body.id;
+ await api('/approve',{childId:kid,approved:true},teacher);
+ const task=await api('/assignments',{groupId:group.id,unitId:'pu1-u7-lesson2',title:'The Friendly Farm',activities:['video','reading','story-quiz','story-order'],wordIds:[]},teacher);
+ assert.equal(task.status,200);const assignmentId=task.body.id;
+ const answer=(activity,wordId,value)=>api('/progress',{childId:kid,assignmentId,activity,wordId,answer:value,correct:true,eventId:crypto.randomUUID()},parent);
+ assert.equal((await answer('story-quiz',story.questions[0].id,String((story.questions[0].answer+1)%4))).body.correct,false);
+ assert.equal((await answer('story-quiz','missing','1')).status,400);
+ for(const q of story.questions)assert.equal((await answer('story-quiz',q.id,String(q.answer))).body.correct,true);
+ let hw=(await api('/homework?child='+kid,undefined,parent)).body;assert.equal(hw.completed.filter(c=>c.assignment_id===assignmentId).length,1);
+ for(const order of story.orders)assert.equal((await answer('story-order',order.id,order.scenes.join(','))).body.correct,true);
+ hw=(await api('/homework?child='+kid,undefined,parent)).body;assert.equal(hw.completed.filter(c=>c.assignment_id===assignmentId).length,2,'Video and reading do not require parent ticks');assert.deepEqual(hw.progress,{});
+ await DB.sqlite.close();
+});

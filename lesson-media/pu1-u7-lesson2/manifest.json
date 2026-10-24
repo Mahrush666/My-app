@@ -1,0 +1,35 @@
+{
+  "assets": [
+    {
+      "file": "story.mp4",
+      "sha256": "f400efd821673d92c522ca91b621ca142c4675ec6a6572849b9893e590226a77",
+      "parts": [
+        "story-mp4-00.bin",
+        "story-mp4-01.bin",
+        "story-mp4-02.bin",
+        "story-mp4-03.bin",
+        "story-mp4-04.bin",
+        "story-mp4-05.bin",
+        "story-mp4-06.bin",
+        "story-mp4-07.bin",
+        "story-mp4-08.bin",
+        "story-mp4-09.bin",
+        "story-mp4-10.bin",
+        "story-mp4-11.bin",
+        "story-mp4-12.bin",
+        "story-mp4-13.bin",
+        "story-mp4-14.bin"
+      ]
+    },
+    {
+      "file": "story.m4a",
+      "sha256": "c2221bc42405911917d1e662373b06a5bc296ca83f29f199208b036b768e7fee",
+      "parts": [
+        "story-m4a-00.bin",
+        "story-m4a-01.bin",
+        "story-m4a-02.bin",
+        "story-m4a-03.bin"
+      ]
+    }
+  ]
+}

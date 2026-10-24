@@ -22,7 +22,7 @@ export async function authorizeStaff(db:D1Database,access:StaffAccess,path:strin
  if(path==='/groups'||path.startsWith('/staff')||path==='/delete-group')deny();
  if(['/teacher-students','/move-student','/approve','/invite','/student-link','/student-invite','/rename-group'].includes(path))need('students');
  else if(path==='/attendance')need('attendance');
- else if(path==='/schedule'||path==='/delete-meeting')need('schedule');
+ else if(path==='/schedule'||path==='/update-meeting'||path==='/delete-meeting')need('schedule');
  else if(path==='/lesson-settings')need('materials');
  else if(path==='/assignments')need('assignments');
  else if(path==='/delete-assignment'){need('delete');need('assignments');}
@@ -34,7 +34,7 @@ export async function authorizeStaff(db:D1Database,access:StaffAccess,path:strin
  if(path==='/delete-student')await child(data.id);
  if(path==='/rename-group')group(data.id);
  if(path==='/delete-assignment'||path==='/assignments'&&data.id){const row=await db.prepare('SELECT group_id FROM assignments WHERE id=?').bind(String(data.id||'')).first<{group_id:string}>();group(row?.group_id)}
- if(path==='/attendance'||path==='/delete-meeting'){const row=await db.prepare('SELECT group_id FROM class_meetings WHERE id=?').bind(String(path==='/attendance'?data.meetingId:data.id)).first<{group_id:string}>();group(row?.group_id)}
+ if(path==='/attendance'||path==='/update-meeting'||path==='/delete-meeting'){const row=await db.prepare('SELECT group_id FROM class_meetings WHERE id=?').bind(String(path==='/attendance'?data.meetingId:data.id)).first<{group_id:string}>();group(row?.group_id)}
  if(path==='/attendance'&&Array.isArray(data.marks)){
  const ids=[...new Set(data.marks.map(m=>m&&typeof m==='object'?String((m as Record<string,unknown>).childId||''):''))];
  if(!ids.length||ids.length>500||ids.includes(''))deny();

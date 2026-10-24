@@ -28,6 +28,14 @@ export async function teacherTools(db:D1Database,path:string,method:string,data:
  }
  await db.batch(statements);return {saved:true};
  }
+ if(path==='/update-meeting'&&method==='POST'){
+ const id=str(data.id),time=str(data.time);
+ check(/^([01]\d|2[0-3]):[0-5]\d$/.test(time),'Choose a valid 24-hour time (HH:MM).');
+ check(await db.prepare('SELECT id FROM class_meetings WHERE id=?').bind(id).first(),'This class session could not be found.');
+ // Keep the session identity, attendance snapshot and other weekly sessions intact.
+ await db.prepare('UPDATE class_meetings SET time=? WHERE id=?').bind(time,id).run();
+ return {saved:true};
+ }
  if(path==='/attendance'&&method==='POST'){
  const id=str(data.meetingId);
  const entries=Array.isArray(data.marks)?data.marks:[{childId:data.childId,status:data.status}];

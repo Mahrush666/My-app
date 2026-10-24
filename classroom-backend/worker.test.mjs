@@ -543,3 +543,14 @@ test('spelling scaffolding is reported without completing homework or advancing 
 
  await DB.sqlite.close();
 });
+
+test('Power Up 1 Unit 8 At home is assignable with all nine vocabulary words',async()=>{
+ const {api,DB}=await setup();const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'At home class'},teacher)).body;
+ const parent=(await api('/register',{username:'home_family',password:'parent-password',consent:true})).body.token;
+ const child=(await api('/children',{name:'Amy',invite:group.invite},parent)).body.id;await api('/approve',{childId:child,approved:true},teacher);
+ const saved=await api('/assignments',{groupId:group.id,unitId:'pu1-u8-vocabulary1',activities:['spell','word-choice','look-listen','video','reactor']},teacher);assert.equal(saved.status,200);
+ const assignment=(await api('/homework?child='+child,undefined,parent)).body.assignments[0];const ids=JSON.parse(assignment.word_ids);assert.equal(ids.length,9);assert.equal(new Set(ids).size,9);assert.ok(ids.includes('pu1-u8-vocabulary1-radio'));assert.ok(ids.includes('pu1-u8-vocabulary1-living-room'));
+ const progress=await api('/progress',{childId:child,assignmentId:saved.body.id,activity:'spell',stage:'step1',wordId:ids[0],correct:true,eventId:crypto.randomUUID()},parent);assert.equal(progress.status,200);assert.equal(progress.body.completed.length,0);
+ await DB.sqlite.close();
+});

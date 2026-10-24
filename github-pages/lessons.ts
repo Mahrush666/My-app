@@ -1,3 +1,4 @@
+import {powerUp1Unit8Vocabulary} from './pu1-u8-vocabulary1';
 import {smartPhonics2Unit2} from './smart-phonics2-u2';
 import {smartPhonics2Unit1} from './smart-phonics2-u1';
 import {powerUp1Unit9Vocabulary2} from './pu1-u9-vocabulary2';
@@ -39,6 +40,7 @@ export const lessons: Lesson[] = ([
  smartPhonics2Unit1,
  smartPhonics2Unit2,
  powerUp1Unit7Vocabulary,
+ powerUp1Unit8Vocabulary,
  powerUp1Unit9Vocabulary,
  powerUp1Unit9Reading,
  powerUp1Unit9Story,
@@ -50,4 +52,4 @@ export const lessons: Lesson[] = ([
  {id:'pu-starter-u7-reading',book:'Power up Starter',title:'Unit 7 · Reading',unit:{id:'pu-starter-u7',number:7,title:'Unit 7 · Free time'},lessonTitle:'Reading · Queen of the River',words:[],readings:[],story:queenOfTheRiver,defaultActivities:['story']},
  ...['Animals 动物','Food 食物','My world 我的世界','Actions 动作'].map((category,i)=>({id:'starter-'+i,book:'Starter English',title:category,words:words.filter(w=>w.category===category).map(w=>({...w,id:'starter-'+w.en})),readings:[passages[Math.min(i,2)]]})),
  {id:'monkey-shark',book:'Literature · Story lessons',title:'The monkey and the shark',words:vocabulary,readings:illustrations.map((p,i)=>({id:'monkey-paragraph-'+i,title:'The monkey and the shark · '+(i+1),level:'Reading 朗读',text:p.text,hint:''}))},
-] satisfies Lesson[]).map((l:Lesson)=>l.book==='Power up Starter'?{...l,defaultAge:'3–5',defaultActivities:l.defaultActivities||youngActivities}:l.book==='Power Up 1'&&l.id.includes('-vocabulary')?{...l,defaultActivities:[...new Set<ActivityId>(['spell','word-choice',...(l.defaultActivities||[]).filter(a=>!['look-listen','picture-listen','sound-picture'].includes(a))])]}:l);
+] satisfies Lesson[]).map((l:Lesson)=>l.book==='Power up Starter'?{...l,defaultAge:'3–5',defaultActivities:l.defaultActivities||youngActivities}:l.book==='Power Up 1'&&l.id.includes('-vocabulary')?{...l,defaultActivities:[...new Set<ActivityId>(['spell','word-choice',...(l.defaultActivities||[]).filter(a=>!['picture-listen','sound-picture'].includes(a))])]}:l);

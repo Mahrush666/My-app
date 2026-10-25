@@ -1,0 +1,395 @@
+{
+  "title": "Language in use · Body parts and appearance",
+  "scenes": [
+    {
+      "id": "play2-u4-l2-foot",
+      "image": "lessons/play2-u4-lesson2/foot.webp",
+      "label": "Foot",
+      "full": [
+        "This is my foot."
+      ],
+      "easy": [
+        "This is my foot."
+      ]
+    },
+    {
+      "id": "play2-u4-l2-arm",
+      "image": "lessons/play2-u4-lesson2/arm.webp",
+      "label": "Arm",
+      "full": [
+        "This is my arm."
+      ],
+      "easy": [
+        "This is my arm."
+      ]
+    },
+    {
+      "id": "play2-u4-l2-leg",
+      "image": "lessons/play2-u4-lesson2/leg.webp",
+      "label": "Leg",
+      "full": [
+        "This is my leg."
+      ],
+      "easy": [
+        "This is my leg."
+      ]
+    },
+    {
+      "id": "play2-u4-l2-hand",
+      "image": "lessons/play2-u4-lesson2/hand.webp",
+      "label": "Hand",
+      "full": [
+        "This is my hand."
+      ],
+      "easy": [
+        "This is my hand."
+      ]
+    },
+    {
+      "id": "play2-u4-l2-eye",
+      "image": "lessons/play2-u4-lesson2/eye.webp",
+      "label": "Eye",
+      "full": [
+        "This is my eye."
+      ],
+      "easy": [
+        "This is my eye."
+      ]
+    },
+    {
+      "id": "play2-u4-l2-ear",
+      "image": "lessons/play2-u4-lesson2/ear.webp",
+      "label": "Ear",
+      "full": [
+        "This is my ear."
+      ],
+      "easy": [
+        "This is my ear."
+      ]
+    },
+    {
+      "id": "play2-u4-l2-mouth",
+      "image": "lessons/play2-u4-lesson2/mouth.webp",
+      "label": "Mouth",
+      "full": [
+        "This is my mouth."
+      ],
+      "easy": [
+        "This is my mouth."
+      ]
+    },
+    {
+      "id": "play2-u4-l2-nose",
+      "image": "lessons/play2-u4-lesson2/nose.webp",
+      "label": "Nose",
+      "full": [
+        "This is my nose."
+      ],
+      "easy": [
+        "This is my nose."
+      ]
+    },
+    {
+      "id": "play2-u4-l2-tall",
+      "image": "lessons/play2-u4-lesson2/tall.webp",
+      "label": "Tall",
+      "full": [
+        "He is tall."
+      ],
+      "easy": [
+        "He is tall."
+      ]
+    },
+    {
+      "id": "play2-u4-l2-short",
+      "image": "lessons/play2-u4-lesson2/short.webp",
+      "label": "Short",
+      "full": [
+        "She is short."
+      ],
+      "easy": [
+        "She is short."
+      ]
+    },
+    {
+      "id": "play2-u4-l2-long-hair",
+      "image": "lessons/play2-u4-lesson2/long-hair.webp",
+      "label": "Long hair",
+      "full": [
+        "She has long hair."
+      ],
+      "easy": [
+        "She has long hair."
+      ]
+    },
+    {
+      "id": "play2-u4-l2-short-hair",
+      "image": "lessons/play2-u4-lesson2/short-hair.webp",
+      "label": "Short hair",
+      "full": [
+        "She has short hair."
+      ],
+      "easy": [
+        "She has short hair."
+      ]
+    },
+    {
+      "id": "play2-u4-l2-robot",
+      "image": "lessons/play2-u4-lesson2/robot.webp",
+      "label": "Describe the robot",
+      "full": [
+        "He is short.",
+        "He has long arms.",
+        "He has big eyes.",
+        "I have two hands.",
+        "I can feel with my hands.",
+        "I don't have a mouth. I can't eat."
+      ],
+      "easy": [
+        "He is short.",
+        "He has long arms.",
+        "He has big eyes.",
+        "I have two hands.",
+        "I can feel with my hands.",
+        "I don't have a mouth. I can't eat."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "play2-u4-l2-plural-eye",
+      "scene": "play2-u4-l2-eye",
+      "text": "Choose the plural: one eye, two ___.",
+      "options": [
+        "eyes",
+        "eye",
+        "ears",
+        "nose"
+      ],
+      "answer": 0,
+      "explanation": "One eye, two eyes."
+    },
+    {
+      "id": "play2-u4-l2-plural-ear",
+      "scene": "play2-u4-l2-ear",
+      "text": "Choose the plural: one ear, two ___.",
+      "options": [
+        "ear",
+        "ears",
+        "eyes",
+        "mouth"
+      ],
+      "answer": 1,
+      "explanation": "One ear, two ears."
+    },
+    {
+      "id": "play2-u4-l2-plural-hand",
+      "scene": "play2-u4-l2-hand",
+      "text": "Choose the plural: one hand, two ___.",
+      "options": [
+        "hand",
+        "arms",
+        "hands",
+        "feet"
+      ],
+      "answer": 2,
+      "explanation": "One hand, two hands."
+    },
+    {
+      "id": "play2-u4-l2-plural-finger",
+      "scene": "play2-u4-l2-hand",
+      "text": "Choose the plural: one finger, two ___.",
+      "options": [
+        "finger",
+        "hands",
+        "toes",
+        "fingers"
+      ],
+      "answer": 3,
+      "explanation": "One finger, two fingers."
+    },
+    {
+      "id": "play2-u4-l2-plural-leg",
+      "scene": "play2-u4-l2-leg",
+      "text": "Choose the plural: one leg, two ___.",
+      "options": [
+        "legs",
+        "leg",
+        "arms",
+        "hands"
+      ],
+      "answer": 0,
+      "explanation": "One leg, two legs."
+    },
+    {
+      "id": "play2-u4-l2-plural-foot",
+      "scene": "play2-u4-l2-foot",
+      "text": "Choose the plural: one foot, two ___.",
+      "options": [
+        "foots",
+        "feet",
+        "foot",
+        "hands"
+      ],
+      "answer": 1,
+      "explanation": "One foot, two feet."
+    },
+    {
+      "id": "play2-u4-l2-tall",
+      "scene": "play2-u4-l2-tall",
+      "text": "Look at the arrow. He is ___.",
+      "options": [
+        "short",
+        "tall",
+        "small",
+        "long"
+      ],
+      "answer": 1,
+      "explanation": "He is tall."
+    },
+    {
+      "id": "play2-u4-l2-short",
+      "scene": "play2-u4-l2-short",
+      "text": "Look at the arrow. She is ___.",
+      "options": [
+        "tall",
+        "long",
+        "short",
+        "big"
+      ],
+      "answer": 2,
+      "explanation": "She is short."
+    },
+    {
+      "id": "play2-u4-l2-long-hair",
+      "scene": "play2-u4-l2-long-hair",
+      "text": "She has ___.",
+      "options": [
+        "long hair",
+        "short hair",
+        "long arms",
+        "big eyes"
+      ],
+      "answer": 0,
+      "explanation": "She has long hair."
+    },
+    {
+      "id": "play2-u4-l2-short-hair",
+      "scene": "play2-u4-l2-short-hair",
+      "text": "She has ___.",
+      "options": [
+        "long hair",
+        "long legs",
+        "big ears",
+        "short hair"
+      ],
+      "answer": 3,
+      "explanation": "She has short hair."
+    },
+    {
+      "id": "play2-u4-l2-robot-height",
+      "scene": "play2-u4-l2-robot",
+      "text": "Look at the robot. Choose the correct sentence.",
+      "options": [
+        "He is tall.",
+        "He is short.",
+        "He has long hair.",
+        "He has a mouth."
+      ],
+      "answer": 1,
+      "explanation": "He is short."
+    },
+    {
+      "id": "play2-u4-l2-robot-arms",
+      "scene": "play2-u4-l2-robot",
+      "text": "Look at the robot. He has ___.",
+      "options": [
+        "short arms",
+        "long legs",
+        "long arms",
+        "small eyes"
+      ],
+      "answer": 2,
+      "explanation": "He has long arms."
+    },
+    {
+      "id": "play2-u4-l2-robot-eyes",
+      "scene": "play2-u4-l2-robot",
+      "text": "Look at the robot. He has ___.",
+      "options": [
+        "small eyes",
+        "big eyes",
+        "long hair",
+        "short hair"
+      ],
+      "answer": 1,
+      "explanation": "He has big eyes."
+    },
+    {
+      "id": "play2-u4-l2-robot-hands",
+      "scene": "play2-u4-l2-robot",
+      "text": "The robot says: I have two ___.",
+      "options": [
+        "noses",
+        "mouths",
+        "heads",
+        "hands"
+      ],
+      "answer": 3,
+      "explanation": "I have two hands."
+    },
+    {
+      "id": "play2-u4-l2-robot-feel",
+      "scene": "play2-u4-l2-robot",
+      "text": "I have two hands. I can ___ with my hands.",
+      "options": [
+        "feel",
+        "smell",
+        "hear",
+        "taste"
+      ],
+      "answer": 0,
+      "explanation": "I can feel with my hands."
+    },
+    {
+      "id": "play2-u4-l2-robot-mouth",
+      "scene": "play2-u4-l2-robot",
+      "text": "The robot says: I ___ a mouth. I can’t eat.",
+      "options": [
+        "have",
+        "has",
+        "don't have",
+        "doesn't have"
+      ],
+      "answer": 2,
+      "explanation": "I don't have a mouth. I can't eat."
+    },
+    {
+      "id": "play2-u4-l2-grammar-has",
+      "scene": "play2-u4-l2-long-hair",
+      "text": "She ___ long hair.",
+      "options": [
+        "have",
+        "has",
+        "is",
+        "can"
+      ],
+      "answer": 1,
+      "explanation": "She has long hair."
+    },
+    {
+      "id": "play2-u4-l2-grammar-is",
+      "scene": "play2-u4-l2-tall",
+      "text": "He ___ tall.",
+      "options": [
+        "has",
+        "have",
+        "can",
+        "is"
+      ],
+      "answer": 3,
+      "explanation": "He is tall."
+    }
+  ],
+  "orders": []
+}

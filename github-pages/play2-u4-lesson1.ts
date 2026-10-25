@@ -5,7 +5,7 @@ export const play2Unit4Lesson1:Lesson={
  id:'play2-u4-lesson1',book:'Play 2',title:'Unit 4 · Lesson 1 · Senses',
  unit:{id:'play2-u4',number:4,title:'Unit 4 · The Five Senses'},lessonTitle:'Lesson 1 · Senses',
  defaultAge:'6–12',defaultActivities:['look-listen','picture-listen','sound-picture','word-choice','story-quiz','sentence-speak','reactor'],
- words:senses.map(([en,zh,part])=>({id:'play2-u4-l1-'+en,en,zh,icon:'',sentence:'I can '+en+' with my '+part+'.',category:'The Five Senses',picture:'lessons/play2-u4-lesson1/'+en+'.webp'})),
+ words:senses.map(([en,zh,part])=>({id:'play2-u4-l1-'+en,en,zh,icon:'',sentence:'I can '+en+' with my '+part+'.',category:'The Five Senses',picture:'lessons/play2-u4-lesson1/'+en+'-illustrated.webp'})),
  readings:[],readingStory,
  sentencePractice:readingStory.scenes.map(s=>({id:s.id+'-sentence',text:s.full[0]}))
 };

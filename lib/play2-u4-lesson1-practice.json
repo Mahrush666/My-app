@@ -3,7 +3,7 @@
   "scenes": [
     {
       "id": "play2-u4-l1-see",
-      "image": "lessons/play2-u4-lesson1/see.webp",
+      "image": "lessons/play2-u4-lesson1/see-illustrated.webp",
       "label": "See",
       "full": [
         "I can see with my eyes."
@@ -14,7 +14,7 @@
     },
     {
       "id": "play2-u4-l1-hear",
-      "image": "lessons/play2-u4-lesson1/hear.webp",
+      "image": "lessons/play2-u4-lesson1/hear-illustrated.webp",
       "label": "Hear",
       "full": [
         "I can hear with my ears."
@@ -25,7 +25,7 @@
     },
     {
       "id": "play2-u4-l1-smell",
-      "image": "lessons/play2-u4-lesson1/smell.webp",
+      "image": "lessons/play2-u4-lesson1/smell-illustrated.webp",
       "label": "Smell",
       "full": [
         "I can smell with my nose."
@@ -36,7 +36,7 @@
     },
     {
       "id": "play2-u4-l1-taste",
-      "image": "lessons/play2-u4-lesson1/taste.webp",
+      "image": "lessons/play2-u4-lesson1/taste-illustrated.webp",
       "label": "Taste",
       "full": [
         "I can taste with my mouth."
@@ -47,7 +47,7 @@
     },
     {
       "id": "play2-u4-l1-touch",
-      "image": "lessons/play2-u4-lesson1/touch.webp",
+      "image": "lessons/play2-u4-lesson1/touch-illustrated.webp",
       "label": "Touch",
       "full": [
         "I can touch with my hands."

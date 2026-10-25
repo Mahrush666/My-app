@@ -1,0 +1,283 @@
+{
+  "title": "A good friend",
+  "audio": "lessons/pu1-u7-lesson5/story.m4a",
+  "scenes": [
+    {
+      "id": "pu1-u7-l5-scene-1",
+      "image": "lessons/pu1-u7-lesson5/scene-1.webp",
+      "label": "Let’s go to the park!",
+      "full": [
+        "“Can we go and play in the park, Mum?” Oliver asks.",
+        "“OK,” says Mum.",
+        "“Come on, Amelia. Let’s go!” Oliver says to his sister.",
+        "He’s holding his skateboard, and Amelia’s taking her bike to the park.",
+        "“Goodbye, Dad!” they shout.",
+        "“See you!” Dad says. “Have fun!”"
+      ],
+      "easy": [
+        "“Can we go and play in the park, Mum?” Oliver asks.",
+        "“OK,” says Mum.",
+        "“Come on, Amelia. Let’s go!” Oliver says to his sister.",
+        "He’s holding his skateboard, and Amelia’s taking her bike to the park.",
+        "“Goodbye, Dad!” they shout.",
+        "“See you!” Dad says. “Have fun!”"
+      ]
+    },
+    {
+      "id": "pu1-u7-l5-scene-2",
+      "image": "lessons/pu1-u7-lesson5/scene-2.webp",
+      "label": "At the duck pond",
+      "full": [
+        "Now they’re in the park.",
+        "Amelia’s riding her bike around the duck pond and Oliver’s skateboarding with two boys.",
+        "They’re ten.",
+        "Oliver’s only seven, but he’s tall.",
+        "There’s a boy called Alfie in the park too.",
+        "His mum is a friend of the children’s mother."
+      ],
+      "easy": [
+        "Now they’re in the park.",
+        "Amelia’s riding her bike around the duck pond and Oliver’s skateboarding with two boys.",
+        "They’re ten.",
+        "Oliver’s only seven, but he’s tall.",
+        "There’s a boy called Alfie in the park too.",
+        "His mum is a friend of the children’s mother."
+      ]
+    },
+    {
+      "id": "pu1-u7-l5-scene-3",
+      "image": "lessons/pu1-u7-lesson5/scene-3.webp",
+      "label": "Can I play with you?",
+      "full": [
+        "“Can I play with you, Oliver?” Alfie asks, but Oliver isn’t listening.",
+        "He’s skateboarding with the other boys.",
+        "“Can I play with you, Oliver?” Alfie asks again.",
+        "“I’m skateboarding, Alfie,” Oliver says. “And you haven’t got a skateboard!”"
+      ],
+      "easy": [
+        "“Can I play with you, Oliver?” Alfie asks, but Oliver isn’t listening.",
+        "He’s skateboarding with the other boys.",
+        "“Can I play with you, Oliver?” Alfie asks again.",
+        "“I’m skateboarding, Alfie,” Oliver says. “And you haven’t got a skateboard!”"
+      ]
+    },
+    {
+      "id": "pu1-u7-l5-scene-4",
+      "image": "lessons/pu1-u7-lesson5/scene-4.webp",
+      "label": "Oliver’s new friends",
+      "full": [
+        "Amelia’s riding her bike nearby.",
+        "“Hey! Alfie wants to play with you, Oliver,” she says.",
+        "“Alfie’s only six and he hasn’t got a skateboard!” says Oliver.",
+        "“I’m playing with those boys. They’re my new friends. Wow! They’re doing jumps.”"
+      ],
+      "easy": [
+        "Amelia’s riding her bike nearby.",
+        "“Hey! Alfie wants to play with you, Oliver,” she says.",
+        "“Alfie’s only six and he hasn’t got a skateboard!” says Oliver.",
+        "“I’m playing with those boys. They’re my new friends. Wow! They’re doing jumps.”"
+      ]
+    },
+    {
+      "id": "pu1-u7-l5-scene-5",
+      "image": "lessons/pu1-u7-lesson5/scene-5.webp",
+      "label": "The skateboard rolls away",
+      "full": [
+        "Oliver’s jumping too, but it’s very difficult!",
+        "WHAM! He falls on the ground.",
+        "“Oh, no! Stop!”",
+        "Oliver’s skateboard’s moving fast down the hill to the duck pond."
+      ],
+      "easy": [
+        "Oliver’s jumping too, but it’s very difficult!",
+        "WHAM! He falls on the ground.",
+        "“Oh, no! Stop!”",
+        "Oliver’s skateboard’s moving fast down the hill to the duck pond."
+      ]
+    },
+    {
+      "id": "pu1-u7-l5-scene-6",
+      "image": "lessons/pu1-u7-lesson5/scene-6.webp",
+      "label": "Alfie helps Oliver",
+      "full": [
+        "Little Alfie’s running down the hill after the skateboard.",
+        "He’s got it!",
+        "He’s giving it back to Oliver.",
+        "“Thank you, Alfie,” says Oliver.",
+        "Alfie’s smiling.",
+        "He’s only six, but he runs fast!",
+        "He’s a nice boy.",
+        "It’s good to help your friends."
+      ],
+      "easy": [
+        "Little Alfie’s running down the hill after the skateboard.",
+        "He’s got it!",
+        "He’s giving it back to Oliver.",
+        "“Thank you, Alfie,” says Oliver.",
+        "Alfie’s smiling.",
+        "He’s only six, but he runs fast!",
+        "He’s a nice boy.",
+        "It’s good to help your friends."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "pu1-u7-l5-q1",
+      "scene": "pu1-u7-l5-scene-1",
+      "text": "Where are Oliver and Amelia going?",
+      "options": [
+        "To school.",
+        "To the park.",
+        "To the beach.",
+        "To the shop."
+      ],
+      "answer": 1,
+      "explanation": "They’re going to the park."
+    },
+    {
+      "id": "pu1-u7-l5-q2",
+      "scene": "pu1-u7-l5-scene-1",
+      "text": "What is Oliver taking?",
+      "options": [
+        "His skateboard.",
+        "His guitar.",
+        "His football.",
+        "His tennis racket."
+      ],
+      "answer": 0,
+      "explanation": "He’s holding his skateboard."
+    },
+    {
+      "id": "pu1-u7-l5-q3",
+      "scene": "pu1-u7-l5-scene-2",
+      "text": "What is Amelia doing?",
+      "options": [
+        "Playing football.",
+        "Swimming in the pond.",
+        "Riding her bike.",
+        "Playing tennis."
+      ],
+      "answer": 2,
+      "explanation": "Amelia’s riding her bike around the duck pond."
+    },
+    {
+      "id": "pu1-u7-l5-q4",
+      "scene": "pu1-u7-l5-scene-2",
+      "text": "How old is Oliver?",
+      "options": [
+        "Six.",
+        "Eight.",
+        "Ten.",
+        "Seven."
+      ],
+      "answer": 3,
+      "explanation": "Oliver’s only seven, but he’s tall."
+    },
+    {
+      "id": "pu1-u7-l5-q5",
+      "scene": "pu1-u7-l5-scene-3",
+      "text": "Why doesn’t Oliver play with Alfie?",
+      "options": [
+        "Alfie is sleeping.",
+        "Alfie hasn’t got a skateboard.",
+        "Alfie is at home.",
+        "Alfie is swimming."
+      ],
+      "answer": 1,
+      "explanation": "Oliver says, “And you haven’t got a skateboard!”"
+    },
+    {
+      "id": "pu1-u7-l5-q6",
+      "scene": "pu1-u7-l5-scene-4",
+      "text": "What are the big boys doing?",
+      "options": [
+        "Reading books.",
+        "Playing the piano.",
+        "Doing jumps.",
+        "Eating cake."
+      ],
+      "answer": 2,
+      "explanation": "They’re doing jumps."
+    },
+    {
+      "id": "pu1-u7-l5-q7",
+      "scene": "pu1-u7-l5-scene-5",
+      "text": "Where is Oliver’s skateboard going?",
+      "options": [
+        "Down the hill to the duck pond.",
+        "Into the house.",
+        "Up a tree.",
+        "To school."
+      ],
+      "answer": 0,
+      "explanation": "Oliver’s skateboard’s moving fast down the hill to the duck pond."
+    },
+    {
+      "id": "pu1-u7-l5-q8",
+      "scene": "pu1-u7-l5-scene-6",
+      "text": "Who helps Oliver?",
+      "options": [
+        "Dad.",
+        "The two boys.",
+        "Mum.",
+        "Alfie."
+      ],
+      "answer": 3,
+      "explanation": "Alfie gets the skateboard and gives it back to Oliver."
+    },
+    {
+      "id": "pu1-u7-l5-q9",
+      "scene": "pu1-u7-l5-scene-5",
+      "text": "Oliver’s jumping too, but it’s very ___.",
+      "options": [
+        "happy",
+        "difficult",
+        "kind",
+        "sad"
+      ],
+      "answer": 1,
+      "explanation": "Oliver’s jumping too, but it’s very difficult!"
+    },
+    {
+      "id": "pu1-u7-l5-q10",
+      "scene": "pu1-u7-l5-scene-6",
+      "text": "It’s good to ___ your friends.",
+      "options": [
+        "forget",
+        "push",
+        "help",
+        "leave"
+      ],
+      "answer": 2,
+      "explanation": "It’s good to help your friends."
+    }
+  ],
+  "orders": [
+    {
+      "id": "pu1-u7-l5-order-1",
+      "title": "Going to the park",
+      "scenes": [
+        "pu1-u7-l5-scene-1",
+        "pu1-u7-l5-scene-2",
+        "pu1-u7-l5-scene-3"
+      ]
+    },
+    {
+      "id": "pu1-u7-l5-order-2",
+      "title": "Who is a good friend?",
+      "scenes": [
+        "pu1-u7-l5-scene-4",
+        "pu1-u7-l5-scene-5",
+        "pu1-u7-l5-scene-6"
+      ]
+    }
+  ],
+  "references": [
+    {
+      "title": "Listen and choose · Workbook practice",
+      "image": "lessons/pu1-u7-lesson5/listening.webp",
+      "audio": "lessons/pu1-u7-lesson5/listening.m4a"
+    }
+  ]
+}

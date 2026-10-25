@@ -1,0 +1,23 @@
+{
+  "assets": [
+    {
+      "file": "listening.m4a",
+      "sha256": "617c936beadef95f45e6dc2a40c956531f5a6cacc832f6a3de7a9f565124eff7",
+      "parts": [
+        "listening.m4a-1.bin",
+        "listening.m4a-2.bin"
+      ]
+    },
+    {
+      "file": "story.m4a",
+      "sha256": "d65ad35e7d722338c199a8dc943c4de6900b2160ad059e13a69f69b9ff11e8e2",
+      "parts": [
+        "story.m4a-1.bin",
+        "story.m4a-2.bin",
+        "story.m4a-3.bin",
+        "story.m4a-4.bin",
+        "story.m4a-5.bin"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "assets": [
+    {
+      "file": "abilities-listening.m4a",
+      "sha256": "b2caac6f58d41b0c194cbc3e08e8bbe333fe7f9c7ec5375bc308479003624a2d",
+      "parts": [
+        "abilities-listening.m4a-1.bin",
+        "abilities-listening.m4a-2.bin"
+      ]
+    },
+    {
+      "file": "grammar.m4a",
+      "sha256": "8bd28d166949c370fc0623834087c226085850f27edef3151afeeb6758751790",
+      "parts": [
+        "grammar.m4a-1.bin"
+      ]
+    },
+    {
+      "file": "rap.mp4",
+      "sha256": "24e1d6211f83d84e8084069d8a67a4e844b2aca058a04d1d9ac08702c0d74e11",
+      "parts": [
+        "rap.mp4-1.bin",
+        "rap.mp4-2.bin",
+        "rap.mp4-3.bin",
+        "rap.mp4-4.bin",
+        "rap.mp4-5.bin",
+        "rap.mp4-6.bin",
+        "rap.mp4-7.bin",
+        "rap.mp4-8.bin",
+        "rap.mp4-9.bin",
+        "rap.mp4-10.bin",
+        "rap.mp4-11.bin",
+        "rap.mp4-12.bin",
+        "rap.mp4-13.bin",
+        "rap.mp4-14.bin",
+        "rap.mp4-15.bin",
+        "rap.mp4-16.bin",
+        "rap.mp4-17.bin",
+        "rap.mp4-18.bin",
+        "rap.mp4-19.bin",
+        "rap.mp4-20.bin",
+        "rap.mp4-21.bin",
+        "rap.mp4-22.bin",
+        "rap.mp4-23.bin",
+        "rap.mp4-24.bin",
+        "rap.mp4-25.bin",
+        "rap.mp4-26.bin",
+        "rap.mp4-27.bin",
+        "rap.mp4-28.bin",
+        "rap.mp4-29.bin",
+        "rap.mp4-30.bin",
+        "rap.mp4-31.bin",
+        "rap.mp4-32.bin"
+      ]
+    },
+    {
+      "file": "story.m4a",
+      "sha256": "7c027f1635486a1dc62e57415233aa3e1b4841f675f5d84b65fb83b05bb937fa",
+      "parts": [
+        "story.m4a-1.bin",
+        "story.m4a-2.bin",
+        "story.m4a-3.bin",
+        "story.m4a-4.bin",
+        "story.m4a-5.bin"
+      ]
+    },
+    {
+      "file": "story.mp4",
+      "sha256": "a069a8d9419bb9180911cddafe1f458e0a309517d2d8b5b0d687b1616b00c7ed",
+      "parts": [
+        "story.mp4-1.bin",
+        "story.mp4-2.bin",
+        "story.mp4-3.bin",
+        "story.mp4-4.bin",
+        "story.mp4-5.bin",
+        "story.mp4-6.bin",
+        "story.mp4-7.bin",
+        "story.mp4-8.bin",
+        "story.mp4-9.bin",
+        "story.mp4-10.bin",
+        "story.mp4-11.bin",
+        "story.mp4-12.bin",
+        "story.mp4-13.bin",
+        "story.mp4-14.bin",
+        "story.mp4-15.bin",
+        "story.mp4-16.bin"
+      ]
+    },
+    {
+      "file": "workbook-abilities.m4a",
+      "sha256": "e5da361393b44e9fc3a193c4bd232652cebe1f870e83aa805e4dff197ea7e0fb",
+      "parts": [
+        "workbook-abilities.m4a-1.bin"
+      ]
+    },
+    {
+      "file": "workbook-story.m4a",
+      "sha256": "0c59144b5c9b11e52ce1a4c475fd542e3b8b93620fd12129faac82ee83ea749b",
+      "parts": [
+        "workbook-story.m4a-1.bin",
+        "workbook-story.m4a-2.bin",
+        "workbook-story.m4a-3.bin",
+        "workbook-story.m4a-4.bin",
+        "workbook-story.m4a-5.bin"
+      ]
+    }
+  ]
+}

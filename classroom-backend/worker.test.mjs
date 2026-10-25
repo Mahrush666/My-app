@@ -700,3 +700,20 @@ test('Unit 7 Lesson 5 A good friend is assignable and source questions and pictu
  assert.equal((await api('/homework-report?child='+child+'&assignment='+task.body.id,undefined,teacher)).body.finished,true);
  await DB.sqlite.close();
 });
+
+test('Unit 8 Lesson 2 ability story and grammar are assignable and checked before homework finishes',async()=>{
+ const {api,DB}=await setup();const story=JSON.parse((await import('node:fs')).readFileSync(new URL('../lib/pu1-u8-lesson2-reading.json',import.meta.url),'utf8'));
+ const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Can and cannot'},teacher)).body;
+ const child=(await api('/teacher-students',{groupId:group.id,names:['Reader']},teacher)).body.students[0].id;
+ const access=(await api('/student-link',{childId:child,reuse:true},teacher)).body.access;
+ const student=(await api('/student-login',{access})).body.token;
+ const task=await api('/assignments',{groupId:group.id,unitId:'pu1-u8-lesson2',activities:['look-listen','video','reading','story-quiz','story-order']},teacher);assert.equal(task.status,200);
+ const post=(activity,wordId,answer)=>api('/progress',{childId:child,assignmentId:task.body.id,activity,wordId,answer,correct:true,eventId:crypto.randomUUID()},student);
+ assert.equal((await post('story-quiz',story.questions[0].id,'1')).body.correct,false);
+ for(const q of story.questions)assert.equal((await post('story-quiz',q.id,String(q.answer))).body.correct,true);
+ assert.equal((await api('/homework-report?child='+child+'&assignment='+task.body.id,undefined,teacher)).body.finished,false);
+ for(const order of story.orders)assert.equal((await post('story-order',order.id,order.scenes.join(','))).body.correct,true);
+ assert.equal((await api('/homework-report?child='+child+'&assignment='+task.body.id,undefined,teacher)).body.finished,true);
+ await DB.sqlite.close();
+});

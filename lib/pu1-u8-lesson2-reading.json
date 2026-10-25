@@ -1,0 +1,315 @@
+{
+  "title": "The Friendly Farm · What can you do?",
+  "audio": "lessons/pu1-u8-lesson2/story.m4a",
+  "scenes": [
+    {
+      "id": "pu1-u8-l2-scene-1",
+      "image": "lessons/pu1-u8-lesson2/scene-1.webp",
+      "label": "Can you ride a horse?",
+      "full": [
+        "Sorry, Shelly.",
+        "Harry! My hair!",
+        "Look at me, Shelly! I can ride a horse. Can you ride a horse?"
+      ],
+      "easy": [
+        "Sorry, Shelly.",
+        "Harry! My hair!",
+        "Look at me, Shelly! I can ride a horse. Can you ride a horse?"
+      ]
+    },
+    {
+      "id": "pu1-u8-l2-scene-2",
+      "image": "lessons/pu1-u8-lesson2/scene-2.webp",
+      "label": "Can Shelly sing?",
+      "full": [
+        "No, I can’t, but I can look at my face in the mirror and I can sing.",
+        "Listen to her!",
+        "No, she can’t!"
+      ],
+      "easy": [
+        "No, I can’t, but I can look at my face in the mirror and I can sing.",
+        "Listen to her!",
+        "No, she can’t!"
+      ]
+    },
+    {
+      "id": "pu1-u8-l2-scene-3",
+      "image": "lessons/pu1-u8-lesson2/scene-3.webp",
+      "label": "Can Cameron swim?",
+      "full": [
+        "My brother and sister can swim. Look at them. Can you swim, Cameron?",
+        "Swim? No, I can’t swim."
+      ],
+      "easy": [
+        "My brother and sister can swim. Look at them. Can you swim, Cameron?",
+        "Swim? No, I can’t swim."
+      ]
+    },
+    {
+      "id": "pu1-u8-l2-scene-4",
+      "image": "lessons/pu1-u8-lesson2/scene-4.webp",
+      "label": "Harry can dance",
+      "full": [
+        "Can you swim, Harry?",
+        "No, I can’t swim, but I can dance. Can you swim, Rocky?",
+        "I don’t know."
+      ],
+      "easy": [
+        "Can you swim, Harry?",
+        "No, I can’t swim, but I can dance. Can you swim, Rocky?",
+        "I don’t know."
+      ]
+    },
+    {
+      "id": "pu1-u8-l2-scene-5",
+      "image": "lessons/pu1-u8-lesson2/scene-5.webp",
+      "label": "What can Rocky do?",
+      "full": [
+        "What can you do, Rocky?",
+        "Well, I can ride a horse and I can dance.",
+        "Look at him!"
+      ],
+      "easy": [
+        "What can you do, Rocky?",
+        "Well, I can ride a horse and I can dance.",
+        "Look at him!"
+      ]
+    },
+    {
+      "id": "pu1-u8-l2-scene-6",
+      "image": "lessons/pu1-u8-lesson2/scene-6.webp",
+      "label": "Gracie can eat socks",
+      "full": [
+        "I can’t dance, but I can eat socks. Can you eat socks, Rocky?",
+        "No, I can’t, and I can’t eat books."
+      ],
+      "easy": [
+        "I can’t dance, but I can eat socks. Can you eat socks, Rocky?",
+        "No, I can’t, and I can’t eat books."
+      ]
+    },
+    {
+      "id": "pu1-u8-l2-grammar",
+      "image": "lessons/pu1-u8-lesson2/grammar.webp",
+      "label": "Can and can’t",
+      "full": [
+        "I can swim.",
+        "She can play the piano.",
+        "Can you ride a horse?",
+        "I can’t play the guitar.",
+        "He can’t sing.",
+        "Yes, I can.",
+        "No, I can’t."
+      ],
+      "easy": [
+        "I can swim.",
+        "She can play the piano.",
+        "Can you ride a horse?",
+        "I can’t play the guitar.",
+        "He can’t sing.",
+        "Yes, I can.",
+        "No, I can’t."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "pu1-u8-l2-q1",
+      "scene": "pu1-u8-l2-scene-1",
+      "text": "What is Rocky doing?",
+      "options": [
+        "Riding a horse.",
+        "Swimming.",
+        "Using a computer.",
+        "Playing badminton."
+      ],
+      "answer": 0,
+      "explanation": "He’s riding a horse."
+    },
+    {
+      "id": "pu1-u8-l2-q2",
+      "scene": "pu1-u8-l2-scene-2",
+      "text": "Can Shelly ride a horse?",
+      "options": [
+        "Yes, she can.",
+        "No, she can’t.",
+        "Yes, he can.",
+        "No, he can’t."
+      ],
+      "answer": 1,
+      "explanation": "No, she can’t."
+    },
+    {
+      "id": "pu1-u8-l2-q3",
+      "scene": "pu1-u8-l2-scene-2",
+      "text": "What does Shelly say she can do?",
+      "options": [
+        "Play the piano.",
+        "Swim.",
+        "Look in a mirror and sing.",
+        "Ride a bike."
+      ],
+      "answer": 2,
+      "explanation": "She says she can look at her face in the mirror and sing."
+    },
+    {
+      "id": "pu1-u8-l2-q4",
+      "scene": "pu1-u8-l2-scene-3",
+      "text": "Can Cameron swim?",
+      "options": [
+        "Yes, she can.",
+        "No, she can’t.",
+        "Yes, he can.",
+        "No, he can’t."
+      ],
+      "answer": 3,
+      "explanation": "No, he can’t swim."
+    },
+    {
+      "id": "pu1-u8-l2-q5",
+      "scene": "pu1-u8-l2-scene-4",
+      "text": "What can Harry do?",
+      "options": [
+        "Dance.",
+        "Swim.",
+        "Eat socks.",
+        "Play the piano."
+      ],
+      "answer": 0,
+      "explanation": "He can dance."
+    },
+    {
+      "id": "pu1-u8-l2-q6",
+      "scene": "pu1-u8-l2-scene-5",
+      "text": "What does Rocky say he can do?",
+      "options": [
+        "Swim and sing.",
+        "Ride a horse and dance.",
+        "Eat socks and books.",
+        "Use a computer and swim."
+      ],
+      "answer": 1,
+      "explanation": "He says he can ride a horse and dance."
+    },
+    {
+      "id": "pu1-u8-l2-q7",
+      "scene": "pu1-u8-l2-scene-6",
+      "text": "What can Gracie do?",
+      "options": [
+        "Ride a bike.",
+        "Swim.",
+        "Eat socks.",
+        "Play badminton."
+      ],
+      "answer": 2,
+      "explanation": "She can eat socks."
+    },
+    {
+      "id": "pu1-u8-l2-q8",
+      "scene": "pu1-u8-l2-scene-6",
+      "text": "Can Rocky eat books?",
+      "options": [
+        "Yes, he can.",
+        "Yes, she can.",
+        "No, she can’t.",
+        "No, he can’t."
+      ],
+      "answer": 3,
+      "explanation": "No, he can’t eat books."
+    },
+    {
+      "id": "pu1-u8-l2-q9",
+      "scene": "pu1-u8-l2-grammar",
+      "text": "She can ___ the piano.",
+      "options": [
+        "play",
+        "plays",
+        "playing",
+        "played"
+      ],
+      "answer": 0,
+      "explanation": "She can play the piano."
+    },
+    {
+      "id": "pu1-u8-l2-q10",
+      "scene": "pu1-u8-l2-grammar",
+      "text": "Choose the correct question.",
+      "options": [
+        "You can ride a horse?",
+        "Can you ride a horse?",
+        "Can you riding a horse?",
+        "Can you rides a horse?"
+      ],
+      "answer": 1,
+      "explanation": "Can you ride a horse?"
+    },
+    {
+      "id": "pu1-u8-l2-q11",
+      "scene": "pu1-u8-l2-grammar",
+      "text": "Choose the negative sentence.",
+      "options": [
+        "She can swim.",
+        "Can she swim?",
+        "She can’t swim.",
+        "Yes, she can."
+      ],
+      "answer": 2,
+      "explanation": "She can’t swim."
+    },
+    {
+      "id": "pu1-u8-l2-q12",
+      "scene": "pu1-u8-l2-grammar",
+      "text": "Can Mike ride a horse? Choose a positive answer.",
+      "options": [
+        "No, he can’t.",
+        "Yes, she can.",
+        "No, she can’t.",
+        "Yes, he can."
+      ],
+      "answer": 3,
+      "explanation": "Yes, he can."
+    }
+  ],
+  "orders": [
+    {
+      "id": "pu1-u8-l2-order-1",
+      "title": "Riding, singing and swimming",
+      "scenes": [
+        "pu1-u8-l2-scene-1",
+        "pu1-u8-l2-scene-2",
+        "pu1-u8-l2-scene-3"
+      ]
+    },
+    {
+      "id": "pu1-u8-l2-order-2",
+      "title": "What can the friends do?",
+      "scenes": [
+        "pu1-u8-l2-scene-4",
+        "pu1-u8-l2-scene-5",
+        "pu1-u8-l2-scene-6"
+      ]
+    }
+  ],
+  "references": [
+    {
+      "title": "Workbook · Listen, read and tick",
+      "image": "lessons/pu1-u8-lesson2/workbook-story.webp",
+      "audio": "lessons/pu1-u8-lesson2/workbook-story.m4a"
+    },
+    {
+      "title": "Gracie’s Grammar · Can / can’t",
+      "image": "lessons/pu1-u8-lesson2/grammar.webp",
+      "audio": "lessons/pu1-u8-lesson2/grammar.m4a"
+    },
+    {
+      "title": "Listen and learn · Abilities",
+      "image": "lessons/pu1-u8-lesson2/abilities-listening.webp",
+      "audio": "lessons/pu1-u8-lesson2/abilities-listening.m4a"
+    },
+    {
+      "title": "Workbook · Who can do it?",
+      "image": "lessons/pu1-u8-lesson2/workbook-abilities.webp",
+      "audio": "lessons/pu1-u8-lesson2/workbook-abilities.m4a"
+    }
+  ]
+}

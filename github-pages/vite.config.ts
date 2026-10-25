@@ -47,6 +47,15 @@ for(const asset of lesson5Media.assets){
  mkdirSync(root+'/public/lessons/pu1-u7-lesson5',{recursive:true});
  writeFileSync(root+'/public/lessons/pu1-u7-lesson5/'+asset.file,data);
 }
+// Unit 8 Lesson 2 original story, rap and listening recordings.
+const u8l2Dir=root+'/lesson-media/pu1-u8-lesson2';
+const u8l2Media=JSON.parse(readFileSync(u8l2Dir+'/manifest.json','utf8')) as {assets:{file:string;sha256:string;parts:string[]}[]};
+for(const asset of u8l2Media.assets){
+ const data=Buffer.concat(asset.parts.map(part=>readFileSync(u8l2Dir+'/'+part)));
+ if(createHash('sha256').update(data).digest('hex')!==asset.sha256)throw Error('Unit 8 Lesson 2 media is incomplete');
+ mkdirSync(root+'/public/lessons/pu1-u8-lesson2',{recursive:true});
+ writeFileSync(root+'/public/lessons/pu1-u8-lesson2/'+asset.file,data);
+}
 export default defineConfig({
   root: root + '/github-pages',
   base: process.env.PAGES_BASE || './',

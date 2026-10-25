@@ -717,3 +717,21 @@ test('Unit 8 Lesson 2 ability story and grammar are assignable and checked befor
  assert.equal((await api('/homework-report?child='+child+'&assignment='+task.body.id,undefined,teacher)).body.finished,true);
  await DB.sqlite.close();
 });
+
+test('Play 2 Unit 4 Senses appears as a new book and checks sense/body-part homework answers',async()=>{
+ const {api,DB}=await setup();const practice=JSON.parse((await import('node:fs')).readFileSync(new URL('../lib/play2-u4-lesson1-practice.json',import.meta.url),'utf8'));
+ const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Play 2 Senses'},teacher)).body;
+ const child=(await api('/teacher-students',{groupId:group.id,names:['Learner']},teacher)).body.students[0].id;
+ const access=(await api('/student-link',{childId:child,reuse:true},teacher)).body.access;
+ const student=(await api('/student-login',{access})).body.token;
+ const task=await api('/assignments',{groupId:group.id,unitId:'play2-u4-lesson1',activities:['look-listen','word-choice','story-quiz']},teacher);assert.equal(task.status,200);
+ const post=(activity,wordId,answer)=>api('/progress',{childId:child,assignmentId:task.body.id,activity,wordId,answer,correct:true,eventId:crypto.randomUUID()},student);
+ const first=practice.questions[0];assert.equal((await post('story-quiz',first.id,String((first.answer+1)%4))).body.correct,false);
+ for(const q of practice.questions)assert.equal((await post('story-quiz',q.id,String(q.answer))).body.correct,true);
+ assert.equal((await api('/homework-report?child='+child+'&assignment='+task.body.id,undefined,teacher)).body.finished,false);
+ for(const word of ['see','hear','smell','taste','touch'])await post('word-choice','play2-u4-l1-'+word,undefined);
+ const report=(await api('/homework-report?child='+child+'&assignment='+task.body.id,undefined,teacher)).body;assert.equal(report.finished,true);
+ const hw=(await api('/homework?child='+child,undefined,student)).body;assert.equal(hw.homeworkProgress[task.body.id].percent,100);
+ await DB.sqlite.close();
+});

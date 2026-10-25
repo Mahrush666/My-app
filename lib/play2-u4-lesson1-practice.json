@@ -1,0 +1,193 @@
+{
+  "title": "The Five Senses · Practice sentences",
+  "scenes": [
+    {
+      "id": "play2-u4-l1-see",
+      "image": "lessons/play2-u4-lesson1/see.webp",
+      "label": "See",
+      "full": [
+        "I can see with my eyes."
+      ],
+      "easy": [
+        "I can see with my eyes."
+      ]
+    },
+    {
+      "id": "play2-u4-l1-hear",
+      "image": "lessons/play2-u4-lesson1/hear.webp",
+      "label": "Hear",
+      "full": [
+        "I can hear with my ears."
+      ],
+      "easy": [
+        "I can hear with my ears."
+      ]
+    },
+    {
+      "id": "play2-u4-l1-smell",
+      "image": "lessons/play2-u4-lesson1/smell.webp",
+      "label": "Smell",
+      "full": [
+        "I can smell with my nose."
+      ],
+      "easy": [
+        "I can smell with my nose."
+      ]
+    },
+    {
+      "id": "play2-u4-l1-taste",
+      "image": "lessons/play2-u4-lesson1/taste.webp",
+      "label": "Taste",
+      "full": [
+        "I can taste with my mouth."
+      ],
+      "easy": [
+        "I can taste with my mouth."
+      ]
+    },
+    {
+      "id": "play2-u4-l1-touch",
+      "image": "lessons/play2-u4-lesson1/touch.webp",
+      "label": "Touch",
+      "full": [
+        "I can touch with my hands."
+      ],
+      "easy": [
+        "I can touch with my hands."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "play2-u4-l1-body-see",
+      "scene": "play2-u4-l1-see",
+      "text": "Which body part do you use to see?",
+      "options": [
+        "eyes",
+        "ears",
+        "nose",
+        "mouth"
+      ],
+      "answer": 0,
+      "explanation": "I can see with my eyes."
+    },
+    {
+      "id": "play2-u4-l1-sense-see",
+      "scene": "play2-u4-l1-see",
+      "text": "What can you do with your eyes?",
+      "options": [
+        "hear",
+        "smell",
+        "see",
+        "taste"
+      ],
+      "answer": 2,
+      "explanation": "I can see with my eyes."
+    },
+    {
+      "id": "play2-u4-l1-body-hear",
+      "scene": "play2-u4-l1-hear",
+      "text": "Which body part do you use to hear?",
+      "options": [
+        "eyes",
+        "ears",
+        "nose",
+        "mouth"
+      ],
+      "answer": 1,
+      "explanation": "I can hear with my ears."
+    },
+    {
+      "id": "play2-u4-l1-sense-hear",
+      "scene": "play2-u4-l1-hear",
+      "text": "What can you do with your ears?",
+      "options": [
+        "see",
+        "smell",
+        "taste",
+        "hear"
+      ],
+      "answer": 3,
+      "explanation": "I can hear with my ears."
+    },
+    {
+      "id": "play2-u4-l1-body-smell",
+      "scene": "play2-u4-l1-smell",
+      "text": "Which body part do you use to smell?",
+      "options": [
+        "eyes",
+        "ears",
+        "nose",
+        "mouth"
+      ],
+      "answer": 2,
+      "explanation": "I can smell with my nose."
+    },
+    {
+      "id": "play2-u4-l1-sense-smell",
+      "scene": "play2-u4-l1-smell",
+      "text": "What can you do with your nose?",
+      "options": [
+        "smell",
+        "see",
+        "hear",
+        "taste"
+      ],
+      "answer": 0,
+      "explanation": "I can smell with my nose."
+    },
+    {
+      "id": "play2-u4-l1-body-taste",
+      "scene": "play2-u4-l1-taste",
+      "text": "Which body part do you use to taste?",
+      "options": [
+        "eyes",
+        "ears",
+        "nose",
+        "mouth"
+      ],
+      "answer": 3,
+      "explanation": "I can taste with my mouth."
+    },
+    {
+      "id": "play2-u4-l1-sense-taste",
+      "scene": "play2-u4-l1-taste",
+      "text": "What can you do with your mouth?",
+      "options": [
+        "see",
+        "taste",
+        "hear",
+        "smell"
+      ],
+      "answer": 1,
+      "explanation": "I can taste with my mouth."
+    },
+    {
+      "id": "play2-u4-l1-body-touch",
+      "scene": "play2-u4-l1-touch",
+      "text": "Which body part do you use to touch?",
+      "options": [
+        "hands",
+        "eyes",
+        "ears",
+        "nose"
+      ],
+      "answer": 0,
+      "explanation": "I can touch with my hands."
+    },
+    {
+      "id": "play2-u4-l1-sense-touch",
+      "scene": "play2-u4-l1-touch",
+      "text": "What can you do with your hands?",
+      "options": [
+        "see",
+        "hear",
+        "touch",
+        "smell"
+      ],
+      "answer": 2,
+      "explanation": "I can touch with my hands."
+    }
+  ],
+  "orders": []
+}

@@ -5,6 +5,7 @@ import {publishedSettings,assignmentSettingsUpdates} from './lesson-settings';
 import {homeworkReport,type ReportAttempt} from '../lib/homework-report';
 import {sentencePracticeWords} from '../lib/sentence-practice';
 import {speechMatches} from '../lib/local-speech';
+import {dailyPractice,answerDaily,dailyReport} from './daily-practice';
 import {studentDashboard} from './student-dashboard';
 import {staffAccess,authorizeStaff,filterCalendar,StaffError} from './staff';
 import {staffPermissions} from '../lib/staff';
@@ -104,7 +105,7 @@ export async function handle(request:Request,env:Env){
  if(path==='/campuses'&&request.method==='GET')return respond({campuses:(await env.DB.prepare('SELECT id,name FROM campuses ORDER BY name').all()).results});
  if(path==='/move-class-campus'&&request.method==='POST'){const id=text(data.groupId,80),campusId=text(data.campusId,80);requireValue(await env.DB.prepare('SELECT id FROM groups WHERE id=?').bind(id).first(),'Class not found.');requireValue(await env.DB.prepare('SELECT id FROM campuses WHERE id=?').bind(campusId).first(),'Campus not found.');await env.DB.prepare('INSERT INTO group_campuses(group_id,campus_id) VALUES(?,?) ON CONFLICT(group_id) DO UPDATE SET campus_id=excluded.campus_id').bind(id,campusId).run();return respond({saved:true});}
  }
- const teacherPaths=['/lesson-settings','/homework-report','/teacher','/calendar','/schedule','/update-meeting','/attendance','/delete-meeting','/rename-group','/delete-student','/delete-group','/rewards','/reward-award','/reward-undo','/groups','/invite','/teacher-students','/move-student','/student-link','/student-invite','/approve','/assignments','/delete-assignment'];
+ const teacherPaths=['/daily-practice-report','/lesson-settings','/homework-report','/teacher','/calendar','/schedule','/update-meeting','/attendance','/delete-meeting','/rename-group','/delete-student','/delete-group','/rewards','/reward-award','/reward-undo','/groups','/invite','/teacher-students','/move-student','/student-link','/student-invite','/approve','/assignments','/delete-assignment'];
  if(access&&(teacherPaths.includes(path)||path.startsWith('/staff')))await authorizeStaff(env.DB,access,path,data,new URL(request.url));
  if(path==='/staff'&&request.method==='GET'){
  if(!access?.owner)throw new Failure('Owner access required.',403);
@@ -170,6 +171,8 @@ export async function handle(request:Request,env:Env){
  await env.DB.batch(changes);
  return respond({settings,saved:true,updatedAssignments});
  }
+ if(path==='/daily-practice-report'&&request.method==='GET'){teacher();const group=text(new URL(request.url).searchParams.get('group'),80);requireValue(await env.DB.prepare('SELECT id FROM groups WHERE id=?').bind(group).first(),'Choose a class.');return respond(await dailyReport(env.DB,group,now));}
+ if((path==='/daily-practice'||path==='/daily-practice-answer')&&request.method==='POST'){const child=await childAccess(data.childId);requireValue(child.approved,'Profile is not approved.');try{return respond(path==='/daily-practice'?await dailyPractice(env.DB,child,now):await answerDaily(env.DB,child,now,data))}catch(e){if(e instanceof Failure)throw e;throw new Failure((e as Error).message,400)}}
  if(path==='/homework-report'&&request.method==='GET'){
  teacher();const url=new URL(request.url),childId=text(url.searchParams.get('child'),80),assignmentId=text(url.searchParams.get('assignment'),80);
  const child=await env.DB.prepare('SELECT id,name,group_id FROM children WHERE id=?').bind(childId).first<{id:string;name:string;group_id:string}>();
@@ -186,7 +189,7 @@ export async function handle(request:Request,env:Env){
  env.DB.prepare("SELECT g.id,g.name,COALESCE(gc.campus_id,'main') AS campus_id FROM groups g LEFT JOIN group_campuses gc ON gc.group_id=g.id ORDER BY g.created_at").all(),env.DB.prepare("SELECT c.*,CASE WHEN a.id='teacher-managed-roster' THEN NULL ELSE a.username END AS username FROM children c JOIN accounts a ON a.id=c.parent_id ORDER BY c.created_at").all(),env.DB.prepare('SELECT * FROM assignments ORDER BY updated_at DESC').all(),
  env.DB.prepare('SELECT c.id AS child_id,a.id AS assignment_id,a.title,(SELECT COUNT(*) FROM attempts t WHERE t.child_id=c.id AND t.assignment_id=a.id) AS attempts,(SELECT COUNT(*) FROM attempts t WHERE t.child_id=c.id AND t.assignment_id=a.id AND t.correct=1) AS correct,(SELECT MAX(created_at) FROM attempts t WHERE t.child_id=c.id AND t.assignment_id=a.id) AS last_seen,(SELECT json_group_array(activity) FROM completions x WHERE x.child_id=c.id AND x.assignment_id=a.id) AS completed FROM children c JOIN assignments a ON a.group_id=c.group_id WHERE c.approved=1').all()]);
  const selectedCampus=new URL(request.url).searchParams.get('campus');const campuses=access!.owner?(await env.DB.prepare('SELECT id,name FROM campuses ORDER BY name').all()).results:(await env.DB.prepare('SELECT id,name FROM campuses WHERE id=?').bind(access!.campusId!).all()).results;const visibleGroups=groups.results.filter((g:any)=>access!.owner?(!selectedCampus||selectedCampus==='all'||g.campus_id===selectedCampus):access!.groups.includes(g.id));const ids=visibleGroups.map((g:any)=>g.id);const visibleChildren=children.results.filter((c:any)=>ids.includes(c.group_id));const childIds=visibleChildren.map((c:any)=>c.id);const visibleAssignments=assignments.results.filter((a:any)=>ids.includes(a.group_id));const assignmentIds=visibleAssignments.map((a:any)=>a.id);
- return respond({access,campuses,...(access!.owner?{allGroups:groups.results}:{}),groups:visibleGroups,children:visibleChildren,assignments:visibleAssignments,reports:reports.results.filter((r:any)=>childIds.includes(r.child_id)&&assignmentIds.includes(r.assignment_id))});
+ return respond({dailyGroups:(await env.DB.prepare('SELECT group_id FROM daily_practice_groups WHERE enabled=1').all<{group_id:string}>()).results.filter(r=>ids.includes(r.group_id)).map(r=>r.group_id),access,campuses,...(access!.owner?{allGroups:groups.results}:{}),groups:visibleGroups,children:visibleChildren,assignments:visibleAssignments,reports:reports.results.filter((r:any)=>childIds.includes(r.child_id)&&assignmentIds.includes(r.assignment_id))});
  }
  if(path==='/groups'&&request.method==='POST'){
  teacher();const name=text(data.name,80);requireValue(name,'Enter a class name.');const campusId=text(data.campusId,80)||'main';requireValue(await env.DB.prepare('SELECT id FROM campuses WHERE id=?').bind(campusId).first(),'Choose a campus.');const invite=random(),id=crypto.randomUUID();await env.DB.batch([env.DB.prepare('INSERT INTO groups VALUES(?,?,?,?)').bind(id,name,await hash(invite),now),env.DB.prepare('INSERT INTO group_campuses(group_id,campus_id) VALUES(?,?)').bind(id,campusId)]);return respond({id,invite});
@@ -250,6 +253,7 @@ export async function handle(request:Request,env:Env){
  if(activities.includes('sentence-speak'))requireValue(Boolean(unit.sentencePractice?.length)||unit.words.some(w=>wordIds.includes(w.id)&&w.sentence.trim().split(/\s+/).length>1),'Choose at least one sentence.');
  const due=text(data.dueDate,10);requireValue(!due||/^\d{4}-\d{2}-\d{2}$/.test(due),'Choose a valid due date.');
  const id=text(data.id,80)||crypto.randomUUID();if(data.id)requireValue(await env.DB.prepare('SELECT id FROM assignments WHERE id=? AND group_id=?').bind(id,groupId).first(),'Assignment not found.');
+ if(typeof data.dailyPractice==='boolean')await env.DB.prepare('INSERT INTO daily_practice_groups VALUES(?,?) ON CONFLICT(group_id) DO UPDATE SET enabled=excluded.enabled').bind(groupId,Number(data.dailyPractice)).run();
  // Editing an assignment keeps word reviews but resets its checklist for the revised work.
  await env.DB.batch([env.DB.prepare('DELETE FROM completions WHERE assignment_id=?').bind(id),env.DB.prepare('INSERT INTO assignments VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET unit_id=excluded.unit_id,title=excluded.title,activities=excluded.activities,word_ids=excluded.word_ids,due_date=excluded.due_date,updated_at=excluded.updated_at').bind(id,groupId,unit.id,text(data.title,120)||unit.title,JSON.stringify(activities),JSON.stringify(wordIds),due,Math.max(now,Number((await env.DB.prepare('SELECT MAX(created_at) AS latest FROM attempts WHERE assignment_id=?').bind(id).first<{latest:number|null}>())?.latest||0)+1))]);return respond({id});
  }

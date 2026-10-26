@@ -29,3 +29,8 @@ CREATE TABLE IF NOT EXISTS staff_campuses(staff_id TEXT PRIMARY KEY REFERENCES s
 
 CREATE TABLE IF NOT EXISTS homework_time(id TEXT PRIMARY KEY,child_id TEXT NOT NULL REFERENCES children(id) ON DELETE CASCADE,assignment_id TEXT NOT NULL REFERENCES assignments(id) ON DELETE CASCADE,assignment_version INTEGER NOT NULL,session_id TEXT NOT NULL,started_at INTEGER NOT NULL,ended_at INTEGER NOT NULL,CHECK(ended_at>started_at AND ended_at-started_at<=60000));
 CREATE INDEX IF NOT EXISTS homework_time_report ON homework_time(child_id,assignment_id,assignment_version);
+
+CREATE TABLE IF NOT EXISTS daily_practice_groups(group_id TEXT PRIMARY KEY REFERENCES groups(id) ON DELETE CASCADE,enabled INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS daily_runs(id TEXT PRIMARY KEY,child_id TEXT NOT NULL REFERENCES children(id) ON DELETE CASCADE,group_id TEXT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,day TEXT NOT NULL,tasks TEXT NOT NULL,created_at INTEGER NOT NULL,finished_at INTEGER NOT NULL DEFAULT 0,UNIQUE(child_id,group_id,day));
+CREATE TABLE IF NOT EXISTS daily_answers(id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES daily_runs(id) ON DELETE CASCADE,task_id TEXT NOT NULL,correct INTEGER NOT NULL,created_at INTEGER NOT NULL,answer TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS daily_answers_run ON daily_answers(run_id);

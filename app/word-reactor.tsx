@@ -21,7 +21,7 @@ const snapshot = (g: State) => ({ time: Math.floor(g.time), hp: g.hp, score: g.s
 const controls = ['ArrowLeft', 'ArrowUp', 'ArrowDown', 'ArrowRight'];
 const ART = publicAsset('game-art/lantern-street/');
 type GameArt = { street: HTMLImageElement; archer: HTMLImageElement; jiangshi: HTMLImageElement; armored:HTMLImageElement };
-export default function WordReactor({ vocabulary, progress, onAnswer, onExit, allCards=false, preReader=false }: { preReader?:boolean; vocabulary: Word[]; progress: Progress; allCards?:boolean; onAnswer?: (word: Word, correct: boolean, mode: string) => void; onExit?: () => void }) {
+export default function WordReactor({ vocabulary, progress, onAnswer, onExit, allCards=false, preReader=false, adventure }: { adventure?:{completed:number;total:number;challenge:React.ReactNode}; preReader?:boolean; vocabulary: Word[]; progress: Progress; allCards?:boolean; onAnswer?: (word: Word, correct: boolean, mode: string) => void; onExit?: () => void }) {
   const surface = useRef<HTMLElement>(null), arena = useRef<HTMLDivElement>(null), world = useRef({ width:600, height:440 });
   const [expanded,setExpanded] = useState(false);
   const canvas = useRef<HTMLCanvasElement>(null), game = useRef(fresh()), statusRef = useRef<Status>('ready'), keys = useRef(new Set<string>()), target = useRef<{ x: number; y: number } | null>(null);
@@ -31,6 +31,9 @@ export default function WordReactor({ vocabulary, progress, onAnswer, onExit, al
   const [status, setStatus] = useState<Status>('ready'), [hud, setHud] = useState(snapshot(game.current)), [role, setRole] = useState('spark');
   const roleRef = useRef(role); roleRef.current = role;
   const [question, setQuestion] = useState<Word | null>(null), [options, setOptions] = useState<Word[]>([]), [hint, setHint] = useState(''), [correctWords, setCorrectWords] = useState(0);
+  const adventureRef=useRef(adventure);adventureRef.current=adventure;
+  const previousCompleted=useRef(adventure?.completed||0);
+  useEffect(()=>{if(!adventure)return;if(adventure.completed>previousCompleted.current){setCorrectWords(adventure.completed);game.current.score+=12;game.current.level++;change(adventure.completed>=adventure.total?'won':'upgrade')}previousCompleted.current=adventure.completed},[adventure?.completed]);
   const taskBag=useRef<ReactorTaskType[]>([]);
   const [taskType,setTaskType]=useState<ReactorTaskType>('meaning');
   const [questionNumber,setQuestionNumber]=useState(0);
@@ -74,9 +77,10 @@ export default function WordReactor({ vocabulary, progress, onAnswer, onExit, al
   function start() {
     if (!art.current) return;
     expand();const g = fresh();g.y=world.current.height/2; if (roleRef.current === 'shield') g.shield = 88; else g.damage = 2;
-    game.current = g; facing.current = 1; setCorrectWords(0); setUpgrades({ spark: 0, shield: 0, speed: 0 }); remaining.current = []; taskBag.current=[]; currentQuestion.current = null; setQuestion(null); setHint(''); change('playing');
+    if(adventure){g.nextQuiz=25;g.level=1+adventure.completed;g.damage+=Math.floor(adventure.completed/3)}game.current = g; facing.current = 1; setCorrectWords(adventure?.completed||0); setUpgrades({ spark: 0, shield: 0, speed: 0 }); remaining.current = []; taskBag.current=[]; currentQuestion.current = null; setQuestion(null); setHint(''); change('playing');
   }
   function ask() {
+    if(adventureRef.current){change('quiz');return;}
     if (!remaining.current.length) remaining.current = allCards?shuffle(vocabulary):lessonWords(vocabulary, progressRef.current, Date.now(), Math.min(6, vocabulary.length));
     const word = remaining.current.shift(); if (!word) return;
     if(!taskBag.current.length)taskBag.current=shuffle([...reactorTaskTypes]);
@@ -106,7 +110,7 @@ export default function WordReactor({ vocabulary, progress, onAnswer, onExit, al
     let frame = 0, last = performance.now(), ui = 0;
     const draw = (now: number) => {
       const dt = Math.min((now - last) / 1000, 0.04); last = now;
-      const g = game.current, height=world.current.height, ctx = canvas.current?.getContext('2d');
+      const g = game.current, battleTime=adventureRef.current?Math.min(g.time,120):g.time, height=world.current.height, ctx = canvas.current?.getContext('2d');
       if (statusRef.current === 'playing') {
         g.time += dt; g.spawn += dt; g.fire += dt; g.pulse += dt; g.invincible = Math.max(0, g.invincible - dt);
         let dx = Number(keys.current.has('ArrowRight') || keys.current.has('d')) - Number(keys.current.has('ArrowLeft') || keys.current.has('a'));
@@ -115,23 +119,23 @@ export default function WordReactor({ vocabulary, progress, onAnswer, onExit, al
         const length = Math.hypot(dx, dy); if (length) { if (Math.abs(dx) > 0.1) facing.current = dx > 0 ? 1 : -1; g.x += dx / length * g.speed * dt; g.y += dy / length * g.speed * dt; }
         g.x = Math.max(18, Math.min(582, g.x)); g.y = Math.max(18, Math.min(height-18, g.y));
         if (g.spawn > Math.max(0.45, 1.3 - g.time / 160) && g.enemies.length < 45) {
-          g.spawn = 0; const side = Math.floor(Math.random() * 4),kind=reactorEnemyKind(g.time,g.id),hp=reactorEnemyStats(kind,g.time).hp;
+          g.spawn = 0; const side = Math.floor(Math.random() * 4),kind=reactorEnemyKind(g.time,g.id),hp=reactorEnemyStats(kind,battleTime).hp;
           g.enemies.push({ id: g.id++, x: side === 0 ? -10 : side === 1 ? 610 : Math.random() * 600, y: side === 2 ? -10 : side === 3 ? height+10 : Math.random() * height, hp,maxHp:hp,kind });
         }
         if (g.time >= 95 && !g.bossSpawned) { g.bossSpawned = true; g.enemies.push({ id: g.id++, x: 300, y: -25, hp:32,maxHp:32,kind:'boss' }); }
-        for (const enemy of g.enemies) { const d = Math.hypot(g.x - enemy.x, g.y - enemy.y) || 1; const speed = reactorEnemyStats(enemy.kind,g.time).speed; enemy.x += (g.x - enemy.x) / d * speed * dt; enemy.y += (g.y - enemy.y) / d * speed * dt; }
+        for (const enemy of g.enemies) { const d = Math.hypot(g.x - enemy.x, g.y - enemy.y) || 1; const speed = reactorEnemyStats(enemy.kind,battleTime).speed; enemy.x += (g.x - enemy.x) / d * speed * dt; enemy.y += (g.y - enemy.y) / d * speed * dt; }
         if (g.fire > reactorArrowInterval(g.level) && g.enemies.length) {
           g.fire = 0; const enemy = g.enemies.reduce((near, e) => Math.hypot(e.x - g.x, e.y - g.y) < Math.hypot(near.x - g.x, near.y - g.y) ? e : near);
           const d = Math.hypot(enemy.x - g.x, enemy.y - g.y) || 1;
           g.shots.push({ x: g.x, y: g.y, vx: (enemy.x - g.x) / d * 310, vy: (enemy.y - g.y) / d * 310, life: 2 });
         }
-        for (const shot of g.shots) { shot.x += shot.vx * dt; shot.y += shot.vy * dt; shot.life -= dt; const enemy = g.enemies.find(e => e.hp > 0 && Math.hypot(e.x - shot.x, e.y - shot.y) < reactorEnemyStats(e.kind,g.time).shotRadius); if (enemy) { enemy.hp -= g.damage; shot.life = 0; } }
+        for (const shot of g.shots) { shot.x += shot.vx * dt; shot.y += shot.vy * dt; shot.life -= dt; const enemy = g.enemies.find(e => e.hp > 0 && Math.hypot(e.x - shot.x, e.y - shot.y) < reactorEnemyStats(e.kind,battleTime).shotRadius); if (enemy) { enemy.hp -= g.damage; shot.life = 0; } }
         g.shots = g.shots.filter(s => s.life > 0);
         if (g.pulse >= 2.2) { g.pulse = 0; for (const e of g.enemies) if (Math.hypot(e.x - g.x, e.y - g.y) < g.shield) e.hp -= roleRef.current === 'shield' ? 2 : 1; }
-        g.enemies = g.enemies.filter(e => { if (e.hp > 0) return true; g.score += reactorEnemyStats(e.kind,g.time).score; if (e.kind==='boss') g.bossDefeated = true; if (g.energy.length < 35) g.energy.push({ x: e.x, y: e.y }); return false; });
-        if (!g.invincible && g.enemies.some(e => Math.hypot(e.x - g.x, e.y - g.y) < reactorEnemyStats(e.kind,g.time).contactRadius)) { g.hp--; g.invincible = 2; }
+        g.enemies = g.enemies.filter(e => { if (e.hp > 0) return true; g.score += reactorEnemyStats(e.kind,battleTime).score; if (e.kind==='boss') g.bossDefeated = true; if (g.energy.length < 35) g.energy.push({ x: e.x, y: e.y }); return false; });
+        if (!g.invincible && g.enemies.some(e => Math.hypot(e.x - g.x, e.y - g.y) < reactorEnemyStats(e.kind,battleTime).contactRadius)) { g.hp--; g.invincible = 2; }
         g.energy = g.energy.filter(e => { if (Math.hypot(e.x - g.x, e.y - g.y) < 28) { g.score += 3; return false; } return true; });
-        if (g.hp <= 0) change('lost'); else if (g.time >= 120) change('won'); else if (g.time >= g.nextQuiz) { g.nextQuiz += 18; ask(); }
+        if(g.hp<=0&&adventureRef.current){g.hp=4;g.invincible=3;g.enemies=[];}else if(g.hp<=0)change('lost');else if(!adventureRef.current&&g.time>=120)change('won');else if(g.time>=g.nextQuiz){g.nextQuiz+=adventureRef.current?25:18;ask();}
       }
       if (ctx) {
         ctx.clearRect(0, 0, 600, height); ctx.imageSmoothingEnabled = false;
@@ -143,7 +147,7 @@ export default function WordReactor({ vocabulary, progress, onAnswer, onExit, al
           // Sort characters by their ground position so passing sprites overlap naturally.
           const actors = [...g.enemies.map(enemy => ({ x: enemy.x, y: enemy.y, enemy })), { x: g.x, y: g.y, enemy: null }].sort((a, b) => a.y - b.y);
           for (const actor of actors) {
-            const enemy = actor.enemy, size = enemy ? reactorEnemyStats(enemy.kind,g.time).size : 58;
+            const enemy = actor.enemy, size = enemy ? reactorEnemyStats(enemy.kind,battleTime).size : 58;
             const img = enemy ? enemy.kind==='armored'?sprites.armored:sprites.jiangshi : sprites.archer;
             const width = size * img.naturalWidth / img.naturalHeight;
             const bob = enemy ? Math.abs(Math.sin(g.time * (enemy.kind==='armored'?4:7) + enemy.id)) * 5 : Math.sin(g.time * 10) * ((keys.current.size || target.current) ? 1.5 : 0);
@@ -167,10 +171,10 @@ export default function WordReactor({ vocabulary, progress, onAnswer, onExit, al
     return () => { cancelAnimationFrame(frame); window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); window.removeEventListener('blur', blur); document.removeEventListener('visibilitychange', visibility); stopSpeaking(); };
   }, [vocabulary]);
   function pointer(event: React.PointerEvent<HTMLCanvasElement>) { const rect = event.currentTarget.getBoundingClientRect(); target.current = { x: (event.clientX - rect.left) / rect.width * 600, y: (event.clientY - rect.top) / rect.height * world.current.height }; }
-  return <section ref={surface} className={'survival reactor'+(expanded?' reactor-expanded':'')}><div className="reactor-toolbar"><button onClick={leave} aria-label="Back to games"><ArrowLeft size={18}/>Back 返回</button><div><button onClick={expanded?shrink:expand} aria-label={expanded?'Shrink game':'Expand game'}>{expanded?<Minimize2 size={18}/>:<Maximize2 size={18}/>}<span>{expanded?'Shrink 缩小':'Full screen 全屏'}</span></button><button disabled={status!=='playing'} onClick={()=>change('paused')} aria-label="Pause game"><Pause size={18}/><span>Pause 暂停</span></button></div></div><div className="quiz-top"><h3>Word Reactor 能量单词</h3><span>Lantern Street · 灯笼街 · 2 min</span></div><div className="hud"><span><Shield size={18}/>{hud.hp} / 4</span><span><Zap size={18}/>Level {hud.level}</span><span><Star size={18}/>{hud.score}</span><span>{Math.max(0, 120 - hud.time)}s</span></div>
+  return <section ref={surface} className={'survival reactor'+(expanded?' reactor-expanded':'')}><div className="reactor-toolbar"><button onClick={leave} aria-label="Back to games"><ArrowLeft size={18}/>Back 返回</button><div><button onClick={expanded?shrink:expand} aria-label={expanded?'Shrink game':'Expand game'}>{expanded?<Minimize2 size={18}/>:<Maximize2 size={18}/>}<span>{expanded?'Shrink 缩小':'Full screen 全屏'}</span></button><button disabled={status!=='playing'} onClick={()=>change('paused')} aria-label="Pause game"><Pause size={18}/><span>Pause 暂停</span></button></div></div><div className="quiz-top"><h3>Word Reactor 能量单词</h3><span>{adventure?'Daily adventure · 每日冒险 · 8–10 min':'Lantern Street · 灯笼街 · 2 min'}</span></div><div className="hud"><span><Shield size={18}/>{hud.hp} / 4</span><span><Zap size={18}/>Level {hud.level}</span><span><Star size={18}/>{hud.score}</span><span>{adventure?adventure.completed+'/'+adventure.total:Math.max(0,120-hud.time)+'s'}</span></div>
     <div ref={arena} className={'arena ' + (status === 'playing' ? '' : 'with-overlay')}><canvas width={600} height={440} ref={canvas} aria-label="Word Reactor arena. Drag your finger to move, or use arrow keys. Your archer fires arrows automatically. Cartoon jiangshi hop towards you." onPointerDown={e => { if (statusRef.current !== 'playing') return; e.currentTarget.setPointerCapture(e.pointerId); pointer(e); }} onPointerMove={e => { if (e.currentTarget.hasPointerCapture(e.pointerId)) pointer(e); }} onPointerUp={() => { target.current = null; }} onPointerCancel={() => { target.current = null; }} onLostPointerCapture={() => { target.current = null; }}/>
       {status !== 'playing' && <div className="game-overlay reactor-overlay">{status === 'ready' ? <><p className="eyebrow">CHOOSE YOUR ARCHER</p><h2>Guard Lantern Street! 守护灯笼街</h2><div className="role-picker"><button aria-pressed={role === 'spark'} onClick={() => setRole('spark')}><img src={ART+"archer.png"} alt="" className="archer-choice"/>Swift archer<br/><small>Stronger arrows 强力弓箭</small></button><button aria-pressed={role === 'shield'} onClick={() => setRole('shield')}><img src={ART+"archer.png"} alt="" className="archer-choice"/>Guardian archer<br/><small>Wider shield 广域护盾</small></button></div><p>Dodge jiangshi and practise words to power up. Watch for the tougher purple guards!<br/>躲开小僵尸，练习单词来升级。小心更耐打的紫色护卫！</p>{artError?<><p role="alert">Artwork could not load. Please try again. 图片暂时无法加载。</p><button onClick={()=>setArtAttempt(n=>n+1)}>Reload artwork 重试</button></>:<button className="primary" disabled={!vocabulary.length||!artReady} onClick={start}>{artReady?"Start 开始":"Loading the street… 正在加载"}</button>}</>
-      : status === 'quiz' && question ? <>{preReader?<><button className="reactor-listen" aria-label="Listen and choose a picture" onClick={()=>speak(question.en)}><Volume2 size={42}/><span aria-hidden="true">👂 → 🖼️</span></button><div className="answers reactor-picture-answers">{options.map((w,i)=><button key={w.id||w.en} aria-label={'Choose picture '+(i+1)} onClick={()=>answer(w)}>{w.picture?<img src={publicAsset(w.picture)} alt=""/>:<span className="reactor-picture-icon" aria-hidden="true">{w.icon}</span>}</button>)}</div></>:<ReactorTask key={questionNumber} type={taskType} word={question} options={options} onAnswer={text=>answer({...question,en:text})}/>}<p aria-live="polite">{hint}</p></>
+      : status === 'quiz' && adventure ? adventure.challenge : status === 'quiz' && question ? <>{preReader?<><button className="reactor-listen" aria-label="Listen and choose a picture" onClick={()=>speak(question.en)}><Volume2 size={42}/><span aria-hidden="true">👂 → 🖼️</span></button><div className="answers reactor-picture-answers">{options.map((w,i)=><button key={w.id||w.en} aria-label={'Choose picture '+(i+1)} onClick={()=>answer(w)}>{w.picture?<img src={publicAsset(w.picture)} alt=""/>:<span className="reactor-picture-icon" aria-hidden="true">{w.icon}</span>}</button>)}</div></>:<ReactorTask key={questionNumber} type={taskType} word={question} options={options} onAnswer={text=>answer({...question,en:text})}/>}<p aria-live="polite">{hint}</p></>
       : status === 'upgrade' ? <><h2>Choose a power! 选择升级</h2><div className="power-choices"><button onClick={() => upgrade('spark')}><Zap/>Arrows +1<span>Stronger arrows 弓箭升级</span></button><button onClick={() => upgrade('shield')}><Shield/>Shield +1<span>Wider shield + one heart 护盾和生命</span></button><button onClick={() => upgrade('speed')}><Star/>Speed +1<span>Move faster 移动升级</span></button></div></>
       : status === 'paused' ? <><h2>Take a break 休息一下</h2><button className="primary" onClick={() => change('playing')}>Resume 继续</button></>
       : <><FinishCelebration title={status==='won'?'Street protected! 守护成功！':'Great practice! 练习完成！'}/><h2>{status === 'won' ? 'Street protected! 守护成功！' : 'Nice practice! 再试一次！'}</h2><p>{correctWords} words practised · {hud.score} energy<br/>{hud.bossDefeated ? 'Final challenge cleared! 挑战成功！' : 'Keep building your word power. 继续练习单词。'}</p><button className="primary" onClick={start}>Play again 再玩一次</button></>}</div>}

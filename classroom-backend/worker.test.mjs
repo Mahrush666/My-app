@@ -322,7 +322,7 @@ test('individual teachers activate once, remain class-scoped, and obey live owne
  assert.equal((await api('/staff-accept',{invite:invitation,password:'long-teacher-password'})).status,200);
  assert.equal((await api('/staff-accept',{invite:invitation,password:'another-password'})).status,400);
  const login=await api('/teacher-login',{username:'ms_lin',password:'long-teacher-password'});assert.equal(login.status,200);const token=login.body.token;
- const state=(await api('/teacher',undefined,token)).body;assert.equal(state.access.owner,false);assert.deepEqual(state.groups.map(g=>g.id),[a]);assert.deepEqual(state.children.map(c=>c.id),[kidA]);
+ const state=(await api('/teacher',undefined,token)).body;assert.equal((await api('/daily-practice-report?group='+b,undefined,token)).status,403);assert.equal((await api('/daily-practice-report?group='+a,undefined,token)).status,200);assert.equal(state.access.owner,false);assert.deepEqual(state.groups.map(g=>g.id),[a]);assert.deepEqual(state.children.map(c=>c.id),[kidA]);
  assert.equal((await api('/staff',undefined,token)).status,403);assert.equal((await api('/staff-save',{...config,id:staff,permissions:['delete']},token)).status,403);
  assert.equal((await api('/staff-invite',{id:staff},token)).status,403);
  assert.equal((await api('/groups',{name:'Unauthorized'},token)).status,403);
@@ -792,4 +792,44 @@ test('homework active time excludes session gaps, deduplicates retries and stops
  const end=Date.now();assert.equal((await send([{id:crypto.randomUUID(),sessionId:crypto.randomUUID(),start:end+1000,end:end+2000}])).status,200);
  report=(await api('/homework-report?child='+child+'&assignment='+task.id,undefined,teacher)).body;assert.equal(report.finished,true);assert.deepEqual(report.timing,{activeSeconds:20,sessions:2});
  await DB.sqlite.close();
+});
+
+test('daily adventures persist, restrict class access, reward once, and keep full homework separate',async()=>{
+ const {api,DB}=await setup();try{
+ const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Daily explorers'},teacher)).body;
+ const parent=(await api('/register',{username:'daily_family',password:'parent-password',consent:true})).body.token;
+ const other=(await api('/register',{username:'daily_other',password:'parent-password',consent:true})).body.token;
+ const childId=(await api('/children',{name:'Explorer',invite:group.invite},parent)).body.id;
+ await api('/approve',{childId,approved:true},teacher);
+ const assignment={groupId:group.id,unitId:'pu-starter-u7-lesson1',activities:['picture-listen'],wordIds:['pu-starter-u7-climb','pu-starter-u7-swim','pu-starter-u7-walk','pu-starter-u7-jump'],dailyPractice:true};
+ assert.equal((await api('/assignments',assignment,teacher)).status,200);
+ assert.ok((await api('/teacher',undefined,teacher)).body.dailyGroups.includes(group.id));
+ assert.equal((await api('/homework?child='+childId,undefined,parent)).body.dashboard.dailyEnabled,true);
+ assert.equal((await api('/daily-practice',{childId},other)).status,404);
+ let result=await api('/daily-practice',{childId},parent);assert.equal(result.status,200);let run=result.body;
+ assert.equal(run.tasks.length,12);assert.ok(run.tasks.every(t=>t.kind==='audio-options'));assert.equal(new Set(run.tasks.map(t=>t.id)).size,12);
+ assert.deepEqual((await api('/daily-practice',{childId},parent)).body,run);
+ const answer=(task,value,eventId=crypto.randomUUID())=>api('/daily-practice-answer',{childId,runId:run.id,taskId:task.id,answer:value,eventId},parent);
+ assert.equal((await answer(run.tasks[0],'wrong')).body.correct,false);
+ const eventId=crypto.randomUUID();let saved=(await answer(run.tasks[0],run.tasks[0].expected,eventId)).body;assert.equal(saved.done.length,1);
+ assert.equal((await answer(run.tasks[0],run.tasks[0].expected,eventId)).body.done.length,1);
+ assert.equal((await api('/daily-practice',{childId},parent)).body.done.length,1);
+ for(const task of run.tasks.slice(1)){saved=(await answer(task,task.expected)).body;assert.equal(saved.correct,true)}
+ assert.equal(saved.finished,true);assert.equal(saved.done.length,12);
+ await answer(run.tasks[0],run.tasks[0].expected);
+ assert.equal(Number((await DB.prepare("SELECT COUNT(*) AS n FROM reward_events WHERE child_id=? AND kind='daily'").bind(childId).first()).n),1);
+ const hw=(await api('/homework?child='+childId,undefined,parent)).body;assert.equal(hw.completed.length,0);
+ assert.equal((await api('/daily-practice-report?group='+group.id,undefined,parent)).status,403);
+ const report=(await api('/daily-practice-report?group='+group.id,undefined,teacher)).body;assert.equal(report.students[0].finished,true);assert.equal(report.students[0].mistakes.length,1);
+ for(const unitId of ['pu1-u9-vocabulary1','pu1-u7-vocabulary1']){
+ // Selected words are optional; the server defaults to the lesson vocabulary.
+ const assigned=await api('/assignments',{groupId:group.id,unitId,activities:['word-choice'],dailyPractice:true},teacher);assert.equal(assigned.status,200);
+ }
+ await DB.prepare('UPDATE daily_runs SET day=? WHERE id=?').bind('2000-01-01',run.id).run();
+ const next=(await api('/daily-practice',{childId},parent)).body;assert.equal(next.tasks.length,12);assert.deepEqual(new Set(next.tasks.map(t=>t.unitId)),new Set(['pu1-u9-vocabulary1','pu1-u7-vocabulary1']));
+ await api('/assignments',{...assignment,dailyPractice:false},teacher);
+ assert.equal((await api('/daily-practice',{childId},parent)).body.enabled,false);
+ assert.equal((await answer(run.tasks[0],run.tasks[0].expected)).status,400);
+ }finally{await DB.sqlite.close()}
 });

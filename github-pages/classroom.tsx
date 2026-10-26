@@ -1,3 +1,4 @@
+import {useHomeworkTime} from './use-homework-time';
 import HomeworkMeter from './homework-meter';
 import HomeworkReports from './homework-reports';
 import StudentQR from './student-qr';
@@ -93,6 +94,7 @@ export default function Classroom({onExit}:{onExit:()=>void}){
  const completedAssignments=homework?.assignments.filter(finished)||[];
  const assigned=homework?.assignments.find(a=>a.id===active);
  const lesson=lessons.find(l=>l.id===assigned?.unit_id);
+ useHomeworkTime({childId,assignmentId:assigned?.id,version:assigned?.updated_at,enabled:Boolean(assigned&&lesson&&homework&&!finished(assigned)),request:api});
  const exercises=useRef<HTMLElement|null>(null);
  useEffect(()=>{if(active)exercises.current?.scrollIntoView?.({block:'start',behavior:'instant'})},[active]);
  function openHomework(id:string){const assignment=homework?.assignments.find(a=>a.id===id);if(!lessons.some(l=>l.id===assignment?.unit_id)){setError('This lesson is unavailable. Please refresh the app or ask your teacher. 暂时无法打开课程，请刷新或联系老师。');return;}setActive(id);setError('');}

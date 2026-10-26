@@ -1,3 +1,4 @@
+import {homeworkTime} from '../lib/homework-time';
 import {isSentenceLesson} from '../lib/sentence-lesson';
 import {readStudentProgress,reactorLeaderboard} from './student-progress';
 import {publishedSettings,assignmentSettingsUpdates} from './lesson-settings';
@@ -11,7 +12,7 @@ import {teacherTools} from './teacher-tools';
 import {readRewards,syncHomeworkRewards} from './rewards';
 import {rewardBadges} from '../lib/rewards';
 import {checkStoryAnswer} from '../lib/illustrated-reading';
-import {requiresAnswers} from '../lib/homework-completion';
+import {requiresAnswers,homeworkFinished} from '../lib/homework-completion';
 import {supportsActivity} from '../lib/activity-availability';
 import type {D1Database} from '@cloudflare/workers-types';
 import {lessons} from '../github-pages/lessons';
@@ -177,7 +178,8 @@ export async function handle(request:Request,env:Env){
  const lesson=lessons.find(l=>l.id===assignment!.unit_id);requireValue(lesson,'Lesson unavailable.');
  const attempts=await env.DB.prepare('SELECT id,activity,word_id,correct,created_at FROM attempts WHERE child_id=? AND assignment_id=? ORDER BY created_at,id').bind(childId,assignmentId).all<ReportAttempt>();
  const completed=await env.DB.prepare('SELECT activity FROM completions WHERE child_id=? AND assignment_id=?').bind(childId,assignmentId).all<{activity:string}>();
- return respond(homeworkReport(child!.name,assignment!,lesson!,attempts.results,completed.results.map(c=>c.activity)));
+ const intervals=await env.DB.prepare('SELECT session_id,started_at,ended_at FROM homework_time WHERE child_id=? AND assignment_id=? AND assignment_version=?').bind(childId,assignmentId,assignment!.updated_at).all<{session_id:string;started_at:number;ended_at:number}>();
+ return respond({...homeworkReport(child!.name,assignment!,lesson!,attempts.results,completed.results.map(c=>c.activity)),timing:homeworkTime(intervals.results)});
  }
  if(path==='/teacher'&&request.method==='GET'){
  teacher();const [groups,children,assignments,reports]=await Promise.all([
@@ -279,6 +281,24 @@ export async function handle(request:Request,env:Env){
  if(data.correction!==true)await env.DB.prepare(`INSERT INTO reviews(child_id,word_id,step,due) VALUES(?,?,?,?) ON CONFLICT(child_id,word_id) DO UPDATE SET step=CASE WHEN ?=0 THEN 0 WHEN reviews.due>? THEN reviews.step ELSE MIN(reviews.step+1,4) END,due=CASE WHEN ?=0 THEN ? WHEN reviews.due>? THEN reviews.due ELSE ?+CASE MIN(reviews.step+1,4) WHEN 1 THEN 86400000 WHEN 2 THEN 259200000 WHEN 3 THEN 604800000 ELSE 1209600000 END END`).bind(child.id,wordId,data.correct?1:0,now+(data.correct?86400000:600000),Number(data.correct),now,Number(data.correct),now+600000,now,now).run();
  const reviews=await env.DB.prepare('SELECT word_id,step,due FROM reviews WHERE child_id=?').bind(child.id).all();
  return respond({progress:Object.fromEntries(reviews.results.map(r=>[r.word_id,{step:r.step,due:r.due}]))});
+ }
+ if(path==='/homework-time'&&request.method==='POST'){
+ const child=await childAccess(data.childId);requireValue(child.approved,'Profile is not approved.');
+ const assignment=await env.DB.prepare('SELECT * FROM assignments WHERE id=? AND group_id=?').bind(text(data.assignmentId,80),child.group_id).first<{id:string;updated_at:number;activities:string}>();
+ requireValue(assignment,'This homework is not assigned.');
+ if(Number(data.version)!==Number(assignment!.updated_at))return respond({saved:true,stale:true});
+ requireValue(Array.isArray(data.intervals)&&data.intervals.length<=60,'Invalid timing batch.');
+ const completed=await env.DB.prepare('SELECT assignment_id,activity,completed_at FROM completions WHERE child_id=? AND assignment_id=?').bind(child.id,assignment!.id).all<{assignment_id:string;activity:string;completed_at:number}>();
+ const finished=homeworkFinished(assignment!,completed.results),finishedAt=finished?Math.max(...completed.results.filter(c=>requiresAnswers(c.activity)).map(c=>Number(c.completed_at))):Infinity;
+ const statements=[];
+ for(const row of data.intervals as {id:string;sessionId:string;start:number;end:number}[]){
+ requireValue(row&&/^[a-zA-Z0-9-]{16,80}$/.test(row.id)&&/^[a-zA-Z0-9-]{16,80}$/.test(row.sessionId),'Invalid timing identifier.');
+ requireValue(Number.isSafeInteger(row.start)&&Number.isSafeInteger(row.end)&&row.end>row.start&&row.end-row.start<=60000&&row.end<=now+30000,'Invalid active time.');
+ const start=Math.max(row.start,Number(assignment!.updated_at)),end=Math.min(row.end,finishedAt);
+ if(end<=start)continue;
+ statements.push(env.DB.prepare('INSERT OR IGNORE INTO homework_time VALUES(?,?,?,?,?,?,?)').bind(row.id,child.id,assignment!.id,assignment!.updated_at,row.sessionId,start,end));
+ }
+ if(statements.length)await env.DB.batch(statements);return respond({saved:true});
  }
  if(path==='/progress'&&request.method==='POST'){
  const child=await childAccess(data.childId);requireValue(child.approved,'Your teacher needs to approve this profile.');

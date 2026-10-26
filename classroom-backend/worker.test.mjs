@@ -772,3 +772,24 @@ test('Play 2 sentence lesson validates answers and finishes all three checked ac
  const hw=(await api('/homework?child='+child,undefined,student)).body;assert.equal(hw.homeworkProgress[task.body.id].percent,100);
  await DB.sqlite.close();
 });
+
+test('homework active time excludes session gaps, deduplicates retries and stops at completion',async()=>{
+ const {api,DB}=await setup(),teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Timing class'},teacher)).body;
+ const child=(await api('/teacher-students',{groupId:group.id,names:['Timed learner']},teacher)).body.students[0].id;
+ const access=(await api('/student-link',{childId:child,reuse:true},teacher)).body.access,student=(await api('/student-login',{access})).body.token;
+ const task=(await api('/assignments',{groupId:group.id,unitId:'play2-u4-lesson1',activities:['word-choice']},teacher)).body;
+ const now=Date.now(),version=now-172800000;await DB.prepare('UPDATE assignments SET updated_at=? WHERE id=?').bind(version,task.id).run();
+ const first={id:crypto.randomUUID(),sessionId:crypto.randomUUID(),start:version+1000,end:version+11000},second={id:crypto.randomUUID(),sessionId:crypto.randomUUID(),start:now-20000,end:now-10000};
+ const send=(intervals,v=version,token=student)=>api('/homework-time',{childId:child,assignmentId:task.id,version:v,intervals},token);
+ assert.equal((await send([first,second])).status,200);assert.equal((await send([first,second])).status,200);
+ assert.equal((await send([{...second,id:crypto.randomUUID(),start:now-15000}])).status,200);
+ let report=(await api('/homework-report?child='+child+'&assignment='+task.id,undefined,teacher)).body;assert.deepEqual(report.timing,{activeSeconds:20,sessions:2});assert.equal(report.exercises[0].questions.flatMap(q=>q.attempts).length,0);
+ assert.equal((await send([{...first,id:crypto.randomUUID(),end:first.start+60001}])).status,400);
+ assert.equal((await send([first],version-1)).body.stale,true);
+ assert.notEqual((await api('/homework-report?child='+child+'&assignment='+task.id,undefined,student)).status,200);
+ for(const word of ['see','hear','smell','taste','touch'])await api('/progress',{childId:child,assignmentId:task.id,activity:'word-choice',wordId:'play2-u4-l1-'+word,correct:true,eventId:crypto.randomUUID()},student);
+ const end=Date.now();assert.equal((await send([{id:crypto.randomUUID(),sessionId:crypto.randomUUID(),start:end+1000,end:end+2000}])).status,200);
+ report=(await api('/homework-report?child='+child+'&assignment='+task.id,undefined,teacher)).body;assert.equal(report.finished,true);assert.deepEqual(report.timing,{activeSeconds:20,sessions:2});
+ await DB.sqlite.close();
+});

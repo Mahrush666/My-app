@@ -9,7 +9,7 @@ export async function configuredEndpoint(){const r=await fetch(publicAsset('clas
 export function classroomHeaders(endpoint:string,token?:string):Record<string,string>{return endpoint===gateway.endpoint?{apikey:gateway.anonKey,Authorization:'Bearer '+gateway.anonKey,...(token?{'X-Wordquest-Session':token}:{})}:token?{Authorization:'Bearer '+token}:{}}
 export async function classroomRequest<T>(endpoint:string,path:string,data?:unknown,session?:ClassroomSession|null):Promise<T>{
  const abort=new AbortController(),timeout=setTimeout(()=>abort.abort(),12000);
- try{const r=await fetch(endpoint+path,{method:data===undefined?'GET':'POST',headers:{...(data===undefined?{}:{'Content-Type':'application/json'}),...classroomHeaders(endpoint,session?.token)},body:data===undefined?undefined:JSON.stringify(data),signal:abort.signal});const d=await r.json() as T&{error?:string};if(!r.ok)throw Error(d.error||'Could not open this classroom.');return d}
+ try{const r=await fetch(endpoint+path,{method:data===undefined?'GET':'POST',headers:{...(data===undefined?{}:{'Content-Type':'application/json'}),...classroomHeaders(endpoint,session?.token)},body:data===undefined?undefined:JSON.stringify(data),signal:abort.signal,keepalive:path==='/homework-time'});const d=await r.json() as T&{error?:string};if(!r.ok)throw Error(d.error||'Could not open this classroom.');return d}
  catch(e){if(e instanceof TypeError||e instanceof Error&&e.name==='AbortError')throw Error('Cannot reach the classroom. Check your connection and try again. 无法连接教室，请重试。');throw e}
  finally{clearTimeout(timeout)}
 }

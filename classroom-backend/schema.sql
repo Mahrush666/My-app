@@ -26,3 +26,6 @@ CREATE TABLE IF NOT EXISTS campuses(id TEXT PRIMARY KEY,name TEXT NOT NULL);
 INSERT INTO campuses(id,name) VALUES('main','Main campus') ON CONFLICT(id) DO NOTHING;
 CREATE TABLE IF NOT EXISTS group_campuses(group_id TEXT PRIMARY KEY REFERENCES groups(id) ON DELETE CASCADE,campus_id TEXT NOT NULL REFERENCES campuses(id));
 CREATE TABLE IF NOT EXISTS staff_campuses(staff_id TEXT PRIMARY KEY REFERENCES staff_accounts(id) ON DELETE CASCADE,campus_id TEXT NOT NULL REFERENCES campuses(id));
+
+CREATE TABLE IF NOT EXISTS homework_time(id TEXT PRIMARY KEY,child_id TEXT NOT NULL REFERENCES children(id) ON DELETE CASCADE,assignment_id TEXT NOT NULL REFERENCES assignments(id) ON DELETE CASCADE,assignment_version INTEGER NOT NULL,session_id TEXT NOT NULL,started_at INTEGER NOT NULL,ended_at INTEGER NOT NULL,CHECK(ended_at>started_at AND ended_at-started_at<=60000));
+CREATE INDEX IF NOT EXISTS homework_time_report ON homework_time(child_id,assignment_id,assignment_version);

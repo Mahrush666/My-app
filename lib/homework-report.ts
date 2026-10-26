@@ -1,9 +1,10 @@
+import type {HomeworkTime} from './homework-time';
 import type {Lesson} from '../github-pages/lessons';
 import {activityOptions} from './unit-activities';
 import {requiresAnswers} from './homework-completion';
 export type ReportAttempt={id:string;activity:string;word_id:string|null;correct:number;created_at:number};
 export type ReportQuestion={id:string;prompt:string;expected:string;attempts:{correct:boolean;at:number}[]};
-export type HomeworkReport={student:string;title:string;lesson:string;finished:boolean;exercises:{id:string;title:string;questions:ReportQuestion[]}[]};
+export type HomeworkReport={timing?:HomeworkTime;student:string;title:string;lesson:string;finished:boolean;exercises:{id:string;title:string;questions:ReportQuestion[]}[]};
 export function homeworkReport(student:string,assignment:{title:string;activities:string;word_ids:string;updated_at:number},lesson:Lesson,attempts:ReportAttempt[],completed:string[]):HomeworkReport{
  const activities=JSON.parse(assignment.activities) as string[],ids=JSON.parse(assignment.word_ids) as string[];
  const words=lesson.words.filter(w=>ids.includes(w.id!));

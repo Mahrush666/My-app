@@ -1,3 +1,4 @@
+import {isSentenceLesson} from '../lib/sentence-lesson';
 import {readStudentProgress,reactorLeaderboard} from './student-progress';
 import {publishedSettings,assignmentSettingsUpdates} from './lesson-settings';
 import {homeworkReport,type ReportAttempt} from '../lib/homework-report';
@@ -305,6 +306,11 @@ export async function handle(request:Request,env:Env){
  const rewards=await readRewards(env.DB,child.id);
  const completed=await env.DB.prepare('SELECT assignment_id,activity FROM completions WHERE child_id=?').bind(child.id).all();
  return respond({homeworkProgress:await readStudentProgress(env.DB,child.id,[assignment!],completed.results),saved:true,rewards,correct,duplicate:inserted[0].meta.changes===0,completed:completed.results});
+ }
+ if(isSentenceLesson(assignment!.unit_id)&&['sentence-build','word-choice','sound-picture'].includes(activity)){
+ const unit=lessons.find(l=>l.id===assignment!.unit_id),word=unit?.words.find(w=>w.id===data.wordId);
+ requireValue(word&&typeof data.answer==='string','A sentence answer is required.');
+ data.correct=text(data.answer,1000).trim()===word!.en;
  }
  requireValue(typeof data.correct==='boolean','An answer result is required.');const wordId=text(data.wordId,100);requireValue(JSON.parse(assignment!.word_ids).includes(wordId),'This word is not assigned.');
  const stage=text(data.stage,20);const scaffold=activity==='spell'&&/^step[1-4]$/.test(stage);const reactorStage=activity==='reactor'&&/^reactor:(build|spelling|meaning)$/.test(stage);const attemptActivity=reactorStage?stage:activity==='lesson'||scaffold?activity+':'+stage:activity;

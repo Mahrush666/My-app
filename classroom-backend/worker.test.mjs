@@ -753,3 +753,22 @@ test('Play 2 Lesson 2 checks plural and description homework and persists comple
  const hw=(await api('/homework?child='+child,undefined,student)).body;assert.equal(hw.homeworkProgress[task.body.id].percent,100);
  await DB.sqlite.close();
 });
+
+test('Play 2 sentence lesson validates answers and finishes all three checked activities',async()=>{
+ const {api,DB}=await setup();const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Sentence class'},teacher)).body;
+ const child=(await api('/teacher-students',{groupId:group.id,names:['Learner']},teacher)).body.students[0].id;
+ const access=(await api('/student-link',{childId:child,reuse:true},teacher)).body.access;
+ const student=(await api('/student-login',{access})).body.token;
+ const task=await api('/assignments',{groupId:group.id,unitId:'play2-u4-lesson2-1',activities:['look-listen','word-choice','sound-picture','sentence-build']},teacher);assert.equal(task.status,200);
+ const keys=['girl-short-hair','girl-long-hair','boy-short-hair','boy-long-hair','boy-tall','boy-short','girl-tall','girl-short'];
+ const sentences=['She has short hair.','She has long hair.','He has short hair.','He has long hair.','He is tall.','He is short.','She is tall.','She is short.'];
+ const post=(activity,i,answer)=>api('/progress',{childId:child,assignmentId:task.body.id,activity,wordId:'play2-u4-l21-'+keys[i],answer,correct:true,eventId:crypto.randomUUID()},student);
+ await post('sentence-build',0,'She has long hair.');
+ let report=(await api('/homework-report?child='+child+'&assignment='+task.body.id,undefined,teacher)).body;
+ assert.equal(report.exercises.find(e=>e.id==='sentence-build').questions[0].attempts[0].correct,false);
+ for(const activity of ['word-choice','sound-picture','sentence-build'])for(let i=0;i<8;i++)assert.equal((await post(activity,i,sentences[i])).status,200);
+ report=(await api('/homework-report?child='+child+'&assignment='+task.body.id,undefined,teacher)).body;assert.equal(report.finished,true);assert.equal(report.exercises.length,3);
+ const hw=(await api('/homework?child='+child,undefined,student)).body;assert.equal(hw.homeworkProgress[task.body.id].percent,100);
+ await DB.sqlite.close();
+});

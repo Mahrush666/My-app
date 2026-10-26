@@ -1,7 +1,7 @@
 import type {LessonVideo} from './lesson-video';
 import {enabledActivities,type ActivityId} from './unit-activities';
 // Preparation, recognition, reading, spelling, then the archer game.
-const order:ActivityId[]=['look-listen','video','story','picture-listen','sound-picture','yes-no','cards','word-choice','word-sound','sound-word','match','reading','lesson','story-order','story-quiz','sentence-speak','spell','ward','sprint','reactor'];
+const order:ActivityId[]=['look-listen','video','story','picture-listen','sound-picture','yes-no','cards','word-choice','word-sound','sound-word','match','reading','lesson','story-order','story-quiz','sentence-speak','sentence-build','spell','ward','sprint','reactor'];
 export function orderHomeworkActivities(selected:ActivityId[],lookListenAvailable=false,songFirst=false):ActivityId[]{
  const activities=enabledActivities(selected);
  // This ungraded warm-up does not change assigned answer/completion requirements.

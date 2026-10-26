@@ -1,3 +1,4 @@
+import {play2Unit4Lesson21} from './play2-u4-lesson2-1';
 import {play2Unit4Lesson2} from './play2-u4-lesson2';
 import {play2Unit4Lesson1} from './play2-u4-lesson1';
 import {powerUp1Unit8Lesson2} from './pu1-u8-lesson2';
@@ -46,6 +47,7 @@ const actionWords: Word[] = [
 export const lessons: Lesson[] = ([
  play2Unit4Lesson1,
  play2Unit4Lesson2,
+ play2Unit4Lesson21,
  smartPhonics2Unit1,
  smartPhonics2Unit2,
  powerUp1Unit7Vocabulary,

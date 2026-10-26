@@ -1,6 +1,9 @@
+import {isSentenceLesson} from './sentence-lesson';
 import type {ActivityId} from './unit-activities';
 import type {Lesson} from '../github-pages/lessons';
 export function supportsActivity(activity:ActivityId,lesson:Pick<Lesson,'words'|'videos'|'story'|'readings'|'readingStory'|'sentencePractice'>&{id?:string}){
+ if(isSentenceLesson(lesson.id))return ['look-listen','word-choice','sound-picture','sentence-build'].includes(activity)&&lesson.words.length>0;
+ if(activity==='sentence-build')return false;
  if(activity==='spell'&&lesson.id?.startsWith('pu1-'))return lesson.id.includes('-vocabulary')&&lesson.words.length>0;
  if(activity==='story-quiz')return Boolean(lesson.readingStory?.questions.length);
  if(activity==='story-order')return Boolean(lesson.readingStory?.orders.length);

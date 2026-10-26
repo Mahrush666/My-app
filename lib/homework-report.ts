@@ -27,7 +27,7 @@ export function homeworkReport(student:string,assignment:{title:string;activitie
    }
 
    if(activity==='spell')for(let step=1;step<5;step++)if(current.some(a=>a.activity==='spell:step'+step&&a.word_id===w.id))add(w.id!,'Spelling · Step '+step,w.en,'spell:step'+step);
-   const labels:Record<string,string>={'word-choice':'Choose the written word 选单词','picture-listen':'Picture → choose the sound 看图选音','word-sound':'Read → choose the sound 读词选音','sound-word':'Listen → choose the word 听音选词','sound-picture':'Listen → choose the picture 听音选图','yes-no':'Look, listen and answer yes/no 看图听音判断','spell':'Spell the whole word 完整拼写','reactor':'Word Reactor · vocabulary challenge 单词挑战'};
+   const labels:Record<string,string>={'sentence-build':'Build the sentence 组句子','word-choice':'Choose the written word 选单词','picture-listen':'Picture → choose the sound 看图选音','word-sound':'Read → choose the sound 读词选音','sound-word':'Listen → choose the word 听音选词','sound-picture':'Listen → choose the picture 听音选图','yes-no':'Look, listen and answer yes/no 看图听音判断','spell':'Spell the whole word 完整拼写','reactor':'Word Reactor · vocabulary challenge 单词挑战'};
    add(w.id!,labels[activity]||'Practise the word 练习词汇',w.en);
   }
   return {id:activity,title:activityOptions.find(a=>a[0]===activity)?.[2]||activity,questions};

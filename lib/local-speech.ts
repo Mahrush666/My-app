@@ -1,6 +1,6 @@
 // Compare the entire sentence; a single target word is never enough.
 export function speechMatches(text:string,expected:string){
- const normalize=(value:string)=>value.toLowerCase().replace(/[’‘]/g,"'").replace(/[^a-z\s']/g,' ').replace(/\b(i'm)\b/g,'i am').replace(/\b(it's)\b/g,'it is').replace(/\b(he's)\b/g,'he is').replace(/\b(she's)\b/g,'she is').replace(/\b(they're)\b/g,'they are').replace(/\b(we're)\b/g,'we are').replace(/\b(can't)\b/g,'cannot').replace(/\bgood\s+bye\b/g,'goodbye').replace(/\s+/g,' ').trim();
+ const normalize=(value:string)=>value.toLowerCase().replace(/[’‘]/g,"'").replace(/[^a-z\s']/g,' ').replace(/\b(isn't)\b/g,'is not').replace(/\b(aren't)\b/g,'are not').replace(/\b(i'm)\b/g,'i am').replace(/\b(it's)\b/g,'it is').replace(/\b(he's)\b/g,'he is').replace(/\b(she's)\b/g,'she is').replace(/\b(they're)\b/g,'they are').replace(/\b(we're)\b/g,'we are').replace(/\b(can't)\b/g,'cannot').replace(/\bgood\s+bye\b/g,'goodbye').replace(/\s+/g,' ').trim();
  const target=normalize(expected);
  return target.split(' ').length>1&&normalize(text)===target;
 }

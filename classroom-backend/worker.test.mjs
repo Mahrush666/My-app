@@ -848,6 +848,7 @@ test('Starter Unit 8 combined Lesson 3 assigns picture/audio, yes-no and context
  const say={childId,assignmentId:id,activity:'sentence-speak',wordId:'pu-starter-u8-l3-answer-3',eventId:crypto.randomUUID(),answer:"No, he isn't."};
  assert.equal((await api('/progress',{...say,answer:'Yes, he is.'},parent)).body.correct,false);
  assert.equal((await api('/progress',{...say,eventId:crypto.randomUUID()},parent)).body.correct,true);
+ assert.equal((await api('/progress',{...say,answer:'No, he is not.',eventId:crypto.randomUUID()},parent)).body.correct,true);
  const report=(await api('/homework-report?child='+childId+'&assignment='+id,undefined,teacher)).body;assert.equal(report.exercises.find(e=>e.id==='sentence-speak').questions.length,19);assert.equal(report.exercises.find(e=>e.id==='yes-no').questions.length,19);
  }finally{await DB.sqlite.close()}
 });

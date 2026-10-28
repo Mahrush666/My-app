@@ -833,3 +833,21 @@ test('daily adventures persist, restrict class access, reward once, and keep ful
  assert.equal((await answer(run.tasks[0],run.tasks[0].expected)).status,400);
  }finally{await DB.sqlite.close()}
 });
+
+test('Starter Unit 8 combined Lesson 3 assigns picture/audio, yes-no and contextual sentence speaking',async()=>{
+ const {api,DB}=await setup();try{
+ const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Beach explorers'},teacher)).body;
+ const parent=(await api('/register',{username:'beach_family',password:'parent-password',consent:true})).body.token;
+ const childId=(await api('/children',{name:'Lily',invite:group.invite},parent)).body.id;await api('/approve',{childId,approved:true},teacher);
+ const payload={groupId:group.id,unitId:'pu-starter-u8-lesson3',activities:['video','look-listen','picture-listen','sound-picture','yes-no','sentence-speak','reactor']};
+ assert.equal((await api('/assignments',{...payload,activities:['word-choice']},teacher)).status,400);
+ const assigned=await api('/assignments',payload,teacher);assert.equal(assigned.status,200);const id=assigned.body.id;
+ const homework=(await api('/homework?child='+childId,undefined,parent)).body;const assignment=homework.assignments.find(a=>a.id===id),ids=JSON.parse(assignment.word_ids);assert.equal(ids.length,19);
+ for(const wordId of ids){assert.equal((await api('/progress',{childId,assignmentId:id,activity:'yes-no',wordId,correct:true,eventId:crypto.randomUUID()},parent)).status,200)}
+ const say={childId,assignmentId:id,activity:'sentence-speak',wordId:'pu-starter-u8-l3-answer-3',eventId:crypto.randomUUID(),answer:"No, he isn't."};
+ assert.equal((await api('/progress',{...say,answer:'Yes, he is.'},parent)).body.correct,false);
+ assert.equal((await api('/progress',{...say,eventId:crypto.randomUUID()},parent)).body.correct,true);
+ const report=(await api('/homework-report?child='+childId+'&assignment='+id,undefined,teacher)).body;assert.equal(report.exercises.find(e=>e.id==='sentence-speak').questions.length,19);assert.equal(report.exercises.find(e=>e.id==='yes-no').questions.length,19);
+ }finally{await DB.sqlite.close()}
+});

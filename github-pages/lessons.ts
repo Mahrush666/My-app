@@ -1,3 +1,4 @@
+import {unit8Lesson3} from './pu-starter-u8-lesson3';
 import {play2Unit4Lesson21} from './play2-u4-lesson2-1';
 import {play2Unit4Lesson2} from './play2-u4-lesson2';
 import {play2Unit4Lesson1} from './play2-u4-lesson1';
@@ -27,7 +28,7 @@ import { words, type Word } from '../app/words';
 import { passages } from '../app/passages';
 import { illustrations } from '../lib/story-illustrations';
 import type { ReadingPassage } from '../lib/classroom-types';
-export type Lesson = { id: string; book: string; title: string; unit?:{id:string;number:number;title:string}; lessonTitle?:string; words: Word[]; readings: ReadingPassage[]; story?:PictureStory; readingStory?:IllustratedReading; videos?:LessonVideo[]; sentencePractice?:import('../lib/sentence-practice').SentencePractice[]; defaultAge?:string; defaultActivities?:ActivityId[] };
+export type Lesson = { id: string; book: string; title: string; unit?:{id:string;number:number;title:string}; lessonTitle?:string; words: Word[]; readings: ReadingPassage[]; story?:PictureStory; readingStory?:IllustratedReading; videos?:LessonVideo[]; sentencePractice?:import('../lib/sentence-practice').SentencePractice[]; defaultAge?:string; defaultActivities?:ActivityId[]; allowedActivities?:ActivityId[] };
 const vocabulary = [
  ['delicious coconuts','美味的椰子','🥥','These are delicious coconuts.'],
  ['every day','每天','📅','I read every day.'],
@@ -64,6 +65,7 @@ export const lessons: Lesson[] = ([
  powerUp1Unit9CrossCurricular,
  unit8Lesson1,
  unit8Lesson2,
+ unit8Lesson3,
  {id:'pu-starter-u7-lesson1',book:'Power up Starter',title:'Unit 7 · Lesson 1 · Free time',unit:{id:'pu-starter-u7',number:7,title:'Unit 7 · Free time'},lessonTitle:'Lesson 1 · Actions',words:actionWords,readings:[],videos:[{title:'Action chant',src:'lessons/pu-starter-u7-lesson1/action-chant.mp4',poster:'lessons/pu-starter-u7-lesson1/jump.webp'}],defaultActivities:['video','picture-listen']},
  {id:'pu-starter-u7-reading',book:'Power up Starter',title:'Unit 7 · Reading',unit:{id:'pu-starter-u7',number:7,title:'Unit 7 · Free time'},lessonTitle:'Reading · Queen of the River',words:[],readings:[],story:queenOfTheRiver,defaultActivities:['story']},
  ...['Animals 动物','Food 食物','My world 我的世界','Actions 动作'].map((category,i)=>({id:'starter-'+i,book:'Starter English',title:category,words:words.filter(w=>w.category===category).map(w=>({...w,id:'starter-'+w.en})),readings:[passages[Math.min(i,2)]]})),

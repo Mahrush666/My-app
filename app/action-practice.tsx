@@ -1,3 +1,4 @@
+import {yesNoQuestion} from '../lib/action-questions';
 import FinishCelebration from './finish-celebration';
 "use client";
 import {useEffect,useMemo,useRef,useState} from 'react';
@@ -15,8 +16,7 @@ export default function ActionPractice({mode,vocabulary,progress,allCards=false,
  const word=queue[round];
  const choices=useMemo(()=>word?shuffle([word,...shuffle(vocabulary.filter(w=>(w.id||w.en)!==(word.id||word.en))).slice(0,3)]):[],[word,vocabulary]);
  const truth=truths.current[round%truths.current.length]??true;
- const other=choices.find(w=>(w.id||w.en)!==(word?.id||word?.en));
- const question=word?.action?`Is ${word.action.subject} ${(truth?word:other)?.action?.ing}?`:'';
+ const question=word?yesNoQuestion(word,truth,vocabulary):'';
  useEffect(()=>{marked.current=false;setSelected(-1);setResult(null);setMessage('');stopSpeaking()},[word]);
  useEffect(()=>{alive.current=true;return()=>{alive.current=false;stopSpeaking()}},[]);
  async function mark(correct:boolean){if(busy.current||result===true||!word)return;playAnswerSound(correct);setResult(correct);setMessage(correct?'⭐ Well done! 答对了！':'💛 Listen and try again. 听一听，再试试。');if(marked.current&&!correct)return;busy.current=true;setSaving(true);const correction=marked.current;try{await onAnswer(word,correct,mode,correction);marked.current=true;}catch{marked.current=false;if(alive.current){setResult(null);setMessage('Could not save. Please try again. 暂时无法保存，请重试。')}}finally{busy.current=false;if(alive.current)setSaving(false)}}

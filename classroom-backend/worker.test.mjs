@@ -322,7 +322,7 @@ test('individual teachers activate once, remain class-scoped, and obey live owne
  assert.equal((await api('/staff-accept',{invite:invitation,password:'long-teacher-password'})).status,200);
  assert.equal((await api('/staff-accept',{invite:invitation,password:'another-password'})).status,400);
  const login=await api('/teacher-login',{username:'ms_lin',password:'long-teacher-password'});assert.equal(login.status,200);const token=login.body.token;
- const state=(await api('/teacher',undefined,token)).body;assert.equal((await api('/daily-practice-report?group='+b,undefined,token)).status,403);assert.equal((await api('/daily-practice-report?group='+a,undefined,token)).status,200);assert.equal(state.access.owner,false);assert.deepEqual(state.groups.map(g=>g.id),[a]);assert.deepEqual(state.children.map(c=>c.id),[kidA]);
+ const state=(await api('/teacher',undefined,token)).body;assert.equal((await api('/weekly-homework-report?group='+b+'&week=2026-10-26',undefined,token)).status,403);assert.equal((await api('/daily-practice-report?group='+b,undefined,token)).status,403);assert.equal((await api('/daily-practice-report?group='+a,undefined,token)).status,200);assert.equal(state.access.owner,false);assert.deepEqual(state.groups.map(g=>g.id),[a]);assert.deepEqual(state.children.map(c=>c.id),[kidA]);
  assert.equal((await api('/staff',undefined,token)).status,403);assert.equal((await api('/staff-save',{...config,id:staff,permissions:['delete']},token)).status,403);
  assert.equal((await api('/staff-invite',{id:staff},token)).status,403);
  assert.equal((await api('/groups',{name:'Unauthorized'},token)).status,403);
@@ -545,9 +545,9 @@ test('spelling scaffolding is reported without completing homework or advancing 
  let state=(await api('/homework?child='+child,undefined,parent)).body;assert.equal(state.completed.length,0);assert.equal(state.progress['pu1-u9-clothes-boots'],undefined);
  assert.equal((await post('step5',false)).status,200);assert.equal((await post('step5',true)).status,200);
  assert.equal((await api('/homework?child='+child,undefined,parent)).body.completed.length,0);
- for(const word of ['cap','dress','glasses'])await post('step5',true,word);
+ for(const word of ['cap','dress','glasses'])for(const stage of ['step1','step2','step3','step4','step5'])await post(stage,true,word);
  const detail=(await api('/homework-report?child='+child+'&assignment='+task,undefined,teacher)).body;
- assert.equal(detail.finished,true);assert.equal(detail.exercises[0].questions.length,8);
+ assert.equal(detail.finished,true);assert.equal(detail.exercises[0].questions.length,20);
  assert.deepEqual(detail.exercises[0].questions.find(q=>q.id==='spell:pu1-u9-clothes-boots').attempts.map(a=>a.correct),[false,true]);
  const qr=(await api('/student-link',{childId:child},teacher)).body;const student=(await api('/student-login',{access:qr.access})).body.token;
  assert.ok(student);assert.equal((await api('/homework-report?child='+child+'&assignment='+task,undefined,student)).status,403);
@@ -635,7 +635,7 @@ test('Unit 7 Lesson 3 vocabulary and permission questions are assignable and che
  for(const q of story.questions)assert.equal((await post('story-quiz',q.id,String(q.answer))).body.correct,true);
  let report=(await api('/homework-report?child='+child+'&assignment='+task.body.id,undefined,teacher)).body;
  assert.equal(report.finished,false,'Spelling remains required');
- for(const id of ids)assert.equal((await post('spell',id,undefined,'step5')).status,200);
+ for(const id of ids)for(const stage of ['step1','step2','step3','step4','step5'])assert.equal((await post('spell',id,undefined,stage)).status,200);
  report=(await api('/homework-report?child='+child+'&assignment='+task.body.id,undefined,teacher)).body;
  assert.equal(report.finished,true,'Ungraded reading, listening and video do not require parent ticks');
  assert.equal((await api('/homework-report?child='+child+'&assignment='+task.body.id,undefined,student)).status,403);
@@ -794,7 +794,7 @@ test('homework active time excludes session gaps, deduplicates retries and stops
  await DB.sqlite.close();
 });
 
-test('daily adventures persist, restrict class access, reward once, and keep full homework separate',async()=>{
+test('daily adventures persist, restrict class access, reward once, and complete matching homework questions',async()=>{
  const {api,DB}=await setup();try{
  const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
  const group=(await api('/groups',{name:'Daily explorers'},teacher)).body;
@@ -819,7 +819,12 @@ test('daily adventures persist, restrict class access, reward once, and keep ful
  assert.equal(saved.finished,true);assert.equal(saved.done.length,12);
  await answer(run.tasks[0],run.tasks[0].expected);
  assert.equal(Number((await DB.prepare("SELECT COUNT(*) AS n FROM reward_events WHERE child_id=? AND kind='daily'").bind(childId).first()).n),1);
- const hw=(await api('/homework?child='+childId,undefined,parent)).body;assert.equal(hw.completed.length,0);
+ const hw=(await api('/homework?child='+childId,undefined,parent)).body;assert.equal(hw.completed.length,1);assert.equal(Object.values(hw.homeworkProgress)[0].percent,100);
+ const week=new Date(Date.now()+8*3600000).toISOString().slice(0,10);const d=new Date(week+'T00:00:00Z');d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));const monday=d.toISOString().slice(0,10);
+ const path='/weekly-homework-report?group='+group.id+'&week='+monday;
+ assert.equal((await api(path,undefined,parent)).status,403);
+ const weekly=await api(path,undefined,teacher);assert.equal(weekly.status,200);assert.equal(weekly.body.percent,100);assert.equal(weekly.body.students[0].reviewed,4,'Repeats and retries never inflate unique completed questions');
+ const detail=(await api('/homework-report?child='+childId+'&assignment='+hw.assignments[0].id,undefined,teacher)).body;assert.equal(detail.finished,true);assert.ok(detail.exercises[0].questions.some(q=>q.attempts.some(a=>!a.correct)),'Daily mistakes appear in normal homework reports');
  assert.equal((await api('/daily-practice-report?group='+group.id,undefined,parent)).status,403);
  const report=(await api('/daily-practice-report?group='+group.id,undefined,teacher)).body;assert.equal(report.students[0].finished,true);assert.equal(report.students[0].mistakes.length,1);
  for(const unitId of ['pu1-u9-vocabulary1','pu1-u7-vocabulary1']){
@@ -850,5 +855,46 @@ test('Starter Unit 8 combined Lesson 3 assigns picture/audio, yes-no and context
  assert.equal((await api('/progress',{...say,eventId:crypto.randomUUID()},parent)).body.correct,true);
  assert.equal((await api('/progress',{...say,answer:'No, he is not.',eventId:crypto.randomUUID()},parent)).body.correct,true);
  const report=(await api('/homework-report?child='+childId+'&assignment='+id,undefined,teacher)).body;assert.equal(report.exercises.find(e=>e.id==='sentence-speak').questions.length,19);assert.equal(report.exercises.find(e=>e.id==='yes-no').questions.length,19);
+ }finally{await DB.sqlite.close()}
+});
+
+test('weekly reports combine partial normal and daily answers, rank students, and isolate assignment versions',async()=>{
+ const {api,DB}=await setup();try{
+ const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Combined practice'},teacher)).body;
+ const parent=(await api('/register',{username:'combined_family',password:'parent-password',consent:true})).body.token;
+ const childId=(await api('/children',{name:'Zoe',invite:group.invite},parent)).body.id;
+ const second=(await api('/children',{name:'Amy',invite:group.invite},parent)).body.id;
+ for(const id of [childId,second])await api('/approve',{childId:id,approved:true},teacher);
+ const words=['climb','swim','walk','jump'].map(w=>'pu-starter-u7-'+w),payload={groupId:group.id,unitId:'pu-starter-u7-lesson1',activities:['picture-listen','sound-picture'],wordIds:words,dailyPractice:true};
+ const assignmentId=(await api('/assignments',payload,teacher)).body.id;
+ await api('/progress',{childId,assignmentId,activity:'picture-listen',wordId:words[0],correct:true,eventId:crypto.randomUUID()},parent);
+ let run=(await api('/daily-practice',{childId},parent)).body;
+ assert.ok(run.tasks.every(t=>t.assignmentVersion),'Daily tasks are tied to the saved assignment version');
+ assert.ok(!run.tasks.some(t=>t.activity==='picture-listen'&&t.wordId===words[0]),'Unfinished questions take priority over already completed homework');
+ const task=run.tasks[0],eventId=crypto.randomUUID(),send=(answer,id=eventId)=>api('/daily-practice-answer',{childId,runId:run.id,taskId:task.id,answer,eventId:id},parent);
+ await send('wrong',crypto.randomUUID());await send(task.expected);await send(task.expected);
+ const hw=(await api('/homework?child='+childId,undefined,parent)).body;assert.equal(hw.homeworkProgress[assignmentId].done,2);assert.equal(hw.homeworkProgress[assignmentId].percent,25);
+ const local=new Date(Date.now()+8*3600000);local.setUTCDate(local.getUTCDate()-((local.getUTCDay()+6)%7));const week=local.toISOString().slice(0,10),path='/weekly-homework-report?group='+group.id+'&week='+week;
+ const report=(await api(path,undefined,teacher)).body;assert.equal(report.students[0].name,'Zoe');assert.equal(report.students[0].reviewed,2);assert.equal(report.students[1].percent,0);assert.equal(report.percent,13,'Class ranking uses the average student percentage');
+ const previous=new Date(Date.parse(week+'T00:00:00Z')-7*86400000).toISOString().slice(0,10);assert.equal((await api('/weekly-homework-report?group='+group.id+'&week='+previous,undefined,teacher)).body.total,0);
+ await api('/assignments',{...payload,id:assignmentId,activities:['sound-picture']},teacher);
+ assert.equal((await send(task.expected,crypto.randomUUID())).status,400,'Old snapshots cannot credit revised homework');
+ const fresh=(await api('/daily-practice',{childId},parent)).body;assert.notEqual(fresh.id,run.id);assert.ok(fresh.tasks.every(t=>t.activity==='sound-picture'));
+ assert.equal((await api('/homework?child='+childId,undefined,parent)).body.homeworkProgress[assignmentId].done,0);
+ }finally{await DB.sqlite.close()}
+});
+
+test('daily spelling credits individual rounds across sessions until all five rounds are complete',async()=>{
+ const {api,DB}=await setup();try{
+ const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Daily spelling'},teacher)).body;
+ const childId=(await api('/teacher-students',{groupId:group.id,names:['Speller']},teacher)).body.students[0].id;
+ const access=(await api('/student-link',{childId,reuse:true},teacher)).body.access,student=(await api('/student-login',{access})).body.token;
+ const assignmentId=(await api('/assignments',{groupId:group.id,unitId:'pu1-u9-vocabulary1',activities:['spell'],wordIds:['boots','cap','dress','glasses'].map(w=>'pu1-u9-clothes-'+w),dailyPractice:true},teacher)).body.id;
+ const play=async()=>{const run=(await api('/daily-practice',{childId},student)).body;assert.equal(run.tasks.length,12);for(const t of run.tasks){const saved=await api('/daily-practice-answer',{childId,runId:run.id,taskId:t.id,answer:t.expected,eventId:crypto.randomUUID()},student);assert.equal(saved.status,200)}return run};
+ const first=await play();let hw=(await api('/homework?child='+childId,undefined,student)).body;assert.equal(hw.homeworkProgress[assignmentId].done,12);assert.equal(hw.homeworkProgress[assignmentId].total,20);assert.equal(hw.completed.length,0);
+ await DB.prepare('UPDATE daily_runs SET day=? WHERE id=?').bind('2000-01-01',first.id).run();await play();hw=(await api('/homework?child='+childId,undefined,student)).body;assert.equal(hw.homeworkProgress[assignmentId].percent,100);assert.equal(hw.completed.length,1);
+ assert.equal(Number((await DB.prepare("SELECT COUNT(*) AS n FROM reward_events WHERE child_id=? AND kind='homework'").bind(childId).first()).n),1);
  }finally{await DB.sqlite.close()}
 });

@@ -1,0 +1,22 @@
+import {useEffect,useRef,useState} from 'react';
+import {addDays,chinaDay,weekStart,type SchoolGroup} from '../lib/teacher-dashboard';
+import {progressTone,type WeeklyClass} from '../lib/weekly-homework-report';
+import HomeworkReports from './homework-reports';
+type DetailProps=Parameters<typeof HomeworkReports>[0];
+export function HomeworkProgressBar({percent,done,total}:{percent:number;done:number;total:number}){return <div className={'weekly-progress tone-'+progressTone(percent)}><div className="weekly-progress-track" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100} aria-label="Homework completion"><span style={{width:percent+'%'}}/></div><strong>{percent===100?'✓ ':''}{percent}%</strong><small>{done}/{total}</small></div>}
+export default function WeeklyHomeworkReports({groups,children,assignments,reports,request}:{groups:SchoolGroup[]}&DetailProps){
+ const [week,setWeek]=useState(weekStart(chinaDay())),[rows,setRows]=useState<(WeeklyClass&SchoolGroup)[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[retry,setRetry]=useState(0),[student,setStudent]=useState(''),[needsAttention,setNeedsAttention]=useState(false);
+ const ref=useRef(request);ref.current=request;
+ const key=groups.map(g=>g.id).join(',');
+ useEffect(()=>{let alive=true;setLoading(true);setError('');setRows([]);setStudent('');Promise.all(groups.map(async g=>({...await ref.current<WeeklyClass>('/weekly-homework-report?group='+encodeURIComponent(g.id)+'&week='+week),...g}))).then(data=>{if(alive)setRows(data.sort((a,b)=>b.percent-a.percent||b.reviewed-a.reviewed||a.name.localeCompare(b.name)))}).catch(e=>{if(alive)setError(e.message)}).finally(()=>{if(alive)setLoading(false)});return()=>{alive=false}},[week,key,retry]);
+ const label=(day:string)=>new Date(day+'T00:00:00Z').toLocaleDateString('en-GB',{day:'numeric',month:'short',timeZone:'UTC'});
+ return <section className="panel weekly-homework-reports"><div className="section-heading"><h2>Homework reports 作业报告</h2><button onClick={()=>setRetry(n=>n+1)} disabled={loading}>Refresh 刷新</button></div>
+ <div className="week-picker"><button aria-label="Previous week" onClick={()=>setWeek(addDays(week,-7))}>‹</button><strong>{label(week)} – {label(addDays(week,6))}</strong><button aria-label="Next week" onClick={()=>setWeek(addDays(week,7))}>›</button><button onClick={()=>setWeek(weekStart(chinaDay()))}>This week 本周</button></div>
+ <p className="small-note">Homework + Daily Practice · unique assigned questions completed. Classes ranked by average student completion. 作业与每日练习合并统计。</p><label className="small-note"><input type="checkbox" checked={needsAttention} onChange={e=>setNeedsAttention(e.target.checked)}/> Needs attention · unfinished homework 只看未完成</label>
+ {loading&&<p role="status">Loading reports… 正在加载…</p>}{error&&<p role="alert">{error} <button onClick={()=>setRetry(n=>n+1)}>Retry 重试</button></p>}
+ {!loading&&!error&&!rows.length&&<p>No classes yet. 暂无班级。</p>}
+ {rows.map((g,i)=><details key={g.id} className="weekly-class"><summary><span><strong>{i+1}. {g.name}</strong><small>{g.students.length} students · {g.reviewed} questions completed this week 本周完成题目</small></span>{g.total?<HomeworkProgressBar percent={g.percent} done={g.done} total={g.total}/>:<small>No homework this week 本周暂无作业</small>}</summary>
+ <div className="weekly-students">{g.students.filter(s=>!needsAttention||s.total>0&&s.percent<100).map(s=><div className="weekly-student" key={s.id}><button className="weekly-student-open" onClick={()=>setStudent(student===s.id?'':s.id)}><span><strong>{s.name}</strong><small>{s.reviewed} completed this week 本周完成{s.lastSeen?' · '+new Date(s.lastSeen).toLocaleDateString('en-GB',{timeZone:'Asia/Shanghai',day:'numeric',month:'short'}):' · No practice yet 尚未练习'}</small></span>{s.total?<HomeworkProgressBar percent={s.percent} done={s.done} total={s.total}/>:<small>No assigned questions 暂无作业</small>}</button>
+ {student===s.id&&<div className="weekly-student-detail">{s.assignments.map(a=><div key={a.id}><strong>{a.title}</strong><HomeworkProgressBar percent={a.progress.percent} done={a.progress.done} total={a.progress.total}/></div>)}<HomeworkReports children={children.filter(c=>c.id===s.id)} assignments={assignments.filter(a=>s.assignments.some(t=>t.id===a.id))} reports={reports.filter(r=>r.child_id===s.id)} request={request}/></div>}</div>)}{!g.students.length&&<p>No active students 暂无学生。</p>}</div></details>)}
+ </section>
+}

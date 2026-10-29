@@ -1,0 +1,50 @@
+{
+  "pizza": {
+    "durationMs": 4160,
+    "bytes": 175542
+  },
+  "hamburger": {
+    "durationMs": 3960,
+    "bytes": 151818
+  },
+  "icecream": {
+    "durationMs": 4220,
+    "bytes": 189590
+  },
+  "sock": {
+    "durationMs": 4400,
+    "bytes": 204470
+  },
+  "cake": {
+    "durationMs": 4100,
+    "bytes": 186242
+  },
+  "hotdog": {
+    "durationMs": 3940,
+    "bytes": 180802
+  },
+  "shoe": {
+    "durationMs": 4120,
+    "bytes": 189358
+  },
+  "doughnut": {
+    "durationMs": 4250,
+    "bytes": 180810
+  },
+  "watermelon": {
+    "durationMs": 4720,
+    "bytes": 245286
+  },
+  "broccoli": {
+    "durationMs": 4660,
+    "bytes": 208880
+  },
+  "pancakes": {
+    "durationMs": 5450,
+    "bytes": 271438
+  },
+  "idle": {
+    "durationMs": 5750,
+    "bytes": 178518
+  }
+}

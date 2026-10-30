@@ -56,6 +56,15 @@ for(const asset of u8l2Media.assets){
  mkdirSync(root+'/public/lessons/pu1-u8-lesson2',{recursive:true});
  writeFileSync(root+'/public/lessons/pu1-u8-lesson2/'+asset.file,data);
 }
+// Unit 8 lessons 3–5: reconstruct compact classroom videos from repository parts.
+const unit8NewDir=root+'/lesson-media/pu1-u8-new';
+const unit8NewMedia=JSON.parse(readFileSync(unit8NewDir+'/manifest.json','utf8')) as {assets:{directory:string;file:string;sha256:string;parts:string[]}[]};
+for(const asset of unit8NewMedia.assets){
+ const data=Buffer.concat(asset.parts.map(part=>readFileSync(unit8NewDir+'/'+part)));
+ if(createHash('sha256').update(data).digest('hex')!==asset.sha256)throw Error('Unit 8 lesson media is incomplete');
+ mkdirSync(root+'/public/lessons/'+asset.directory,{recursive:true});
+ writeFileSync(root+'/public/lessons/'+asset.directory+'/'+asset.file,data);
+}
 export default defineConfig({
   root: root + '/github-pages',
   base: process.env.PAGES_BASE || './',

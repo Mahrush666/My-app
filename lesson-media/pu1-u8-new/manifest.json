@@ -1,0 +1,128 @@
+{
+  "assets": [
+    {
+      "directory": "pu1-u8-lesson3",
+      "file": "song.mp4",
+      "parts": [
+        "pu1-u8-lesson3-song.mp4.part-000",
+        "pu1-u8-lesson3-song.mp4.part-001",
+        "pu1-u8-lesson3-song.mp4.part-002",
+        "pu1-u8-lesson3-song.mp4.part-003",
+        "pu1-u8-lesson3-song.mp4.part-004",
+        "pu1-u8-lesson3-song.mp4.part-005",
+        "pu1-u8-lesson3-song.mp4.part-006",
+        "pu1-u8-lesson3-song.mp4.part-007",
+        "pu1-u8-lesson3-song.mp4.part-008",
+        "pu1-u8-lesson3-song.mp4.part-009",
+        "pu1-u8-lesson3-song.mp4.part-010",
+        "pu1-u8-lesson3-song.mp4.part-011",
+        "pu1-u8-lesson3-song.mp4.part-012",
+        "pu1-u8-lesson3-song.mp4.part-013",
+        "pu1-u8-lesson3-song.mp4.part-014",
+        "pu1-u8-lesson3-song.mp4.part-015",
+        "pu1-u8-lesson3-song.mp4.part-016",
+        "pu1-u8-lesson3-song.mp4.part-017",
+        "pu1-u8-lesson3-song.mp4.part-018"
+      ],
+      "sha256": "4d271c52d1b81b6bc2d0b4da9391da4671dc56e8a2d3d9533d38cc369ac729ba"
+    },
+    {
+      "directory": "pu1-u8-lesson3",
+      "file": "prepositions.mp4",
+      "parts": [
+        "pu1-u8-lesson3-prepositions.mp4.part-000",
+        "pu1-u8-lesson3-prepositions.mp4.part-001",
+        "pu1-u8-lesson3-prepositions.mp4.part-002",
+        "pu1-u8-lesson3-prepositions.mp4.part-003",
+        "pu1-u8-lesson3-prepositions.mp4.part-004",
+        "pu1-u8-lesson3-prepositions.mp4.part-005",
+        "pu1-u8-lesson3-prepositions.mp4.part-006",
+        "pu1-u8-lesson3-prepositions.mp4.part-007"
+      ],
+      "sha256": "7196ac9efe8a5a664d5cc09e7950cd2cd8c9557867b38f79e12a6d242c2dc756"
+    },
+    {
+      "directory": "pu1-u8-lesson3",
+      "file": "grammar.m4a",
+      "parts": [
+        "pu1-u8-lesson3-grammar.m4a.part-000"
+      ],
+      "sha256": "3bc0a41144517effd3bf79f0c4f2550bf42c7fc47a6e3d83a95ead424edde109"
+    },
+    {
+      "directory": "pu1-u8-lesson3",
+      "file": "listening.m4a",
+      "parts": [
+        "pu1-u8-lesson3-listening.m4a.part-000",
+        "pu1-u8-lesson3-listening.m4a.part-001",
+        "pu1-u8-lesson3-listening.m4a.part-002"
+      ],
+      "sha256": "211e63639ed022e3e49ca4e9db1e3f6262ba97c116e8ccb1b356108efd67dfca"
+    },
+    {
+      "directory": "pu1-u8-lesson4",
+      "file": "houses.mp4",
+      "parts": [
+        "pu1-u8-lesson4-houses.mp4.part-000",
+        "pu1-u8-lesson4-houses.mp4.part-001",
+        "pu1-u8-lesson4-houses.mp4.part-002",
+        "pu1-u8-lesson4-houses.mp4.part-003",
+        "pu1-u8-lesson4-houses.mp4.part-004",
+        "pu1-u8-lesson4-houses.mp4.part-005",
+        "pu1-u8-lesson4-houses.mp4.part-006",
+        "pu1-u8-lesson4-houses.mp4.part-007",
+        "pu1-u8-lesson4-houses.mp4.part-008",
+        "pu1-u8-lesson4-houses.mp4.part-009",
+        "pu1-u8-lesson4-houses.mp4.part-010",
+        "pu1-u8-lesson4-houses.mp4.part-011",
+        "pu1-u8-lesson4-houses.mp4.part-012",
+        "pu1-u8-lesson4-houses.mp4.part-013",
+        "pu1-u8-lesson4-houses.mp4.part-014",
+        "pu1-u8-lesson4-houses.mp4.part-015",
+        "pu1-u8-lesson4-houses.mp4.part-016",
+        "pu1-u8-lesson4-houses.mp4.part-017",
+        "pu1-u8-lesson4-houses.mp4.part-018",
+        "pu1-u8-lesson4-houses.mp4.part-019",
+        "pu1-u8-lesson4-houses.mp4.part-020",
+        "pu1-u8-lesson4-houses.mp4.part-021",
+        "pu1-u8-lesson4-houses.mp4.part-022",
+        "pu1-u8-lesson4-houses.mp4.part-023",
+        "pu1-u8-lesson4-houses.mp4.part-024",
+        "pu1-u8-lesson4-houses.mp4.part-025",
+        "pu1-u8-lesson4-houses.mp4.part-026"
+      ],
+      "sha256": "cb5606f39bd6b28b75b60072f5da68c3ffe79ebfbad6a449e5ed89a4dd268cdc"
+    },
+    {
+      "directory": "pu1-u8-lesson4",
+      "file": "houses-listen.m4a",
+      "parts": [
+        "pu1-u8-lesson4-houses-listen.m4a.part-000"
+      ],
+      "sha256": "77ae93087fe0c87d0573c9aca582fedd77d9044168ec96521cd884abd64c02f4"
+    },
+    {
+      "directory": "pu1-u8-lesson4",
+      "file": "listening.m4a",
+      "parts": [
+        "pu1-u8-lesson4-listening.m4a.part-000",
+        "pu1-u8-lesson4-listening.m4a.part-001",
+        "pu1-u8-lesson4-listening.m4a.part-002",
+        "pu1-u8-lesson4-listening.m4a.part-003"
+      ],
+      "sha256": "ebedf29d9d0c1719af4ad86f9f7863bf64ef3ed78f3eb239ca8493586224309c"
+    },
+    {
+      "directory": "pu1-u8-lesson5",
+      "file": "poem.m4a",
+      "parts": [
+        "pu1-u8-lesson5-poem.m4a.part-000",
+        "pu1-u8-lesson5-poem.m4a.part-001",
+        "pu1-u8-lesson5-poem.m4a.part-002",
+        "pu1-u8-lesson5-poem.m4a.part-003",
+        "pu1-u8-lesson5-poem.m4a.part-004"
+      ],
+      "sha256": "95013c0c57320ab79543aabb18198b594bd28a5ef144898422bd2cb7bed22d6a"
+    }
+  ]
+}

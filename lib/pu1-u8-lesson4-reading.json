@@ -1,0 +1,220 @@
+{
+  "title": "Houses around the world",
+  "scenes": [
+    {
+      "id": "pu1-u8-l4-scene-1",
+      "label": "David’s houseboat",
+      "image": "lessons/pu1-u8-lesson4/david-houseboat.webp",
+      "full": [
+        "Hi, I’m David.",
+        "I live in a houseboat with my mum, dad and sister.",
+        "It’s got five rooms – a living room, a kitchen, a bathroom and two bedrooms.",
+        "It hasn’t got a garden.",
+        "We can play board games at my house, but we can’t skateboard or play football!",
+        "I like my house because at night I can hear the water and the ducks."
+      ],
+      "easy": [
+        "Hi, I’m David.",
+        "I live in a houseboat with my mum, dad and sister.",
+        "It’s got five rooms – a living room, a kitchen, a bathroom and two bedrooms.",
+        "It hasn’t got a garden.",
+        "We can play board games at my house, but we can’t skateboard or play football!",
+        "I like my house because at night I can hear the water and the ducks."
+      ]
+    },
+    {
+      "id": "pu1-u8-l4-scene-2",
+      "label": "A house in the trees",
+      "image": "lessons/pu1-u8-lesson4/treehouse.webp",
+      "full": [
+        "I’ve got a treehouse in my garden and sometimes I sleep there.",
+        "It’s called a treehouse because it’s in the trees!",
+        "In the morning I can hear the birds.",
+        "It’s great!"
+      ],
+      "easy": [
+        "I’ve got a treehouse in my garden and sometimes I sleep there.",
+        "It’s called a treehouse because it’s in the trees!",
+        "In the morning I can hear the birds.",
+        "It’s great!"
+      ]
+    },
+    {
+      "id": "pu1-u8-l4-scene-3",
+      "label": "Houses on the water",
+      "image": "lessons/pu1-u8-lesson4/vietnam-houseboats.webp",
+      "full": [
+        "I live in Vietnam.",
+        "The houses in my village are lots of different colours and they are all on the water.",
+        "I like it because we can swim and catch fish."
+      ],
+      "easy": [
+        "I live in Vietnam.",
+        "The houses in my village are lots of different colours and they are all on the water.",
+        "I like it because we can swim and catch fish."
+      ]
+    },
+    {
+      "id": "pu1-u8-l4-scene-4",
+      "label": "A house that moves",
+      "image": "lessons/pu1-u8-lesson4/caravan.webp",
+      "full": [
+        "My house has got four rooms – a living room, a kitchen, a bathroom and two bedrooms.",
+        "How is my house different?",
+        "It moves!",
+        "I like it because we can go to different places and take our house with us."
+      ],
+      "easy": [
+        "My house has got four rooms – a living room, a kitchen, a bathroom and two bedrooms.",
+        "How is my house different?",
+        "It moves!",
+        "I like it because we can go to different places and take our house with us."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "pu1-u8-l4-q1",
+      "scene": "pu1-u8-l4-scene-1",
+      "text": "What kind of house does David live in?",
+      "options": [
+        "A hut.",
+        "A houseboat.",
+        "A treehouse.",
+        "A flat."
+      ],
+      "answer": 1,
+      "explanation": "David lives in a houseboat."
+    },
+    {
+      "id": "pu1-u8-l4-q2",
+      "scene": "pu1-u8-l4-scene-1",
+      "text": "Who lives with David?",
+      "options": [
+        "His friends.",
+        "His grandparents.",
+        "His mum, dad and sister.",
+        "His teacher."
+      ],
+      "answer": 2,
+      "explanation": "David lives with his mum, dad and sister."
+    },
+    {
+      "id": "pu1-u8-l4-q3",
+      "scene": "pu1-u8-l4-scene-1",
+      "text": "How many bedrooms has David’s house got?",
+      "options": [
+        "Two.",
+        "One.",
+        "Three.",
+        "Four."
+      ],
+      "answer": 0,
+      "explanation": "David’s house has got two bedrooms."
+    },
+    {
+      "id": "pu1-u8-l4-q4",
+      "scene": "pu1-u8-l4-scene-1",
+      "text": "What can David do in his house?",
+      "options": [
+        "Play football.",
+        "Skateboard.",
+        "Ride a horse.",
+        "Play board games."
+      ],
+      "answer": 3,
+      "explanation": "They can play board games at his house."
+    },
+    {
+      "id": "pu1-u8-l4-q5",
+      "scene": "pu1-u8-l4-scene-1",
+      "text": "What can David hear at night?",
+      "options": [
+        "Cars and buses.",
+        "The water and the ducks.",
+        "Lions and tigers.",
+        "A guitar and a piano."
+      ],
+      "answer": 1,
+      "explanation": "At night David can hear the water and the ducks."
+    },
+    {
+      "id": "pu1-u8-l4-q6",
+      "scene": "pu1-u8-l4-scene-2",
+      "text": "Why is it called a treehouse?",
+      "options": [
+        "It’s on the water.",
+        "It moves.",
+        "It’s in the trees.",
+        "It’s under the road."
+      ],
+      "answer": 2,
+      "explanation": "It’s called a treehouse because it’s in the trees!"
+    },
+    {
+      "id": "pu1-u8-l4-q7",
+      "scene": "pu1-u8-l4-scene-2",
+      "text": "What can the child hear in the morning?",
+      "options": [
+        "The birds.",
+        "The trains.",
+        "The cars.",
+        "The television."
+      ],
+      "answer": 0,
+      "explanation": "In the morning the child can hear the birds."
+    },
+    {
+      "id": "pu1-u8-l4-q8",
+      "scene": "pu1-u8-l4-scene-3",
+      "text": "Where does the child live?",
+      "options": [
+        "England.",
+        "Australia.",
+        "Canada.",
+        "Vietnam."
+      ],
+      "answer": 3,
+      "explanation": "The child lives in Vietnam."
+    },
+    {
+      "id": "pu1-u8-l4-q9",
+      "scene": "pu1-u8-l4-scene-3",
+      "text": "What can the child do there?",
+      "options": [
+        "Skateboard and ski.",
+        "Swim and catch fish.",
+        "Ride a horse.",
+        "Climb a mountain."
+      ],
+      "answer": 1,
+      "explanation": "They can swim and catch fish."
+    },
+    {
+      "id": "pu1-u8-l4-q10",
+      "scene": "pu1-u8-l4-scene-4",
+      "text": "How is the last house different?",
+      "options": [
+        "It is in a tree.",
+        "It is under the ground.",
+        "It moves.",
+        "It has no windows."
+      ],
+      "answer": 2,
+      "explanation": "It moves! They can take their house with them."
+    }
+  ],
+  "orders": [],
+  "references": [
+    {
+      "title": "Houses around the world · Listen and say",
+      "image": "lessons/pu1-u8-lesson4/houses-listening.webp",
+      "audio": "lessons/pu1-u8-lesson4/houses-listen.m4a"
+    },
+    {
+      "title": "Where do the children want to live?",
+      "image": "lessons/pu1-u8-lesson4/houses-listening.webp",
+      "audio": "lessons/pu1-u8-lesson4/listening.m4a"
+    }
+  ]
+}

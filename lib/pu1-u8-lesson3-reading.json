@@ -1,0 +1,208 @@
+{
+  "title": "At home · Furniture and positions",
+  "scenes": [
+    {
+      "id": "pu1-u8-l3-scene-1",
+      "label": "In the living room",
+      "image": "lessons/pu1-u8-lesson3/song-page.webp",
+      "full": [
+        "There’s a pink armchair in the living room and a red sofa under the window …"
+      ],
+      "easy": [
+        "There’s a pink armchair in the living room and a red sofa under the window …"
+      ]
+    },
+    {
+      "id": "pu1-u8-l3-scene-2",
+      "label": "Next to the phone",
+      "image": "lessons/pu1-u8-lesson3/song-page.webp",
+      "full": [
+        "There’s a yellow lamp in the living room and an old painting next to the phone …"
+      ],
+      "easy": [
+        "There’s a yellow lamp in the living room and an old painting next to the phone …"
+      ]
+    },
+    {
+      "id": "pu1-u8-l3-scene-3",
+      "label": "In the hall",
+      "image": "lessons/pu1-u8-lesson3/song-page.webp",
+      "full": [
+        "In the hall, there’s a clock on the wall.",
+        "There’s a rug on the floor next to the door."
+      ],
+      "easy": [
+        "In the hall, there’s a clock on the wall.",
+        "There’s a rug on the floor next to the door."
+      ]
+    },
+    {
+      "id": "pu1-u8-l3-scene-4",
+      "label": "In front of, between and behind",
+      "image": "lessons/pu1-u8-lesson3/grammar.webp",
+      "full": [
+        "There’s a small rug in front of the armchair.",
+        "There’s a lamp between the armchair and the sofa.",
+        "There’s a clock on the wall behind the sofa."
+      ],
+      "easy": [
+        "There’s a small rug in front of the armchair.",
+        "There’s a lamp between the armchair and the sofa.",
+        "There’s a clock on the wall behind the sofa."
+      ]
+    },
+    {
+      "id": "pu1-u8-l3-scene-5",
+      "label": "Where are the things?",
+      "image": "lessons/pu1-u8-lesson3/positions.webp",
+      "full": [
+        "The phone is between the photo and the lamp in the hall.",
+        "The duck is in front of the bath in the bathroom.",
+        "The clock is in the kitchen. It’s between the window and the cupboard.",
+        "The map is on the floor in front of the television in the living room.",
+        "The lamp is behind the armchair in the living room.",
+        "The skateboard is in the bedroom. It’s between the door and the cupboard."
+      ],
+      "easy": [
+        "The phone is between the photo and the lamp in the hall.",
+        "The duck is in front of the bath in the bathroom.",
+        "The clock is in the kitchen. It’s between the window and the cupboard.",
+        "The map is on the floor in front of the television in the living room.",
+        "The lamp is behind the armchair in the living room.",
+        "The skateboard is in the bedroom. It’s between the door and the cupboard."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "pu1-u8-l3-q1",
+      "scene": "pu1-u8-l3-scene-1",
+      "text": "What colour is the sofa?",
+      "options": [
+        "Blue.",
+        "Red.",
+        "Yellow.",
+        "Green."
+      ],
+      "answer": 1,
+      "explanation": "There’s a red sofa under the window."
+    },
+    {
+      "id": "pu1-u8-l3-q2",
+      "scene": "pu1-u8-l3-scene-1",
+      "text": "Where is the red sofa?",
+      "options": [
+        "Under the window.",
+        "In the bath.",
+        "On the table.",
+        "Behind the door."
+      ],
+      "answer": 0,
+      "explanation": "The red sofa is under the window."
+    },
+    {
+      "id": "pu1-u8-l3-q3",
+      "scene": "pu1-u8-l3-scene-2",
+      "text": "What is next to the phone?",
+      "options": [
+        "A bed.",
+        "A duck.",
+        "An old painting.",
+        "A skateboard."
+      ],
+      "answer": 2,
+      "explanation": "There’s an old painting next to the phone."
+    },
+    {
+      "id": "pu1-u8-l3-q4",
+      "scene": "pu1-u8-l3-scene-3",
+      "text": "What is on the floor next to the door?",
+      "options": [
+        "A clock.",
+        "A phone.",
+        "A painting.",
+        "A rug."
+      ],
+      "answer": 3,
+      "explanation": "There’s a rug on the floor next to the door."
+    },
+    {
+      "id": "pu1-u8-l3-q5",
+      "scene": "pu1-u8-l3-scene-4",
+      "text": "There’s a small rug ___ the armchair.",
+      "options": [
+        "between",
+        "in front of",
+        "behind",
+        "on"
+      ],
+      "answer": 1,
+      "explanation": "There’s a small rug in front of the armchair."
+    },
+    {
+      "id": "pu1-u8-l3-q6",
+      "scene": "pu1-u8-l3-scene-4",
+      "text": "There’s a lamp ___ the armchair and the sofa.",
+      "options": [
+        "under",
+        "on",
+        "between",
+        "in front of"
+      ],
+      "answer": 2,
+      "explanation": "There’s a lamp between the armchair and the sofa."
+    },
+    {
+      "id": "pu1-u8-l3-q7",
+      "scene": "pu1-u8-l3-scene-4",
+      "text": "Where is the clock?",
+      "options": [
+        "Behind the sofa, on the wall.",
+        "Under the armchair.",
+        "In the bath.",
+        "On the floor."
+      ],
+      "answer": 0,
+      "explanation": "There’s a clock on the wall behind the sofa."
+    },
+    {
+      "id": "pu1-u8-l3-q8",
+      "scene": "pu1-u8-l3-scene-5",
+      "text": "Where is the duck?",
+      "options": [
+        "On the sofa.",
+        "Behind the clock.",
+        "Under the table.",
+        "In front of the bath."
+      ],
+      "answer": 3,
+      "explanation": "The duck is in front of the bath in the bathroom."
+    },
+    {
+      "id": "pu1-u8-l3-q9",
+      "scene": "pu1-u8-l3-scene-5",
+      "text": "The lamp is ___ the armchair.",
+      "options": [
+        "between",
+        "behind",
+        "under",
+        "in"
+      ],
+      "answer": 1,
+      "explanation": "The lamp is behind the armchair in the living room."
+    }
+  ],
+  "orders": [],
+  "references": [
+    {
+      "title": "Gracie’s Grammar · Listen",
+      "image": "lessons/pu1-u8-lesson3/grammar.webp",
+      "audio": "lessons/pu1-u8-lesson3/grammar.m4a"
+    },
+    {
+      "title": "Who is Sam? · Listen and find",
+      "image": "lessons/pu1-u8-lesson3/listening.webp",
+      "audio": "lessons/pu1-u8-lesson3/listening.m4a"
+    }
+  ]
+}

@@ -1,0 +1,232 @@
+{
+  "title": "The clock on the wall",
+  "audio": "lessons/pu1-u8-lesson5/poem.m4a",
+  "scenes": [
+    {
+      "id": "pu1-u8-l5-scene-1",
+      "label": "Can we play?",
+      "image": "lessons/pu1-u8-lesson5/scene-1.webp",
+      "full": [
+        "At Sue’s home today,",
+        "Rob says ‘Sue, can we play,",
+        "In the bedroom, the garden, the kitchen, the hall,",
+        "On the sofa and mat with this ugly old ball?’",
+        "‘Yes, we can,’ replies Sue. ‘That’s a nice thing to do.",
+        "You can throw it to me, I can throw it to you.",
+        "We can catch it and bounce it and kick it and run,",
+        "Then catch it, and kick it, and throw it for fun.’"
+      ],
+      "easy": [
+        "At Sue’s home today,",
+        "Rob says ‘Sue, can we play,",
+        "In the bedroom, the garden, the kitchen, the hall,",
+        "On the sofa and mat with this ugly old ball?’",
+        "‘Yes, we can,’ replies Sue. ‘That’s a nice thing to do.",
+        "You can throw it to me, I can throw it to you.",
+        "We can catch it and bounce it and kick it and run,",
+        "Then catch it, and kick it, and throw it for fun.’"
+      ]
+    },
+    {
+      "id": "pu1-u8-l5-scene-2",
+      "label": "Playing in the house",
+      "image": "lessons/pu1-u8-lesson5/scene-2.webp",
+      "full": [
+        "In the bath, on the sofa, on the table and the chair, Rob throws the ball here, Sue runs for it there."
+      ],
+      "easy": [
+        "In the bath, on the sofa, on the table and the chair, Rob throws the ball here, Sue runs for it there."
+      ]
+    },
+    {
+      "id": "pu1-u8-l5-scene-3",
+      "label": "The clock falls",
+      "image": "lessons/pu1-u8-lesson5/scene-3.webp",
+      "full": [
+        "But the ball hits the clock on",
+        "the wall by the door,",
+        "And down comes the clock,",
+        "hits the mat on the floor.",
+        "And Rob says, ‘I’m sorry, so",
+        "sorry for that.’",
+        "But Sue says ‘Don’t worry,’ and",
+        "looks at the mat."
+      ],
+      "easy": [
+        "But the ball hits the clock on",
+        "the wall by the door,",
+        "And down comes the clock,",
+        "hits the mat on the floor.",
+        "And Rob says, ‘I’m sorry, so",
+        "sorry for that.’",
+        "But Sue says ‘Don’t worry,’ and",
+        "looks at the mat."
+      ]
+    },
+    {
+      "id": "pu1-u8-l5-scene-4",
+      "label": "Don’t worry!",
+      "image": "lessons/pu1-u8-lesson5/scene-4.webp",
+      "full": [
+        "She picks up the clock, and says, ‘Today’s a good day.’",
+        "And she points to the clock and says, ‘Rob, it’s OK!’"
+      ],
+      "easy": [
+        "She picks up the clock, and says, ‘Today’s a good day.’",
+        "And she points to the clock and says, ‘Rob, it’s OK!’"
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "pu1-u8-l5-q1",
+      "scene": "pu1-u8-l5-scene-1",
+      "text": "What does Rob want to play with?",
+      "options": [
+        "A skateboard.",
+        "A ball.",
+        "A toy train.",
+        "A computer."
+      ],
+      "answer": 1,
+      "explanation": "Rob wants to play with the ball."
+    },
+    {
+      "id": "pu1-u8-l5-q2",
+      "scene": "pu1-u8-l5-scene-1",
+      "text": "Who plays with Rob?",
+      "options": [
+        "David.",
+        "Oliver.",
+        "Sue.",
+        "Alfie."
+      ],
+      "answer": 2,
+      "explanation": "Sue plays with Rob."
+    },
+    {
+      "id": "pu1-u8-l5-q3",
+      "scene": "pu1-u8-l5-scene-1",
+      "text": "What can they do with the ball?",
+      "options": [
+        "Catch it and bounce it.",
+        "Read it.",
+        "Wear it.",
+        "Sleep in it."
+      ],
+      "answer": 0,
+      "explanation": "They can catch it, bounce it, kick it and throw it."
+    },
+    {
+      "id": "pu1-u8-l5-q4",
+      "scene": "pu1-u8-l5-scene-2",
+      "text": "Where do Rob and Sue play?",
+      "options": [
+        "In the park.",
+        "At school.",
+        "On the beach.",
+        "In the house."
+      ],
+      "answer": 3,
+      "explanation": "Rob and Sue play with the ball in the house."
+    },
+    {
+      "id": "pu1-u8-l5-q5",
+      "scene": "pu1-u8-l5-scene-3",
+      "text": "What does the ball hit?",
+      "options": [
+        "The window.",
+        "The clock.",
+        "The phone.",
+        "The painting."
+      ],
+      "answer": 1,
+      "explanation": "The ball hits the clock on the wall by the door."
+    },
+    {
+      "id": "pu1-u8-l5-q6",
+      "scene": "pu1-u8-l5-scene-3",
+      "text": "Where does the clock fall?",
+      "options": [
+        "Into a box.",
+        "Onto the sofa.",
+        "Onto the mat on the floor.",
+        "Into the garden."
+      ],
+      "answer": 2,
+      "explanation": "The clock comes down and hits the mat on the floor."
+    },
+    {
+      "id": "pu1-u8-l5-q7",
+      "scene": "pu1-u8-l5-scene-3",
+      "text": "What does Rob say?",
+      "options": [
+        "I’m sorry, so sorry for that.",
+        "Goodbye!",
+        "I can swim.",
+        "What’s your name?"
+      ],
+      "answer": 0,
+      "explanation": "Rob says, “I’m sorry, so sorry for that.”"
+    },
+    {
+      "id": "pu1-u8-l5-q8",
+      "scene": "pu1-u8-l5-scene-3",
+      "text": "What does Sue say?",
+      "options": [
+        "Go away!",
+        "I’m hungry.",
+        "Stop reading!",
+        "Don’t worry."
+      ],
+      "answer": 3,
+      "explanation": "Sue says, “Don’t worry.”"
+    },
+    {
+      "id": "pu1-u8-l5-q9",
+      "scene": "pu1-u8-l5-scene-4",
+      "text": "Is the clock OK?",
+      "options": [
+        "No, it isn’t.",
+        "Yes, it is.",
+        "It is lost.",
+        "It is in the garden."
+      ],
+      "answer": 1,
+      "explanation": "Sue points to the clock and says, “Rob, it’s OK!”"
+    },
+    {
+      "id": "pu1-u8-l5-q10",
+      "scene": "pu1-u8-l5-scene-4",
+      "text": "How do the children feel at the end?",
+      "options": [
+        "Angry.",
+        "Scared.",
+        "Happy.",
+        "Sleepy."
+      ],
+      "answer": 2,
+      "explanation": "The clock is OK, and the children are happy."
+    }
+  ],
+  "orders": [
+    {
+      "id": "pu1-u8-l5-order-1",
+      "title": "Playing with the ball",
+      "scenes": [
+        "pu1-u8-l5-scene-1",
+        "pu1-u8-l5-scene-2",
+        "pu1-u8-l5-scene-3"
+      ]
+    },
+    {
+      "id": "pu1-u8-l5-order-2",
+      "title": "The clock is OK",
+      "scenes": [
+        "pu1-u8-l5-scene-2",
+        "pu1-u8-l5-scene-3",
+        "pu1-u8-l5-scene-4"
+      ]
+    }
+  ]
+}

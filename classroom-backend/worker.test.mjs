@@ -898,3 +898,34 @@ test('daily spelling credits individual rounds across sessions until all five ro
  assert.equal(Number((await DB.prepare("SELECT COUNT(*) AS n FROM reward_events WHERE child_id=? AND kind='homework'").bind(childId).first()).n),1);
  }finally{await DB.sqlite.close()}
 });
+
+test('endless weekly schedules, exceptions, future deletion and next class beyond the initial window',async()=>{
+ const {api,DB}=await setup();try{
+ const owner=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Weekly'} ,owner)).body.id;
+ const kids=(await api('/teacher-students',{groupId:group,names:['Weekly kid']},owner)).body.students;
+ const schedule={eventId:crypto.randomUUID(),groupId:group,day:'2026-10-19',time:'17:30',duration:60,repeatForever:true};
+ assert.equal((await api('/schedule',schedule,owner)).status,200);
+ assert.equal((await api('/schedule',schedule,owner)).status,200);
+ const cal=async(from,to)=>{const r=await api('/calendar?from='+from+'&to='+to,undefined,owner);assert.equal(r.status,200);return r.body};
+ const original=await cal('2026-10-19','2026-11-02');assert.equal(original.meetings.length,3);
+ await api('/attendance',{meetingId:original.meetings[0].id,marks:[{childId:kids[0].id,status:'present'}]},owner);
+ let distant=await cal('2028-10-16','2028-10-29');assert.deepEqual(distant.meetings.map(m=>m.day),['2028-10-16','2028-10-23']);
+ const skip=distant.meetings[0];assert.equal((await api('/delete-meeting',{id:skip.id,scope:'one'},owner)).status,200);
+ distant=await cal('2028-10-16','2028-10-29');assert.deepEqual(distant.meetings.map(m=>m.day),['2028-10-23'],'deleted date must not return');
+ const cutoff=distant.meetings[0];assert.equal((await api('/delete-meeting',{id:cutoff.id,scope:'following'},owner)).status,200);
+ assert.equal((await cal('2028-10-16','2028-12-01')).meetings.length,0);
+ assert.equal((await cal('2035-01-01','2035-01-31')).meetings.length,0);
+ const past=await cal('2026-10-19','2026-11-02');assert.equal(past.meetings.length,3);assert.equal(past.marks.find(m=>m.meeting_id===original.meetings[0].id).status,'present');
+ assert.equal((await api('/schedule',schedule,owner)).status,400,'retry may not reopen a stopped series');
+ // Existing finite schedules can also be removed from a chosen week onward.
+ const finite={...schedule,eventId:crypto.randomUUID(),day:'2029-01-01',repeatForever:false,weeks:3};await api('/schedule',finite,owner);
+ let jan=await cal('2029-01-01','2029-01-31');assert.equal(jan.meetings.length,3);
+ await api('/delete-meeting',{id:jan.meetings[1].id,scope:'following'},owner);jan=await cal('2029-01-01','2029-01-31');assert.equal(jan.meetings.length,1);
+ // New rules remain visible to students even before a teacher opens that future calendar.
+ const future={...schedule,eventId:crypto.randomUUID(),day:'2025-01-06',time:'19:00'};await api('/schedule',future,owner);
+ const {build}=await import('esbuild');await build({entryPoints:['classroom-backend/student-dashboard.ts'],bundle:true,platform:'node',format:'esm',outfile:'.wrangler/recurring-dashboard.mjs'});
+ const {studentDashboard}=await import('../.wrangler/recurring-dashboard.mjs');
+ const dashboard=await studentDashboard(DB,{id:kids[0].id,group_id:group},Date.parse('2030-01-07T00:00:00Z'));assert.equal(dashboard.nextClass.day,'2030-01-07');
+ }finally{await DB.sqlite.close()}
+});

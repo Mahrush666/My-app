@@ -1,4 +1,5 @@
 import type {D1Database} from '@cloudflare/workers-types';
+import {ensureMeetings} from './meeting-series';
 import {validDay,addDays} from '../lib/teacher-dashboard';
 // Called only after the existing teacher authorization check.
 export async function teacherTools(db:D1Database,path:string,method:string,data:Record<string,unknown>,url:URL){
@@ -7,6 +8,7 @@ export async function teacherTools(db:D1Database,path:string,method:string,data:
  if(path==='/calendar'&&method==='GET'){
  const from=url.searchParams.get('from')||'',to=url.searchParams.get('to')||'';
  check(validDay(from)&&validDay(to)&&to>=from&&to<=addDays(from,62),'Choose a date range of at most 63 days.');
+ await ensureMeetings(db,from,to);
  const meetings=await db.prepare('SELECT * FROM class_meetings WHERE day>=? AND day<=? ORDER BY day,time').bind(from,to).all();
  const marks=await db.prepare('SELECT a.*,c.name FROM attendance a JOIN children c ON c.id=a.child_id JOIN class_meetings m ON m.id=a.meeting_id WHERE m.day>=? AND m.day<=?').bind(from,to).all();
  return {meetings:meetings.results,marks:marks.results};
@@ -17,16 +19,14 @@ export async function teacherTools(db:D1Database,path:string,method:string,data:
  check(validDay(day)&&day>='2020-01-01'&&day<='2100-12-31','Choose a valid date.');
  check(/^([01]\d|2[0-3]):[0-5]\d$/.test(time),'Choose a start time.');
  check(Number.isInteger(duration)&&duration>=5&&duration<=480,'Duration must be 5–480 minutes.');
- check(Number.isInteger(weeks)&&weeks>=1&&weeks<=16,'Repeat for 1–16 weeks.');
+ check(data.repeatForever===true||(Number.isInteger(weeks)&&weeks>=1&&weeks<=16),'Repeat for 1–16 weeks.');
  check(/^[a-zA-Z0-9-]{16,80}$/.test(eventId),'Missing schedule identifier.');
- const statements=[];
- for(let i=0;i<weeks;i++){
- const id=eventId+'-'+i;
- statements.push(db.prepare('INSERT OR IGNORE INTO class_meetings(id,group_id,day,time,duration) VALUES(?,?,?,?,?)').bind(id,groupId,addDays(day,i*7),time,duration));
- // Snapshot the roster; future class transfers do not rewrite attendance history.
- statements.push(db.prepare("INSERT OR IGNORE INTO attendance(meeting_id,child_id,status) SELECT m.id,c.id,'unmarked' FROM children c JOIN class_meetings m ON m.group_id=c.group_id WHERE m.id=? AND c.approved=1").bind(id));
- }
- await db.batch(statements);return {saved:true};
+ const end=data.repeatForever===true?null:addDays(day,(weeks-1)*7);
+ // Idempotent retry: an existing rule is never silently changed.
+ const existing=await db.prepare('SELECT * FROM meeting_series WHERE id=?').bind(eventId).first<{group_id:string;start_day:string;end_day:string|null;time:string;duration:number}>();
+ check(!existing||(existing.group_id===groupId&&existing.start_day===day&&existing.end_day===end&&existing.time===time&&Number(existing.duration)===duration),'This schedule identifier is already in use.');
+ await db.prepare('INSERT OR IGNORE INTO meeting_series(id,group_id,start_day,end_day,time,duration) VALUES(?,?,?,?,?,?)').bind(eventId,groupId,day,end,time,duration).run();
+ await ensureMeetings(db,day,end||addDays(day,56),groupId);return {saved:true};
  }
  if(path==='/update-meeting'&&method==='POST'){
  const id=str(data.id),time=str(data.time);
@@ -53,7 +53,21 @@ export async function teacherTools(db:D1Database,path:string,method:string,data:
  await db.batch(statements);return {saved:true,count:statements.length};
  }
  if(path==='/delete-meeting'&&method==='POST'){
- const id=str(data.id);await db.batch([db.prepare('DELETE FROM attendance WHERE meeting_id=?').bind(id),db.prepare('DELETE FROM class_meetings WHERE id=?').bind(id)]);return {saved:true};
+ const id=str(data.id),row=await db.prepare('SELECT * FROM class_meetings WHERE id=?').bind(id).first<{day:string;group_id:string}>();
+ check(row,'This class session could not be found.');
+ check(data.scope===undefined||data.scope==='one'||data.scope==='following','Choose which sessions to delete.');
+ const seriesId=id.replace(/-\d+$/,'');
+ const series=await db.prepare('SELECT id FROM meeting_series WHERE id=? AND group_id=?').bind(seriesId,row!.group_id).first();
+ const following=data.scope==='following',statements=[];
+ if(series){
+ if(following)statements.push(db.prepare('UPDATE meeting_series SET end_day=? WHERE id=? AND (end_day IS NULL OR end_day>?)').bind(addDays(row!.day,-1),seriesId,addDays(row!.day,-1)));
+ else statements.push(db.prepare('INSERT OR IGNORE INTO meeting_exceptions(series_id,day) VALUES(?,?)').bind(seriesId,row!.day));
+ }
+ // Legacy finite schedules already use eventId-weekIndex; keep their earlier dates intact too.
+ const where=following&&seriesId!==id?'group_id=? AND id LIKE ? AND day>=?':'id=?';
+ const params=following&&seriesId!==id?[row!.group_id,seriesId+'-%',row!.day]:[id];
+ statements.push(db.prepare('DELETE FROM attendance WHERE meeting_id IN (SELECT id FROM class_meetings WHERE '+where+')').bind(...params),db.prepare('DELETE FROM class_meetings WHERE '+where).bind(...params));
+ await db.batch(statements);return {saved:true};
  }
  if(path==='/rename-group'&&method==='POST'){
  const name=str(data.name);check(name&&name.length<=80,'Enter a class name up to 80 characters.');await db.prepare('UPDATE groups SET name=? WHERE id=?').bind(name,str(data.id)).run();return {saved:true};

@@ -961,3 +961,23 @@ test('Power Up 1 Unit 2 family vocabulary is assignable with spelling and bundle
  assert.equal(result.status,200,JSON.stringify(result.body));const state=(await api('/teacher',undefined,owner)).body;const saved=state.assignments.find(a=>a.id===result.body.id);assert.deepEqual(JSON.parse(saved.word_ids),words);assert(JSON.parse(saved.activities).includes('spell'));
  await DB.sqlite.close();
 });
+
+test('Unit 2 Rocky story checks source questions and picture order and keeps spelling in vocabulary lessons',async()=>{
+ const {api,DB}=await setup();const owner=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Rocky readers'},owner)).body;
+ const parent=(await api('/register',{username:'rocky_family',password:'parent-password',consent:true})).body.token;
+ const kid=(await api('/children',{name:'Reader',invite:group.invite},parent)).body.id;await api('/approve',{childId:kid,approved:true},owner);
+ const data={groupId:group.id,unitId:'pu1-u2-lesson2',activities:['reading','story-quiz','story-order','sentence-speak'],wordIds:[],title:'Rocky’s family'};
+ const saved=await api('/assignments',data,owner);assert.equal(saved.status,200,JSON.stringify(saved.body));
+ assert.equal((await api('/assignments',{...data,activities:['spell']},owner)).status,400);
+ const story=JSON.parse((await import('node:fs')).readFileSync(new URL('../lib/pu1-u2-lesson2-reading.json',import.meta.url),'utf8'));
+ const submit=(activity,wordId,answer)=>api('/progress',{childId:kid,assignmentId:saved.body.id,activity,wordId,answer,eventId:crypto.randomUUID()},parent);
+ const first=story.questions[0];await submit('story-quiz',first.id,String((first.answer+1)%4));
+ assert.equal((await api('/homework?child='+kid,undefined,parent)).body.completed.length,0);
+ for(const q of story.questions)assert.equal((await submit('story-quiz',q.id,String(q.answer))).status,200);
+ for(const r of story.orders)assert.equal((await submit('story-order',r.id,r.scenes.join(','))).status,200);
+ const hw=(await api('/homework?child='+kid,undefined,parent)).body;assert.deepEqual(new Set(hw.completed.map(c=>c.activity)),new Set(['story-quiz','story-order']));
+ const report=(await api('/homework-report?child='+kid+'&assignment='+saved.body.id,undefined,owner)).body;
+ assert.equal(report.exercises.find(e=>e.id==='story-quiz').questions.length,14);
+ await DB.sqlite.close();
+});

@@ -1,0 +1,54 @@
+{
+  "assets": [
+    {
+      "file": "story.mp4",
+      "sha256": "074a0b59f6bf6b6f088cb8b626330a031c966243eeed69414663367897294dce",
+      "parts": [
+        "story.mp4.000.part",
+        "story.mp4.001.part",
+        "story.mp4.002.part",
+        "story.mp4.003.part",
+        "story.mp4.004.part",
+        "story.mp4.005.part",
+        "story.mp4.006.part",
+        "story.mp4.007.part",
+        "story.mp4.008.part",
+        "story.mp4.009.part",
+        "story.mp4.010.part",
+        "story.mp4.011.part",
+        "story.mp4.012.part",
+        "story.mp4.013.part",
+        "story.mp4.014.part",
+        "story.mp4.015.part",
+        "story.mp4.016.part",
+        "story.mp4.017.part",
+        "story.mp4.018.part"
+      ]
+    },
+    {
+      "file": "story.m4a",
+      "sha256": "7d68ed7b36da7bf4101ff4a21590b4f197c54503ec1cbb4af68f248edb9438ed",
+      "parts": [
+        "story.m4a.000.part",
+        "story.m4a.001.part",
+        "story.m4a.002.part",
+        "story.m4a.003.part",
+        "story.m4a.004.part"
+      ]
+    },
+    {
+      "file": "grammar.m4a",
+      "sha256": "efe713d8e6cb30f2427504d6bf308f2eba486c452bb5eeb2584f4a6a93aaff5c",
+      "parts": [
+        "grammar.m4a.000.part"
+      ]
+    },
+    {
+      "file": "listen-and-follow.m4a",
+      "sha256": "00767d424cca8a15cf36a9cf7bfaab9872944578da8a25062911ba3820e0ec7d",
+      "parts": [
+        "listen-and-follow.m4a.000.part"
+      ]
+    }
+  ]
+}

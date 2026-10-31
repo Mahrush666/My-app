@@ -1,0 +1,344 @@
+{
+  "title": "The Friendly Farm · Rocky’s family",
+  "audio": "lessons/pu1-u2-lesson2/story.m4a",
+  "scenes": [
+    {
+      "id": "pu1-u2-l2-scene-1",
+      "label": "The Friendly Farm · 1",
+      "image": "lessons/pu1-u2-lesson2/scene-1.webp",
+      "full": [
+        "Mum, are these animals my family?",
+        "No, Rocky. They aren’t your family."
+      ],
+      "easy": [
+        "Mum, are these animals my family?",
+        "No, Rocky. They aren’t your family."
+      ]
+    },
+    {
+      "id": "pu1-u2-l2-scene-2",
+      "label": "The Friendly Farm · 2",
+      "image": "lessons/pu1-u2-lesson2/scene-2.webp",
+      "full": [
+        "Is Shelly my sister?",
+        "No, Rocky. She isn’t your sister. She’s your friend."
+      ],
+      "easy": [
+        "Is Shelly my sister?",
+        "No, Rocky. She isn’t your sister. She’s your friend."
+      ]
+    },
+    {
+      "id": "pu1-u2-l2-scene-3",
+      "label": "The Friendly Farm · 3",
+      "image": "lessons/pu1-u2-lesson2/scene-3.webp",
+      "full": [
+        "Look at Harry, Mum. Is he my brother?",
+        "No, Rocky. He isn’t your brother. He’s your friend."
+      ],
+      "easy": [
+        "Look at Harry, Mum. Is he my brother?",
+        "No, Rocky. He isn’t your brother. He’s your friend."
+      ]
+    },
+    {
+      "id": "pu1-u2-l2-scene-4",
+      "label": "The Friendly Farm · 4",
+      "image": "lessons/pu1-u2-lesson2/scene-4.webp",
+      "full": [
+        "I don’t understand! Who’s my brother? Who’s my sister? Who are my brothers and sisters?"
+      ],
+      "easy": [
+        "I don’t understand! Who’s my brother? Who’s my sister? Who are my brothers and sisters?"
+      ]
+    },
+    {
+      "id": "pu1-u2-l2-scene-5",
+      "label": "The Friendly Farm · 5",
+      "image": "lessons/pu1-u2-lesson2/scene-5.webp",
+      "full": [
+        "Rocky … This is your brother, and this is your sister."
+      ],
+      "easy": [
+        "Rocky … This is your brother, and this is your sister."
+      ]
+    },
+    {
+      "id": "pu1-u2-l2-scene-6",
+      "label": "The Friendly Farm · 6",
+      "image": "lessons/pu1-u2-lesson2/scene-6.webp",
+      "full": [
+        "Look! A girl! She’s my sister! And look! A boy! He’s my brother."
+      ],
+      "easy": [
+        "Look! A girl! She’s my sister! And look! A boy! He’s my brother."
+      ]
+    },
+    {
+      "id": "pu1-u2-l2-scene-7",
+      "label": "Who is he? Who is she?",
+      "image": "lessons/pu1-u2-lesson2/grammar.webp",
+      "full": [
+        "Who is she?",
+        "She’s Jenny. She’s a girl.",
+        "Who is he?",
+        "He’s Jim. He’s a boy."
+      ],
+      "easy": [
+        "Who is she?",
+        "She’s Jenny. She’s a girl.",
+        "Who is he?",
+        "He’s Jim. He’s a boy."
+      ]
+    },
+    {
+      "id": "pu1-u2-l2-scene-8",
+      "label": "Short forms and full forms",
+      "image": "lessons/pu1-u2-lesson2/grammar.webp",
+      "full": [
+        "They’re friends.",
+        "They are friends.",
+        "We’re boys.",
+        "We are boys.",
+        "She’s Lucy.",
+        "She is Lucy.",
+        "He’s Peter.",
+        "He is Peter.",
+        "I’m Sam.",
+        "I am Sam.",
+        "They’re family.",
+        "They are family."
+      ],
+      "easy": [
+        "They’re friends.",
+        "They are friends.",
+        "We’re boys.",
+        "We are boys.",
+        "She’s Lucy.",
+        "She is Lucy.",
+        "He’s Peter.",
+        "He is Peter.",
+        "I’m Sam.",
+        "I am Sam.",
+        "They’re family.",
+        "They are family."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "pu1-u2-l2-q1",
+      "scene": "pu1-u2-l2-scene-1",
+      "text": "Who is asking about his family?",
+      "options": [
+        "Harry.",
+        "Shelly.",
+        "Rocky.",
+        "Gracie."
+      ],
+      "answer": 2,
+      "explanation": "Rocky asks his mum about his family."
+    },
+    {
+      "id": "pu1-u2-l2-q2",
+      "scene": "pu1-u2-l2-scene-1",
+      "text": "Are all these animals Rocky’s family?",
+      "options": [
+        "Yes, they are.",
+        "No, they aren’t.",
+        "Yes, she is.",
+        "No, he isn’t."
+      ],
+      "answer": 1,
+      "explanation": "Mum says they aren’t his family."
+    },
+    {
+      "id": "pu1-u2-l2-q3",
+      "scene": "pu1-u2-l2-scene-2",
+      "text": "Is Shelly Rocky’s sister?",
+      "options": [
+        "Yes, she is.",
+        "No, she isn’t.",
+        "Yes, he is.",
+        "No, he isn’t."
+      ],
+      "answer": 1,
+      "explanation": "Shelly is Rocky’s friend."
+    },
+    {
+      "id": "pu1-u2-l2-q4",
+      "scene": "pu1-u2-l2-scene-2",
+      "text": "Who is Shelly?",
+      "options": [
+        "Rocky’s friend.",
+        "Rocky’s sister.",
+        "Rocky’s mother.",
+        "Rocky’s grandmother."
+      ],
+      "answer": 0,
+      "explanation": "She isn’t his sister. She’s his friend."
+    },
+    {
+      "id": "pu1-u2-l2-q5",
+      "scene": "pu1-u2-l2-scene-3",
+      "text": "Is Harry Rocky’s brother?",
+      "options": [
+        "Yes, he is.",
+        "No, she isn’t.",
+        "Yes, she is.",
+        "No, he isn’t."
+      ],
+      "answer": 3,
+      "explanation": "Harry isn’t Rocky’s brother. He’s his friend."
+    },
+    {
+      "id": "pu1-u2-l2-q6",
+      "scene": "pu1-u2-l2-scene-3",
+      "text": "Who is Harry?",
+      "options": [
+        "Rocky’s father.",
+        "Rocky’s brother.",
+        "Rocky’s friend.",
+        "Rocky’s grandfather."
+      ],
+      "answer": 2,
+      "explanation": "Harry is Rocky’s friend."
+    },
+    {
+      "id": "pu1-u2-l2-q7",
+      "scene": "pu1-u2-l2-scene-4",
+      "text": "What does Rocky want to know?",
+      "options": [
+        "Where his friends live.",
+        "Who his brothers and sisters are.",
+        "What colour Harry is.",
+        "Where Jenny is."
+      ],
+      "answer": 1,
+      "explanation": "Rocky wants to know who his brothers and sisters are."
+    },
+    {
+      "id": "pu1-u2-l2-q8",
+      "scene": "pu1-u2-l2-scene-5",
+      "text": "What can you see in the nest?",
+      "options": [
+        "Books.",
+        "Socks.",
+        "Balls.",
+        "Eggs."
+      ],
+      "answer": 3,
+      "explanation": "There are eggs in the nest."
+    },
+    {
+      "id": "pu1-u2-l2-q9",
+      "scene": "pu1-u2-l2-scene-6",
+      "text": "Who is the girl chick?",
+      "options": [
+        "Rocky’s sister.",
+        "Rocky’s mother.",
+        "Rocky’s friend.",
+        "Rocky’s grandmother."
+      ],
+      "answer": 0,
+      "explanation": "Rocky says, “She’s my sister!”"
+    },
+    {
+      "id": "pu1-u2-l2-q10",
+      "scene": "pu1-u2-l2-scene-6",
+      "text": "Who is the boy chick?",
+      "options": [
+        "Rocky’s father.",
+        "Rocky’s friend.",
+        "Rocky’s grandfather.",
+        "Rocky’s brother."
+      ],
+      "answer": 3,
+      "explanation": "Rocky says, “He’s my brother.”"
+    },
+    {
+      "id": "pu1-u2-l2-q11",
+      "scene": "pu1-u2-l2-scene-7",
+      "text": "Who is she?",
+      "options": [
+        "He’s Jim.",
+        "She’s Jenny.",
+        "They’re friends.",
+        "I’m Rocky."
+      ],
+      "answer": 1,
+      "explanation": "She’s Jenny. She’s a girl."
+    },
+    {
+      "id": "pu1-u2-l2-q12",
+      "scene": "pu1-u2-l2-scene-7",
+      "text": "Who is he?",
+      "options": [
+        "She’s Jenny.",
+        "We’re boys.",
+        "He’s Jim.",
+        "They’re family."
+      ],
+      "answer": 2,
+      "explanation": "He’s Jim. He’s a boy."
+    },
+    {
+      "id": "pu1-u2-l2-q13",
+      "scene": "pu1-u2-l2-scene-8",
+      "text": "Choose the full form of “They’re friends.”",
+      "options": [
+        "They are friends.",
+        "They is friends.",
+        "They am friends.",
+        "They isn’t friends."
+      ],
+      "answer": 0,
+      "explanation": "They’re means they are."
+    },
+    {
+      "id": "pu1-u2-l2-q14",
+      "scene": "pu1-u2-l2-scene-8",
+      "text": "Choose the full form of “I’m Sam.”",
+      "options": [
+        "I is Sam.",
+        "I are Sam.",
+        "I am Sam.",
+        "I aren’t Sam."
+      ],
+      "answer": 2,
+      "explanation": "I’m means I am."
+    }
+  ],
+  "orders": [
+    {
+      "id": "pu1-u2-l2-order-1",
+      "title": "Rocky asks about his friends",
+      "scenes": [
+        "pu1-u2-l2-scene-1",
+        "pu1-u2-l2-scene-2",
+        "pu1-u2-l2-scene-3"
+      ]
+    },
+    {
+      "id": "pu1-u2-l2-order-2",
+      "title": "Rocky finds his family",
+      "scenes": [
+        "pu1-u2-l2-scene-4",
+        "pu1-u2-l2-scene-5",
+        "pu1-u2-l2-scene-6"
+      ]
+    }
+  ],
+  "references": [
+    {
+      "title": "Gracie’s Grammar · Original recording",
+      "image": "lessons/pu1-u2-lesson2/grammar.webp",
+      "audio": "lessons/pu1-u2-lesson2/grammar.m4a"
+    },
+    {
+      "title": "Listen and follow · Family words",
+      "image": "lessons/pu1-u2-lesson2/listen-and-follow.webp",
+      "audio": "lessons/pu1-u2-lesson2/listen-and-follow.m4a"
+    }
+  ]
+}

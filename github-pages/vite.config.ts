@@ -74,6 +74,15 @@ for(const asset of unit2Media.assets){
  mkdirSync(root+'/public/lessons/pu1-u2-vocabulary1',{recursive:true});
  writeFileSync(root+'/public/lessons/pu1-u2-vocabulary1/'+asset.file,data);
 }
+// Unit 2 Lesson 2 original story video and listening recordings.
+const unit2StoryDir=root+'/lesson-media/pu1-u2-lesson2';
+const unit2StoryMedia=JSON.parse(readFileSync(unit2StoryDir+'/manifest.json','utf8')) as {assets:{file:string;sha256:string;parts:string[]}[]};
+for(const asset of unit2StoryMedia.assets){
+ const data=Buffer.concat(asset.parts.map(part=>readFileSync(unit2StoryDir+'/'+part)));
+ if(createHash('sha256').update(data).digest('hex')!==asset.sha256)throw Error('Unit 2 story media is incomplete');
+ mkdirSync(root+'/public/lessons/pu1-u2-lesson2',{recursive:true});
+ writeFileSync(root+'/public/lessons/pu1-u2-lesson2/'+asset.file,data);
+}
 export default defineConfig({
   root: root + '/github-pages',
   base: process.env.PAGES_BASE || './',

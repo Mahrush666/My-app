@@ -1,5 +1,5 @@
 const definedActivityOptions = [
- ['video','🎵','Watch · Lesson video','Watch a story, song or chant from the lesson.'],
+ ['video','🎵','Watch & listen · Lesson media','Listen to original recordings or watch a story, song or chant from the lesson.'],
  ['story','🎧','Watch & listen · Story pictures','Pre-readers. Story pictures with the original lesson audio.'],
  ['picture-speak','🎤','Flashcards · Picture → say the word','Ages 3–5. Speaking cards with spaced repetition.'],
  ['look-listen','👀','Look & listen · Picture cards','Pre-readers. Explore pictures and hear the lesson sentences.'],

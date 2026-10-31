@@ -1,0 +1,248 @@
+{
+  "title": "What can animals do?",
+  "scenes": [
+    {
+      "id": "beehive1-u4-l2-scene-1",
+      "label": "Animal abilities",
+      "image": "lessons/beehive1-u4/frog.webp",
+      "full": [
+        "Can a frog talk?",
+        "No, it can’t."
+      ],
+      "easy": [
+        "Can a frog talk?",
+        "No, it can’t."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l2-scene-2",
+      "label": "Animal abilities",
+      "image": "lessons/beehive1-u4/frog.webp",
+      "full": [
+        "Can a frog jump?",
+        "Yes, it can."
+      ],
+      "easy": [
+        "Can a frog jump?",
+        "Yes, it can."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l2-scene-3",
+      "label": "Animal abilities",
+      "image": "lessons/beehive1-u4/fish.webp",
+      "full": [
+        "Can a fish swim?",
+        "Yes, it can."
+      ],
+      "easy": [
+        "Can a fish swim?",
+        "Yes, it can."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l2-scene-4",
+      "label": "Animal abilities",
+      "image": "lessons/beehive1-u4/bee.webp",
+      "full": [
+        "Can a bee swim?",
+        "No, it can’t."
+      ],
+      "easy": [
+        "Can a bee swim?",
+        "No, it can’t."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l2-scene-5",
+      "label": "Animal abilities",
+      "image": "lessons/beehive1-u4/cat.webp",
+      "full": [
+        "Can a cat climb?",
+        "Yes, it can."
+      ],
+      "easy": [
+        "Can a cat climb?",
+        "Yes, it can."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l2-scene-6",
+      "label": "Animal abilities",
+      "image": "lessons/beehive1-u4/fish.webp",
+      "full": [
+        "Can a fish climb?",
+        "No, it can’t."
+      ],
+      "easy": [
+        "Can a fish climb?",
+        "No, it can’t."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l2-scene-7",
+      "label": "Animal abilities",
+      "image": "lessons/beehive1-u4/snake.webp",
+      "full": [
+        "Can a snake run?",
+        "No, it can’t."
+      ],
+      "easy": [
+        "Can a snake run?",
+        "No, it can’t."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l2-scene-8",
+      "label": "Animal abilities",
+      "image": "lessons/beehive1-u4/frog.webp",
+      "full": [
+        "Can a frog fly?",
+        "No, it can’t."
+      ],
+      "easy": [
+        "Can a frog fly?",
+        "No, it can’t."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l2-scene-9",
+      "label": "Animal abilities",
+      "image": "lessons/beehive1-u4/duck.webp",
+      "full": [
+        "Can a duck fly?",
+        "Yes, it can."
+      ],
+      "easy": [
+        "Can a duck fly?",
+        "Yes, it can."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l2-scene-10",
+      "label": "Animal abilities",
+      "image": "lessons/beehive1-u4/bee.webp",
+      "full": [
+        "Can a bee fly?",
+        "Yes, it can."
+      ],
+      "easy": [
+        "Can a bee fly?",
+        "Yes, it can."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "beehive1-u4-l2-q1",
+      "scene": "beehive1-u4-l2-scene-1",
+      "text": "Can a frog talk?",
+      "options": [
+        "Yes, it can.",
+        "No, it can’t."
+      ],
+      "answer": 1,
+      "explanation": "No, it can’t."
+    },
+    {
+      "id": "beehive1-u4-l2-q2",
+      "scene": "beehive1-u4-l2-scene-2",
+      "text": "Can a frog jump?",
+      "options": [
+        "Yes, it can.",
+        "No, it can’t."
+      ],
+      "answer": 0,
+      "explanation": "Yes, it can."
+    },
+    {
+      "id": "beehive1-u4-l2-q3",
+      "scene": "beehive1-u4-l2-scene-3",
+      "text": "Can a fish swim?",
+      "options": [
+        "Yes, it can.",
+        "No, it can’t."
+      ],
+      "answer": 0,
+      "explanation": "Yes, it can."
+    },
+    {
+      "id": "beehive1-u4-l2-q4",
+      "scene": "beehive1-u4-l2-scene-4",
+      "text": "Can a bee swim?",
+      "options": [
+        "Yes, it can.",
+        "No, it can’t."
+      ],
+      "answer": 1,
+      "explanation": "No, it can’t."
+    },
+    {
+      "id": "beehive1-u4-l2-q5",
+      "scene": "beehive1-u4-l2-scene-5",
+      "text": "Can a cat climb?",
+      "options": [
+        "Yes, it can.",
+        "No, it can’t."
+      ],
+      "answer": 0,
+      "explanation": "Yes, it can."
+    },
+    {
+      "id": "beehive1-u4-l2-q6",
+      "scene": "beehive1-u4-l2-scene-6",
+      "text": "Can a fish climb?",
+      "options": [
+        "Yes, it can.",
+        "No, it can’t."
+      ],
+      "answer": 1,
+      "explanation": "No, it can’t."
+    },
+    {
+      "id": "beehive1-u4-l2-q7",
+      "scene": "beehive1-u4-l2-scene-7",
+      "text": "Can a snake run?",
+      "options": [
+        "Yes, it can.",
+        "No, it can’t."
+      ],
+      "answer": 1,
+      "explanation": "No, it can’t."
+    },
+    {
+      "id": "beehive1-u4-l2-q8",
+      "scene": "beehive1-u4-l2-scene-8",
+      "text": "Can a frog fly?",
+      "options": [
+        "Yes, it can.",
+        "No, it can’t."
+      ],
+      "answer": 1,
+      "explanation": "No, it can’t."
+    },
+    {
+      "id": "beehive1-u4-l2-q9",
+      "scene": "beehive1-u4-l2-scene-9",
+      "text": "Can a duck fly?",
+      "options": [
+        "Yes, it can.",
+        "No, it can’t."
+      ],
+      "answer": 0,
+      "explanation": "Yes, it can."
+    },
+    {
+      "id": "beehive1-u4-l2-q10",
+      "scene": "beehive1-u4-l2-scene-10",
+      "text": "Can a bee fly?",
+      "options": [
+        "Yes, it can.",
+        "No, it can’t."
+      ],
+      "answer": 0,
+      "explanation": "Yes, it can."
+    }
+  ],
+  "orders": []
+}

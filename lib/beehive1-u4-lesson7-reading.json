@@ -1,0 +1,197 @@
+{
+  "title": "Coconuts for everyone! · Part 1",
+  "scenes": [
+    {
+      "id": "beehive1-u4-l7-scene-1",
+      "label": "Coconuts for everyone! · 1",
+      "image": "lessons/beehive1-u4/story-1.webp",
+      "full": [
+        "A dog is on a beach.",
+        "There’s a tree. There are some coconuts."
+      ],
+      "easy": [
+        "A dog is on a beach.",
+        "There’s a tree. There are some coconuts."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l7-scene-2",
+      "label": "Coconuts for everyone! · 2",
+      "image": "lessons/beehive1-u4/story-2.webp",
+      "full": [
+        "Here’s a cat.",
+        "Look, Cat! Coconuts! Jump on me!"
+      ],
+      "easy": [
+        "Here’s a cat.",
+        "Look, Cat! Coconuts! Jump on me!"
+      ]
+    },
+    {
+      "id": "beehive1-u4-l7-scene-3",
+      "label": "Coconuts for everyone! · 3",
+      "image": "lessons/beehive1-u4/story-3.webp",
+      "full": [
+        "I can’t get the coconuts!"
+      ],
+      "easy": [
+        "I can’t get the coconuts!"
+      ]
+    },
+    {
+      "id": "beehive1-u4-l7-scene-4",
+      "label": "Coconuts for everyone! · 4",
+      "image": "lessons/beehive1-u4/story-4.webp",
+      "full": [
+        "Here’s a snake.",
+        "Is it a cat on a dog? Yes, it is!",
+        "Look, Snake! Coconuts! Jump on me!"
+      ],
+      "easy": [
+        "Here’s a snake.",
+        "Is it a cat on a dog? Yes, it is!",
+        "Look, Snake! Coconuts! Jump on me!"
+      ]
+    },
+    {
+      "id": "beehive1-u4-l7-scene-5",
+      "label": "Coconuts for everyone! · 5",
+      "image": "lessons/beehive1-u4/story-5.webp",
+      "full": [
+        "I can’t get the coconuts!"
+      ],
+      "easy": [
+        "I can’t get the coconuts!"
+      ]
+    },
+    {
+      "id": "beehive1-u4-l7-scene-6",
+      "label": "Coconuts for everyone! · 6",
+      "image": "lessons/beehive1-u4/story-6.webp",
+      "full": [
+        "Here’s a frog.",
+        "Is it a snake on a cat on a dog? Yes, it is!",
+        "Look, Frog! Coconuts! Jump on me!"
+      ],
+      "easy": [
+        "Here’s a frog.",
+        "Is it a snake on a cat on a dog? Yes, it is!",
+        "Look, Frog! Coconuts! Jump on me!"
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "beehive1-u4-l7-q1",
+      "scene": "beehive1-u4-l7-scene-1",
+      "text": "A dog is on a ___.",
+      "options": [
+        "beach",
+        "lake",
+        "tree"
+      ],
+      "answer": 0,
+      "explanation": "A dog is on a beach."
+    },
+    {
+      "id": "beehive1-u4-l7-q2",
+      "scene": "beehive1-u4-l7-scene-1",
+      "text": "There are some ___.",
+      "options": [
+        "coconuts",
+        "books",
+        "chairs"
+      ],
+      "answer": 0,
+      "explanation": "There are some coconuts."
+    },
+    {
+      "id": "beehive1-u4-l7-q3",
+      "scene": "beehive1-u4-l7-scene-2",
+      "text": "Who jumps on the dog?",
+      "options": [
+        "The cat.",
+        "The frog."
+      ],
+      "answer": 0,
+      "explanation": "The cat jumps on the dog."
+    },
+    {
+      "id": "beehive1-u4-l7-q4",
+      "scene": "beehive1-u4-l7-scene-3",
+      "text": "Can the cat get the coconuts?",
+      "options": [
+        "Yes, it can.",
+        "No, it can’t."
+      ],
+      "answer": 1,
+      "explanation": "The cat can’t get the coconuts."
+    },
+    {
+      "id": "beehive1-u4-l7-q5",
+      "scene": "beehive1-u4-l7-scene-4",
+      "text": "Is it a cat on a dog?",
+      "options": [
+        "Yes, it is.",
+        "No, it isn’t."
+      ],
+      "answer": 0,
+      "explanation": "It is a cat on a dog."
+    },
+    {
+      "id": "beehive1-u4-l7-q6",
+      "scene": "beehive1-u4-l7-scene-5",
+      "text": "Can the snake get the coconuts?",
+      "options": [
+        "Yes, it can.",
+        "No, it can’t."
+      ],
+      "answer": 1,
+      "explanation": "The snake can’t get the coconuts."
+    },
+    {
+      "id": "beehive1-u4-l7-q7",
+      "scene": "beehive1-u4-l7-scene-6",
+      "text": "Who comes next?",
+      "options": [
+        "A frog.",
+        "A duck."
+      ],
+      "answer": 0,
+      "explanation": "Here’s a frog."
+    },
+    {
+      "id": "beehive1-u4-l7-q8",
+      "scene": "beehive1-u4-l7-scene-6",
+      "text": "Jump on ___.",
+      "options": [
+        "me",
+        "my",
+        "I"
+      ],
+      "answer": 0,
+      "explanation": "Jump on me!"
+    }
+  ],
+  "orders": [
+    {
+      "id": "beehive1-u4-l7-order-1",
+      "title": "Coconuts for everyone! · Part 1",
+      "scenes": [
+        "beehive1-u4-l7-scene-1",
+        "beehive1-u4-l7-scene-2",
+        "beehive1-u4-l7-scene-3"
+      ]
+    },
+    {
+      "id": "beehive1-u4-l7-order-2",
+      "title": "Coconuts for everyone! · Part 2",
+      "scenes": [
+        "beehive1-u4-l7-scene-4",
+        "beehive1-u4-l7-scene-5",
+        "beehive1-u4-l7-scene-6"
+      ]
+    }
+  ],
+  "audio": "lessons/beehive1-u4/track-082.m4a"
+}

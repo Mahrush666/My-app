@@ -1,0 +1,248 @@
+{
+  "title": "Animal puzzle",
+  "scenes": [
+    {
+      "id": "beehive1-u4-l4-scene-1",
+      "label": "Animal puzzle",
+      "image": "lessons/beehive1-u4/animal-puzzle-cat.webp",
+      "full": [
+        "Is it a dog?",
+        "No, it isn’t."
+      ],
+      "easy": [
+        "Is it a dog?",
+        "No, it isn’t."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l4-scene-2",
+      "label": "Animal puzzle",
+      "image": "lessons/beehive1-u4/animal-puzzle-fish.webp",
+      "full": [
+        "Is it a fish?",
+        "Yes, it is."
+      ],
+      "easy": [
+        "Is it a fish?",
+        "Yes, it is."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l4-scene-3",
+      "label": "Animal puzzle",
+      "image": "lessons/beehive1-u4/animal-puzzle-dog.webp",
+      "full": [
+        "Is it a cat?",
+        "No, it isn’t."
+      ],
+      "easy": [
+        "Is it a cat?",
+        "No, it isn’t."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l4-scene-4",
+      "label": "Animal puzzle",
+      "image": "lessons/beehive1-u4/animal-puzzle-frog.webp",
+      "full": [
+        "Is it a duck?",
+        "No, it isn’t."
+      ],
+      "easy": [
+        "Is it a duck?",
+        "No, it isn’t."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l4-scene-5",
+      "label": "Animal puzzle",
+      "image": "lessons/beehive1-u4/animal-puzzle-duck.webp",
+      "full": [
+        "Is it a frog?",
+        "No, it isn’t."
+      ],
+      "easy": [
+        "Is it a frog?",
+        "No, it isn’t."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l4-scene-6",
+      "label": "Animal puzzle",
+      "image": "lessons/beehive1-u4/animal-puzzle-snake.webp",
+      "full": [
+        "Is it a snake?",
+        "Yes, it is."
+      ],
+      "easy": [
+        "Is it a snake?",
+        "Yes, it is."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l4-scene-7",
+      "label": "Read and circle",
+      "image": "lessons/beehive1-u4/cat.webp",
+      "full": [
+        "Is it a dog?",
+        "No, it isn’t."
+      ],
+      "easy": [
+        "Is it a dog?",
+        "No, it isn’t."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l4-scene-8",
+      "label": "Read and circle",
+      "image": "lessons/beehive1-u4/spider.webp",
+      "full": [
+        "Is it a spider?",
+        "Yes, it is."
+      ],
+      "easy": [
+        "Is it a spider?",
+        "Yes, it is."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l4-scene-9",
+      "label": "Read and circle",
+      "image": "lessons/beehive1-u4/snake.webp",
+      "full": [
+        "Is it a snake?",
+        "Yes, it is."
+      ],
+      "easy": [
+        "Is it a snake?",
+        "Yes, it is."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l4-scene-10",
+      "label": "Read and circle",
+      "image": "lessons/beehive1-u4/dog.webp",
+      "full": [
+        "Is it a duck?",
+        "No, it isn’t."
+      ],
+      "easy": [
+        "Is it a duck?",
+        "No, it isn’t."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "beehive1-u4-l4-q1",
+      "scene": "beehive1-u4-l4-scene-1",
+      "text": "Is it a dog?",
+      "options": [
+        "Yes, it is.",
+        "No, it isn’t."
+      ],
+      "answer": 1,
+      "explanation": "It’s a cat."
+    },
+    {
+      "id": "beehive1-u4-l4-q2",
+      "scene": "beehive1-u4-l4-scene-2",
+      "text": "Is it a fish?",
+      "options": [
+        "Yes, it is.",
+        "No, it isn’t."
+      ],
+      "answer": 0,
+      "explanation": "It’s a fish."
+    },
+    {
+      "id": "beehive1-u4-l4-q3",
+      "scene": "beehive1-u4-l4-scene-3",
+      "text": "Is it a cat?",
+      "options": [
+        "Yes, it is.",
+        "No, it isn’t."
+      ],
+      "answer": 1,
+      "explanation": "It’s a dog."
+    },
+    {
+      "id": "beehive1-u4-l4-q4",
+      "scene": "beehive1-u4-l4-scene-4",
+      "text": "Is it a duck?",
+      "options": [
+        "Yes, it is.",
+        "No, it isn’t."
+      ],
+      "answer": 1,
+      "explanation": "It’s a frog."
+    },
+    {
+      "id": "beehive1-u4-l4-q5",
+      "scene": "beehive1-u4-l4-scene-5",
+      "text": "Is it a frog?",
+      "options": [
+        "Yes, it is.",
+        "No, it isn’t."
+      ],
+      "answer": 1,
+      "explanation": "It’s a duck."
+    },
+    {
+      "id": "beehive1-u4-l4-q6",
+      "scene": "beehive1-u4-l4-scene-6",
+      "text": "Is it a snake?",
+      "options": [
+        "Yes, it is.",
+        "No, it isn’t."
+      ],
+      "answer": 0,
+      "explanation": "It’s a snake."
+    },
+    {
+      "id": "beehive1-u4-l4-q7",
+      "scene": "beehive1-u4-l4-scene-7",
+      "text": "Is it a dog?",
+      "options": [
+        "Yes, it is.",
+        "No, it isn’t."
+      ],
+      "answer": 1,
+      "explanation": "It’s a cat."
+    },
+    {
+      "id": "beehive1-u4-l4-q8",
+      "scene": "beehive1-u4-l4-scene-8",
+      "text": "Is it a spider?",
+      "options": [
+        "Yes, it is.",
+        "No, it isn’t."
+      ],
+      "answer": 0,
+      "explanation": "It’s a spider."
+    },
+    {
+      "id": "beehive1-u4-l4-q9",
+      "scene": "beehive1-u4-l4-scene-9",
+      "text": "Is it a snake?",
+      "options": [
+        "Yes, it is.",
+        "No, it isn’t."
+      ],
+      "answer": 0,
+      "explanation": "It’s a snake."
+    },
+    {
+      "id": "beehive1-u4-l4-q10",
+      "scene": "beehive1-u4-l4-scene-10",
+      "text": "Is it a duck?",
+      "options": [
+        "Yes, it is.",
+        "No, it isn’t."
+      ],
+      "answer": 1,
+      "explanation": "It’s a dog."
+    }
+  ],
+  "orders": []
+}

@@ -1,0 +1,121 @@
+{
+  "title": "Coconuts for everyone! · Part 2",
+  "scenes": [
+    {
+      "id": "beehive1-u4-l8-scene-1",
+      "label": "Coconuts for everyone! · 7",
+      "image": "lessons/beehive1-u4/story-7.webp",
+      "full": [
+        "Jump, Frog, jump!"
+      ],
+      "easy": [
+        "Jump, Frog, jump!"
+      ]
+    },
+    {
+      "id": "beehive1-u4-l8-scene-2",
+      "label": "Coconuts for everyone! · 8",
+      "image": "lessons/beehive1-u4/story-8.webp",
+      "full": [
+        "Hurray! Coconuts for everyone!",
+        "We’re a great team!"
+      ],
+      "easy": [
+        "Hurray! Coconuts for everyone!",
+        "We’re a great team!"
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "beehive1-u4-l8-q1",
+      "scene": "beehive1-u4-l8-scene-2",
+      "text": "“Look, Snake! Coconuts!” Who says it?",
+      "options": [
+        "The dog.",
+        "The cat.",
+        "The snake.",
+        "The frog."
+      ],
+      "answer": 1,
+      "explanation": "The cat."
+    },
+    {
+      "id": "beehive1-u4-l8-q2",
+      "scene": "beehive1-u4-l8-scene-2",
+      "text": "“There’s a tree.” Who says it?",
+      "options": [
+        "The dog.",
+        "The cat.",
+        "The snake.",
+        "The frog."
+      ],
+      "answer": 0,
+      "explanation": "The dog."
+    },
+    {
+      "id": "beehive1-u4-l8-q3",
+      "scene": "beehive1-u4-l8-scene-2",
+      "text": "“Is it a cat on a dog?” Who says it?",
+      "options": [
+        "The dog.",
+        "The cat.",
+        "The snake.",
+        "The frog."
+      ],
+      "answer": 2,
+      "explanation": "The snake."
+    },
+    {
+      "id": "beehive1-u4-l8-q4",
+      "scene": "beehive1-u4-l8-scene-2",
+      "text": "“There are some coconuts.” Who says it?",
+      "options": [
+        "The dog.",
+        "The cat.",
+        "The snake.",
+        "The frog."
+      ],
+      "answer": 0,
+      "explanation": "The dog."
+    },
+    {
+      "id": "beehive1-u4-l8-q5",
+      "scene": "beehive1-u4-l8-scene-2",
+      "text": "“Hurray! Coconuts for everyone!” Who says it?",
+      "options": [
+        "The dog.",
+        "The cat.",
+        "The snake.",
+        "The frog."
+      ],
+      "answer": 3,
+      "explanation": "The frog."
+    },
+    {
+      "id": "beehive1-u4-l8-q6",
+      "scene": "beehive1-u4-l8-scene-1",
+      "text": "“Jump, Frog, jump!” Who says it?",
+      "options": [
+        "The dog, cat and snake.",
+        "The frog."
+      ],
+      "answer": 0,
+      "explanation": "The dog, cat and snake help the frog."
+    },
+    {
+      "id": "beehive1-u4-l8-q7",
+      "scene": "beehive1-u4-l8-scene-2",
+      "text": "We’re a great ___.",
+      "options": [
+        "team",
+        "tree",
+        "cat"
+      ],
+      "answer": 0,
+      "explanation": "We’re a great team!"
+    }
+  ],
+  "orders": [],
+  "audio": "lessons/beehive1-u4/track-082.m4a"
+}

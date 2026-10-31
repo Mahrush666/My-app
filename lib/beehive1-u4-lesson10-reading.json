@@ -1,0 +1,141 @@
+{
+  "title": "A postcard from The Bahamas",
+  "scenes": [
+    {
+      "id": "beehive1-u4-l10-scene-1",
+      "label": "Greetings from The Bahamas · 1",
+      "image": "lessons/beehive1-u4/bahamas-postcard.webp",
+      "full": [
+        "Dear Zach,",
+        "This is a beach in The Bahamas. Can you see the sand? It’s pink! There are some shells on the beach. There are some trees, too."
+      ],
+      "easy": [
+        "Dear Zach,",
+        "This is a beach in The Bahamas. Can you see the sand? It’s pink! There are some shells on the beach. There are some trees, too."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l10-scene-2",
+      "label": "Greetings from The Bahamas · 2",
+      "image": "lessons/beehive1-u4/bahamas-postcard.webp",
+      "full": [
+        "Look at the sea! It’s blue. There are some fish in the sea. This fish is a clown fish. It’s orange and white."
+      ],
+      "easy": [
+        "Look at the sea! It’s blue. There are some fish in the sea. This fish is a clown fish. It’s orange and white."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l10-scene-3",
+      "label": "Greetings from The Bahamas · 3",
+      "image": "lessons/beehive1-u4/bahamas-postcard.webp",
+      "full": [
+        "I can play baseball on the beach. I can swim in the sea, too.",
+        "From,",
+        "Alvin"
+      ],
+      "easy": [
+        "I can play baseball on the beach. I can swim in the sea, too.",
+        "From,",
+        "Alvin"
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "beehive1-u4-l10-q1",
+      "scene": "beehive1-u4-l10-scene-1",
+      "text": "The sand is ___.",
+      "options": [
+        "pink",
+        "yellow",
+        "blue"
+      ],
+      "answer": 0,
+      "explanation": "The sand is pink."
+    },
+    {
+      "id": "beehive1-u4-l10-q2",
+      "scene": "beehive1-u4-l10-scene-2",
+      "text": "The sea is ___.",
+      "options": [
+        "blue",
+        "pink",
+        "orange"
+      ],
+      "answer": 0,
+      "explanation": "The sea is blue."
+    },
+    {
+      "id": "beehive1-u4-l10-q3",
+      "scene": "beehive1-u4-l10-scene-2",
+      "text": "The clown fish is ___ and white.",
+      "options": [
+        "orange",
+        "blue",
+        "pink"
+      ],
+      "answer": 0,
+      "explanation": "The clown fish is orange and white."
+    },
+    {
+      "id": "beehive1-u4-l10-q4",
+      "scene": "beehive1-u4-l10-scene-3",
+      "text": "Alvin can ___ in the sea.",
+      "options": [
+        "swim",
+        "run",
+        "jump"
+      ],
+      "answer": 0,
+      "explanation": "Alvin can swim in the sea."
+    },
+    {
+      "id": "beehive1-u4-l10-q5",
+      "scene": "beehive1-u4-l10-scene-3",
+      "text": "Alvin can play ___ on the beach.",
+      "options": [
+        "baseball",
+        "basketball",
+        "tennis"
+      ],
+      "answer": 0,
+      "explanation": "Alvin can play baseball on the beach."
+    },
+    {
+      "id": "beehive1-u4-l10-q6",
+      "scene": "beehive1-u4-l10-scene-1",
+      "text": "Choose the correct sentence.",
+      "options": [
+        "This is a beach.",
+        "this is a beach"
+      ],
+      "answer": 0,
+      "explanation": "This is a beach."
+    },
+    {
+      "id": "beehive1-u4-l10-q7",
+      "scene": "beehive1-u4-l10-scene-1",
+      "text": "Choose the correct sentence.",
+      "options": [
+        "There are some shells on the beach.",
+        "there are some shells on the beach"
+      ],
+      "answer": 0,
+      "explanation": "There are some shells on the beach."
+    },
+    {
+      "id": "beehive1-u4-l10-q8",
+      "scene": "beehive1-u4-l10-scene-1",
+      "text": "Choose the correct sentence.",
+      "options": [
+        "It’s orange and white.",
+        "it’s orange and white"
+      ],
+      "answer": 0,
+      "explanation": "It’s orange and white."
+    }
+  ],
+  "orders": [],
+  "audio": "lessons/beehive1-u4/track-087.m4a"
+}

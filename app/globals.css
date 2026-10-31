@@ -211,3 +211,5 @@
 
 .picture-written-word{font-size:clamp(24px,5vw,34px);font-weight:750;text-align:center;margin:12px 0 18px;line-height:1.35;overflow-wrap:anywhere}
 .sentence-practice .written-choice{display:flex;align-items:center;gap:10px;width:100%;padding:14px;text-align:left;font-size:clamp(17px,3.5vw,23px);border-radius:14px}.sentence-practice [aria-pressed=true]{outline:3px solid #7563ec;background:#efecff}.sentence-slots{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0}.sentence-slots button{min-width:54px;padding:12px 10px;border-bottom:3px solid #7563ec;border-radius:10px;font-size:20px}.sentence-tiles button{min-width:54px;width:auto;padding:12px;font-size:20px}.sentence-practice .picture-prompt img{object-fit:contain}.sentence-practice h2{font-size:clamp(20px,4vw,28px)}
+
+.sing-along .lesson-audio-art{display:block;width:100%;max-height:55vh;object-fit:contain;border-radius:12px;margin:12px 0}.sing-along audio{display:block;width:100%;margin-top:12px}

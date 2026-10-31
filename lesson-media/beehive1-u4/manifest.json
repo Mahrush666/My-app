@@ -1,0 +1,241 @@
+{
+  "assets": [
+    {
+      "file": "culture.mp4",
+      "sha256": "a4a5e77bc4a3ab132d046bbfb333076cc21ef47020574cb6e1dca3aed64810f0",
+      "parts": [
+        "culture.mp4.000.part",
+        "culture.mp4.001.part",
+        "culture.mp4.002.part",
+        "culture.mp4.003.part",
+        "culture.mp4.004.part",
+        "culture.mp4.005.part",
+        "culture.mp4.006.part",
+        "culture.mp4.007.part",
+        "culture.mp4.008.part",
+        "culture.mp4.009.part",
+        "culture.mp4.010.part",
+        "culture.mp4.011.part",
+        "culture.mp4.012.part",
+        "culture.mp4.013.part",
+        "culture.mp4.014.part",
+        "culture.mp4.015.part",
+        "culture.mp4.016.part",
+        "culture.mp4.017.part"
+      ]
+    },
+    {
+      "file": "project.mp4",
+      "sha256": "0b9012a29ce76a8db7f9d27dfcb2464b771d5c807257ecc05f8d910881faa40a",
+      "parts": [
+        "project.mp4.000.part",
+        "project.mp4.001.part",
+        "project.mp4.002.part",
+        "project.mp4.003.part",
+        "project.mp4.004.part",
+        "project.mp4.005.part",
+        "project.mp4.006.part",
+        "project.mp4.007.part",
+        "project.mp4.008.part",
+        "project.mp4.009.part",
+        "project.mp4.010.part"
+      ]
+    },
+    {
+      "file": "song.mp4",
+      "sha256": "e02c2d4baf4ee94f1155c9e9969db4acf79cbb929703203d42613e6150967782",
+      "parts": [
+        "song.mp4.000.part",
+        "song.mp4.001.part",
+        "song.mp4.002.part",
+        "song.mp4.003.part",
+        "song.mp4.004.part",
+        "song.mp4.005.part",
+        "song.mp4.006.part",
+        "song.mp4.007.part",
+        "song.mp4.008.part",
+        "song.mp4.009.part",
+        "song.mp4.010.part"
+      ]
+    },
+    {
+      "file": "story.mp4",
+      "sha256": "a1f47c22daf367a42a5dd3a4389707b098f4cd558cfc61216b512767b97df9f4",
+      "parts": [
+        "story.mp4.000.part",
+        "story.mp4.001.part",
+        "story.mp4.002.part",
+        "story.mp4.003.part",
+        "story.mp4.004.part",
+        "story.mp4.005.part",
+        "story.mp4.006.part",
+        "story.mp4.007.part",
+        "story.mp4.008.part",
+        "story.mp4.009.part",
+        "story.mp4.010.part",
+        "story.mp4.011.part",
+        "story.mp4.012.part",
+        "story.mp4.013.part",
+        "story.mp4.014.part",
+        "story.mp4.015.part",
+        "story.mp4.016.part",
+        "story.mp4.017.part"
+      ]
+    },
+    {
+      "file": "track-071.m4a",
+      "sha256": "e77636778c29f5a9f23ec55d22182c5a2f6568fc828b2eb9e17d12debfb483b0",
+      "parts": [
+        "track-071.m4a.000.part"
+      ]
+    },
+    {
+      "file": "track-072.m4a",
+      "sha256": "fd206a9b41c09b5de174ab9b5eca995c3f253659a9a95b48537468aba81afe8a",
+      "parts": [
+        "track-072.m4a.000.part",
+        "track-072.m4a.001.part",
+        "track-072.m4a.002.part"
+      ]
+    },
+    {
+      "file": "track-073.m4a",
+      "sha256": "1a506af0b2609ba73cc8fcb432f5864b0fa48bf0a410d23ed6f5cac1298df5cb",
+      "parts": [
+        "track-073.m4a.000.part"
+      ]
+    },
+    {
+      "file": "track-074.m4a",
+      "sha256": "294d9dbcb5b7bdeb1d35bb6b0d3e0fea54a4d5376cf890b3770918998538c1d4",
+      "parts": [
+        "track-074.m4a.000.part",
+        "track-074.m4a.001.part"
+      ]
+    },
+    {
+      "file": "track-075.m4a",
+      "sha256": "1632c8bfe8adadf6c1270e6f82152bc1567ef81f72b20321ac4b6f3fb97d96e1",
+      "parts": [
+        "track-075.m4a.000.part",
+        "track-075.m4a.001.part"
+      ]
+    },
+    {
+      "file": "track-076.m4a",
+      "sha256": "3868ef2b3a67b1128d8021ae513691267d2f57d9d19524ec492fcf7a9cebcf42",
+      "parts": [
+        "track-076.m4a.000.part"
+      ]
+    },
+    {
+      "file": "track-077.m4a",
+      "sha256": "6db65c5e1bc68a2dce447f8097b090e6911b37b1e20ca36297f2cdfa364b4c7d",
+      "parts": [
+        "track-077.m4a.000.part",
+        "track-077.m4a.001.part"
+      ]
+    },
+    {
+      "file": "track-078.m4a",
+      "sha256": "a621b4836759dcceb6657d861dd8423acb23a4f24cb2201d8761b22c2595546d",
+      "parts": [
+        "track-078.m4a.000.part"
+      ]
+    },
+    {
+      "file": "track-079.m4a",
+      "sha256": "682cc470d52a0f273978aa84c64a2e14ebdf51d0fd7a265e371050d4fcc4bd7a",
+      "parts": [
+        "track-079.m4a.000.part",
+        "track-079.m4a.001.part"
+      ]
+    },
+    {
+      "file": "track-080.m4a",
+      "sha256": "9f036104bda0c0586da5bb1e70ee15a1ef7904debdf3da7be5821653e3429179",
+      "parts": [
+        "track-080.m4a.000.part",
+        "track-080.m4a.001.part",
+        "track-080.m4a.002.part",
+        "track-080.m4a.003.part"
+      ]
+    },
+    {
+      "file": "track-081.m4a",
+      "sha256": "d9c2f452b8997fe45ba7dd9836f91b8083b9b506ef88f9671f743469eb5cc075",
+      "parts": [
+        "track-081.m4a.000.part",
+        "track-081.m4a.001.part",
+        "track-081.m4a.002.part",
+        "track-081.m4a.003.part"
+      ]
+    },
+    {
+      "file": "track-082.m4a",
+      "sha256": "59f5a0d0e1ce34156a9eeeccffc6c3d623836a9e1c9b94c1ad251ce0c2ca9ec6",
+      "parts": [
+        "track-082.m4a.000.part",
+        "track-082.m4a.001.part",
+        "track-082.m4a.002.part",
+        "track-082.m4a.003.part",
+        "track-082.m4a.004.part",
+        "track-082.m4a.005.part",
+        "track-082.m4a.006.part"
+      ]
+    },
+    {
+      "file": "track-083.m4a",
+      "sha256": "7ffb3c3f3e4dd3a8394a33527f2a931c7428f15246d86b616744dabbff1e4c0a",
+      "parts": [
+        "track-083.m4a.000.part"
+      ]
+    },
+    {
+      "file": "track-084.m4a",
+      "sha256": "2f4c21a5d3789dcf1aeac75bc872966df05103f02a8bafca9b8ff6a7cc977e5a",
+      "parts": [
+        "track-084.m4a.000.part",
+        "track-084.m4a.001.part"
+      ]
+    },
+    {
+      "file": "track-085.m4a",
+      "sha256": "b0d94e49b45491c3079d98acfc7f92f6688beb98d70fd17c558ec6b28e03ccdd",
+      "parts": [
+        "track-085.m4a.000.part",
+        "track-085.m4a.001.part"
+      ]
+    },
+    {
+      "file": "track-086.m4a",
+      "sha256": "fde92450e5e04a83f1094d2f5467f5a676c3e441c0b425311ab5a78472fda8f5",
+      "parts": [
+        "track-086.m4a.000.part"
+      ]
+    },
+    {
+      "file": "track-087.m4a",
+      "sha256": "b9dc0449f7707182b1a5db4b9b77ca53440cd2ae50028c43a4273739d6c4aafd",
+      "parts": [
+        "track-087.m4a.000.part",
+        "track-087.m4a.001.part"
+      ]
+    },
+    {
+      "file": "track-088.m4a",
+      "sha256": "d2f9de6414fb632087c87ec9e883172d3dfa3c37026dfe6fe31bb9334c8bb83f",
+      "parts": [
+        "track-088.m4a.000.part",
+        "track-088.m4a.001.part"
+      ]
+    },
+    {
+      "file": "track-089.m4a",
+      "sha256": "409e9baef7d10a87e38e01208cf90dff5400672b3ac4d8c7694b649083ece34a",
+      "parts": [
+        "track-089.m4a.000.part"
+      ]
+    }
+  ]
+}

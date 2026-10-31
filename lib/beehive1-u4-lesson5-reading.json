@@ -1,0 +1,24 @@
+{
+  "title": "Nature words",
+  "scenes": [
+    {
+      "id": "beehive1-u4-l5-scene-1",
+      "label": "What is it?",
+      "image": "lessons/beehive1-u4/page-48.webp",
+      "full": [
+        "Is it a shell?",
+        "No, it isn’t.",
+        "Is it a plant?",
+        "Yes, it is!"
+      ],
+      "easy": [
+        "Is it a shell?",
+        "No, it isn’t.",
+        "Is it a plant?",
+        "Yes, it is!"
+      ]
+    }
+  ],
+  "questions": [],
+  "orders": []
+}

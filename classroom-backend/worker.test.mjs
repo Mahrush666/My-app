@@ -987,3 +987,22 @@ test('Unit 2 Rocky story checks source questions and picture order and keeps spe
  assert.equal(report.exercises.find(e=>e.id==='story-quiz').questions.length,9);
  await DB.sqlite.close();
 });
+
+test('Beehive 1 Unit 4 has ten assignable page lessons with checked grammar, story and postcard answers',async()=>{
+ const {api,DB}=await setup();const owner=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Beehive Outdoors'},owner)).body;
+ const parent=(await api('/register',{username:'beehive_family',password:'parent-password',consent:true})).body.token;
+ const kid=(await api('/children',{name:'Beehive reader',invite:group.invite},parent)).body.id;await api('/approve',{childId:kid,approved:true},owner);
+ const fs=await import('node:fs');const {build}=await import('esbuild');await build({entryPoints:['github-pages/beehive1-u4.ts'],bundle:true,platform:'node',format:'esm',outfile:'.wrangler/beehive1-u4/server-test-lessons.mjs'});const{beehive1Unit4:units}=await import('../.wrangler/beehive1-u4/server-test-lessons.mjs');assert.equal(units.length,10);
+ let count=0;
+ for(const [index,l]of units.entries()){
+  assert.equal(l.lessonTitle.endsWith('p. '+(44+index)),true);
+  const saved=await api('/assignments',{groupId:group.id,unitId:l.id,activities:l.defaultActivities,wordIds:l.words.map(w=>w.id),title:l.title},owner);assert.equal(saved.status,200,JSON.stringify(saved.body));
+  if(l.readingStory.questions.length){const first=l.readingStory.questions[0];const event={childId:kid,assignmentId:saved.body.id,activity:'story-quiz',wordId:first.id,answer:String((first.answer+1)%first.options.length),correct:true,eventId:crypto.randomUUID()};assert.equal((await api('/progress',event,parent)).body.correct,false);for(const q of l.readingStory.questions){const checked=await api('/progress',{...event,wordId:q.id,answer:String(q.answer),eventId:crypto.randomUUID()},parent);assert.equal(checked.body.correct,true);count++}assert((await api('/homework?child='+kid,undefined,parent)).body.completed.some(c=>c.assignment_id===saved.body.id&&c.activity==='story-quiz'))}
+  if(![1,5,9].includes(index+1))assert.equal((await api('/assignments',{groupId:group.id,unitId:l.id,activities:['spell'],wordIds:l.words.map(w=>w.id),title:'Unsupported spelling'},owner)).status,400);
+ }
+ assert.equal(count,64);assert.equal((await api('/homework?child='+kid,undefined,parent)).body.assignments.length,10);
+ const story=units[6];const order=(await api('/assignments',{groupId:group.id,unitId:story.id,activities:['story-order'],wordIds:[],title:'Story order'},owner)).body.id;
+ for(const r of story.readingStory.orders)assert.equal((await api('/progress',{childId:kid,assignmentId:order,activity:'story-order',wordId:r.id,answer:r.scenes.join(','),eventId:crypto.randomUUID()},parent)).body.correct,true);
+ await DB.sqlite.close();
+});

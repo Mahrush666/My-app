@@ -1,0 +1,193 @@
+{
+  "title": "There’s / There are",
+  "scenes": [
+    {
+      "id": "beehive1-u4-l6-scene-1",
+      "label": "At the beach",
+      "image": "lessons/beehive1-u4/there-is-dialogue.webp",
+      "full": [
+        "Look! There’s a beach!",
+        "There’s a tree.",
+        "There are some shells.",
+        "Oh! There are some fish!"
+      ],
+      "easy": [
+        "Look! There’s a beach!",
+        "There’s a tree.",
+        "There are some shells.",
+        "Oh! There are some fish!"
+      ]
+    },
+    {
+      "id": "beehive1-u4-l6-scene-2",
+      "label": "There’s / There are",
+      "image": "lessons/beehive1-u4/there-is-grammar.webp",
+      "full": [
+        "There are some trees."
+      ],
+      "easy": [
+        "There are some trees."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l6-scene-3",
+      "label": "There’s / There are",
+      "image": "lessons/beehive1-u4/there-is-grammar.webp",
+      "full": [
+        "There’s a lake."
+      ],
+      "easy": [
+        "There’s a lake."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l6-scene-4",
+      "label": "There’s / There are",
+      "image": "lessons/beehive1-u4/there-is-grammar.webp",
+      "full": [
+        "There’s a flower."
+      ],
+      "easy": [
+        "There’s a flower."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l6-scene-5",
+      "label": "There’s / There are",
+      "image": "lessons/beehive1-u4/there-is-grammar.webp",
+      "full": [
+        "There are some bees."
+      ],
+      "easy": [
+        "There are some bees."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l6-scene-6",
+      "label": "There’s / There are",
+      "image": "lessons/beehive1-u4/there-is-grammar.webp",
+      "full": [
+        "There are some plants."
+      ],
+      "easy": [
+        "There are some plants."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l6-scene-7",
+      "label": "There’s / There are",
+      "image": "lessons/beehive1-u4/there-is-grammar.webp",
+      "full": [
+        "There’s a frog."
+      ],
+      "easy": [
+        "There’s a frog."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l6-scene-8",
+      "label": "Outdoors!",
+      "image": "lessons/beehive1-u4/outdoors-song.webp",
+      "full": [
+        "Outdoors! Outdoors!",
+        "What can you see?",
+        "Outdoors! Outdoors!",
+        "What can you see?",
+        "There’s a plant.",
+        "There’s a lake.",
+        "There are some ducks",
+        "And a snake."
+      ],
+      "easy": [
+        "Outdoors! Outdoors!",
+        "What can you see?",
+        "Outdoors! Outdoors!",
+        "What can you see?",
+        "There’s a plant.",
+        "There’s a lake.",
+        "There are some ducks",
+        "And a snake."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "beehive1-u4-l6-q1",
+      "scene": "beehive1-u4-l6-scene-2",
+      "text": "___ some trees.",
+      "options": [
+        "There’s",
+        "There are"
+      ],
+      "answer": 1,
+      "explanation": "There are some trees."
+    },
+    {
+      "id": "beehive1-u4-l6-q2",
+      "scene": "beehive1-u4-l6-scene-3",
+      "text": "___ a lake.",
+      "options": [
+        "There’s",
+        "There are"
+      ],
+      "answer": 0,
+      "explanation": "There’s a lake."
+    },
+    {
+      "id": "beehive1-u4-l6-q3",
+      "scene": "beehive1-u4-l6-scene-4",
+      "text": "___ a flower.",
+      "options": [
+        "There’s",
+        "There are"
+      ],
+      "answer": 0,
+      "explanation": "There’s a flower."
+    },
+    {
+      "id": "beehive1-u4-l6-q4",
+      "scene": "beehive1-u4-l6-scene-5",
+      "text": "___ some bees.",
+      "options": [
+        "There’s",
+        "There are"
+      ],
+      "answer": 1,
+      "explanation": "There are some bees."
+    },
+    {
+      "id": "beehive1-u4-l6-q5",
+      "scene": "beehive1-u4-l6-scene-6",
+      "text": "___ some plants.",
+      "options": [
+        "There’s",
+        "There are"
+      ],
+      "answer": 1,
+      "explanation": "There are some plants."
+    },
+    {
+      "id": "beehive1-u4-l6-q6",
+      "scene": "beehive1-u4-l6-scene-7",
+      "text": "___ a frog.",
+      "options": [
+        "There’s",
+        "There are"
+      ],
+      "answer": 0,
+      "explanation": "There’s a frog."
+    },
+    {
+      "id": "beehive1-u4-l6-q7",
+      "scene": "beehive1-u4-l6-scene-1",
+      "text": "There’s = ___.",
+      "options": [
+        "There is",
+        "There are"
+      ],
+      "answer": 0,
+      "explanation": "There’s means there is."
+    }
+  ],
+  "orders": []
+}

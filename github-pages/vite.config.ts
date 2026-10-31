@@ -83,6 +83,15 @@ for(const asset of unit2StoryMedia.assets){
  mkdirSync(root+'/public/lessons/pu1-u2-lesson2',{recursive:true});
  writeFileSync(root+'/public/lessons/pu1-u2-lesson2/'+asset.file,data);
 }
+// Beehive 1 Unit 4: original videos and nineteen listening tracks.
+const beehiveDir=root+'/lesson-media/beehive1-u4';
+const beehiveMedia=JSON.parse(readFileSync(beehiveDir+'/manifest.json','utf8')) as {assets:{file:string;sha256:string;parts:string[]}[]};
+for(const asset of beehiveMedia.assets){
+ const data=Buffer.concat(asset.parts.map(part=>readFileSync(beehiveDir+'/'+part)));
+ if(createHash('sha256').update(data).digest('hex')!==asset.sha256)throw Error('Beehive Unit 4 media is incomplete');
+ mkdirSync(root+'/public/lessons/beehive1-u4',{recursive:true});
+ writeFileSync(root+'/public/lessons/beehive1-u4/'+asset.file,data);
+}
 export default defineConfig({
   root: root + '/github-pages',
   base: process.env.PAGES_BASE || './',

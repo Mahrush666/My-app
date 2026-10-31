@@ -5,7 +5,7 @@ import {yesNoQuestion} from './action-questions';
 export type PreviewItem={id:string;title:string;image?:string;audio?:string;video?:string;text?:string[];choices?:string[];correct?:string;images?:{src:string;label:string}[];sourceIndex:number;crop?:{x:number;y:number;width:number;height:number;pageWidth:number;pageHeight:number}};
 export function previewItems(lesson:Lesson,activity:ActivityId):PreviewItem[]{
  const story=lesson.readingStory;
- if(activity==='video')return (lesson.videos||[]).map((v,i)=>({id:v.src,title:v.title,image:v.poster,video:v.src,sourceIndex:i}));
+ if(activity==='video')return (lesson.videos||[]).map((v,i)=>({id:v.src,title:v.title,image:v.poster,video:v.audioOnly?undefined:v.src,audio:v.audioOnly?v.src:undefined,sourceIndex:i}));
  if(activity==='story')return lesson.story?lesson.story.scenes.map((s,i)=>({id:'story-'+i,title:s.label,image:lesson.story!.image,audio:i===0?lesson.story!.audio:undefined,sourceIndex:i,crop:{...s,pageWidth:lesson.story!.width,pageHeight:lesson.story!.height}})):[];
  if(activity==='story-quiz')return (story?.questions||[]).map((q,i)=>({id:q.id,title:q.text,image:story?.scenes.find(s=>s.id===q.scene)?.image,choices:q.options,correct:q.options[q.answer],text:[q.explanation],sourceIndex:i}));
  if(activity==='story-order')return (story?.orders||[]).map((q,i)=>({id:q.id,title:q.title,images:q.scenes.map(id=>story!.scenes.find(s=>s.id===id)!).filter(Boolean).map(s=>({src:s.image,label:s.label})),text:['Correct picture order shown above.'],sourceIndex:i}));

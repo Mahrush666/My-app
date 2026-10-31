@@ -1,0 +1,156 @@
+{
+  "title": "Nature at the beach",
+  "scenes": [
+    {
+      "id": "beehive1-u4-l9-scene-1",
+      "label": "Nature in Australia",
+      "image": "lessons/beehive1-u4/page-52.webp",
+      "full": [
+        "I can see the sea.",
+        "I can’t see the sea, but I can see some trees."
+      ],
+      "easy": [
+        "I can see the sea.",
+        "I can’t see the sea, but I can see some trees."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l9-scene-2",
+      "label": "make a sandcastle",
+      "image": "lessons/beehive1-u4/tilly-2.webp",
+      "full": [
+        "I can make a sandcastle."
+      ],
+      "easy": [
+        "I can make a sandcastle."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l9-scene-3",
+      "label": "find shells",
+      "image": "lessons/beehive1-u4/tilly-3.webp",
+      "full": [
+        "I can find shells."
+      ],
+      "easy": [
+        "I can find shells."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l9-scene-4",
+      "label": "play football",
+      "image": "lessons/beehive1-u4/tilly-4.webp",
+      "full": [
+        "I can play football."
+      ],
+      "easy": [
+        "I can play football."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l9-scene-5",
+      "label": "swim",
+      "image": "lessons/beehive1-u4/tilly-5.webp",
+      "full": [
+        "I can swim in the sea."
+      ],
+      "easy": [
+        "I can swim in the sea."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l9-scene-6",
+      "label": "run",
+      "image": "lessons/beehive1-u4/tilly-6.webp",
+      "full": [
+        "I can run."
+      ],
+      "easy": [
+        "I can run."
+      ]
+    },
+    {
+      "id": "beehive1-u4-l9-scene-7",
+      "label": "read",
+      "image": "lessons/beehive1-u4/tilly-7.webp",
+      "full": [
+        "I can read in the sun."
+      ],
+      "easy": [
+        "I can read in the sun."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "beehive1-u4-l9-q1",
+      "scene": "beehive1-u4-l9-scene-1",
+      "text": "Tilly is from ___.",
+      "options": [
+        "Australia",
+        "The Bahamas"
+      ],
+      "answer": 0,
+      "explanation": "Tilly is from Australia."
+    },
+    {
+      "id": "beehive1-u4-l9-q2",
+      "scene": "beehive1-u4-l9-scene-1",
+      "text": "Can Tilly make a sandcastle?",
+      "options": [
+        "Yes, she can.",
+        "No, she can’t."
+      ],
+      "answer": 0,
+      "explanation": "Tilly can make a sandcastle."
+    },
+    {
+      "id": "beehive1-u4-l9-q3",
+      "scene": "beehive1-u4-l9-scene-4",
+      "text": "I can play ___ on the sand.",
+      "options": [
+        "football",
+        "piano"
+      ],
+      "answer": 0,
+      "explanation": "I can play football on the sand."
+    },
+    {
+      "id": "beehive1-u4-l9-q4",
+      "scene": "beehive1-u4-l9-scene-5",
+      "text": "I can ___ in the sea.",
+      "options": [
+        "swim",
+        "fly",
+        "climb"
+      ],
+      "answer": 0,
+      "explanation": "I can swim in the sea."
+    },
+    {
+      "id": "beehive1-u4-l9-q5",
+      "scene": "beehive1-u4-l9-scene-7",
+      "text": "I can ___ in the sun.",
+      "options": [
+        "read",
+        "swim",
+        "fly"
+      ],
+      "answer": 0,
+      "explanation": "I can read in the sun."
+    },
+    {
+      "id": "beehive1-u4-l9-q6",
+      "scene": "beehive1-u4-l9-scene-1",
+      "text": "I can see the ___.",
+      "options": [
+        "sea",
+        "classroom"
+      ],
+      "answer": 0,
+      "explanation": "I can see the sea."
+    }
+  ],
+  "orders": [],
+  "audio": "lessons/beehive1-u4/track-086.m4a"
+}

@@ -972,12 +972,18 @@ test('Unit 2 Rocky story checks source questions and picture order and keeps spe
  assert.equal((await api('/assignments',{...data,activities:['spell']},owner)).status,400);
  const story=JSON.parse((await import('node:fs')).readFileSync(new URL('../lib/pu1-u2-lesson2-reading.json',import.meta.url),'utf8'));
  const submit=(activity,wordId,answer)=>api('/progress',{childId:kid,assignmentId:saved.body.id,activity,wordId,answer,eventId:crypto.randomUUID()},parent);
+ // Retired questions must never count toward the new nine-question exercise.
+ const assignment=(await api('/teacher',undefined,owner)).body.assignments.find(a=>a.id===saved.body.id);
+ for(const n of [1,2,7,8,9,10,11,12,13,14])await DB.prepare('INSERT INTO attempts VALUES(?,?,?,?,?,?,?)').bind(crypto.randomUUID(),kid,saved.body.id,'story-quiz','pu1-u2-l2-q'+n,1,assignment.updated_at).run();
  const first=story.questions[0];await submit('story-quiz',first.id,String((first.answer+1)%4));
  assert.equal((await api('/homework?child='+kid,undefined,parent)).body.completed.length,0);
+ await submit('story-quiz',first.id,String(first.answer));
+ assert.equal((await api('/homework?child='+kid,undefined,parent)).body.completed.length,0,'Old questions cannot finish a revised exercise');
+ assert.deepEqual(story.questions.map(q=>q.options.length),[4,2,2,2,2,4,3,3,3]);
  for(const q of story.questions)assert.equal((await submit('story-quiz',q.id,String(q.answer))).status,200);
  for(const r of story.orders)assert.equal((await submit('story-order',r.id,r.scenes.join(','))).status,200);
  const hw=(await api('/homework?child='+kid,undefined,parent)).body;assert.deepEqual(new Set(hw.completed.map(c=>c.activity)),new Set(['story-quiz','story-order']));
  const report=(await api('/homework-report?child='+kid+'&assignment='+saved.body.id,undefined,owner)).body;
- assert.equal(report.exercises.find(e=>e.id==='story-quiz').questions.length,14);
+ assert.equal(report.exercises.find(e=>e.id==='story-quiz').questions.length,9);
  await DB.sqlite.close();
 });

@@ -314,19 +314,19 @@ export async function handle(request:Request,env:Env){
  if(activity==='sentence-speak'||activity==='story-quiz'||activity==='story-order'){
  const unit=lessons.find(l=>l.id===assignment!.unit_id),story=unit?.readingStory;
  const itemId=text(data.wordId,100),answer=text(data.answer,1000);
- let correct:boolean|null=null,required=0;
+ let correct:boolean|null=null,required=0;let requiredIds:string[]=[];
  if(activity==='sentence-speak'){
   const sentences=unit?.sentencePractice?sentencePracticeWords(unit.sentencePractice):unit?.words.filter(w=>JSON.parse(assignment!.word_ids).includes(w.id)&&w.sentence.trim().split(/\s+/).length>1)||[];
   const word=sentences.find(w=>w.id===itemId);requireValue(word,'This sentence is not assigned.');
-  correct=speechMatches(answer,word!.sentence);required=sentences.length;
- }else{requireValue(story,'This story is unavailable.');correct=checkStoryAnswer(story!,activity,itemId,answer);required=activity==='story-quiz'?story!.questions.length:story!.orders.length;}
+  correct=speechMatches(answer,word!.sentence);requiredIds=sentences.map(w=>w.id!);required=requiredIds.length;
+ }else{requireValue(story,'This story is unavailable.');correct=checkStoryAnswer(story!,activity,itemId,answer);requiredIds=(activity==='story-quiz'?story!.questions:story!.orders).map(q=>q.id);required=requiredIds.length;}
  requireValue(correct!==null,'Choose a valid answer.');
  const id=text(data.eventId,80);requireValue(/^[a-zA-Z0-9-]{16,80}$/.test(id),'An answer identifier is required.');
  const answerTime=Math.max(now,Number(assignment!.updated_at));
  // Story comprehension has its own completion requirements and never changes word SRS.
  const inserted=await env.DB.batch([
  env.DB.prepare('INSERT OR IGNORE INTO attempts VALUES(?,?,?,?,?,?,?)').bind(id,child.id,assignment!.id,activity,itemId,Number(correct),answerTime),
- env.DB.prepare(`INSERT OR IGNORE INTO completions(child_id,assignment_id,activity,completed_at) SELECT ?,?,?,? WHERE (SELECT COUNT(DISTINCT word_id) FROM attempts WHERE child_id=? AND assignment_id=? AND correct=1 AND created_at>=? AND activity=?)>=?`).bind(child.id,assignment!.id,activity,answerTime,child.id,assignment!.id,assignment!.updated_at,activity,required)
+ env.DB.prepare(`INSERT OR IGNORE INTO completions(child_id,assignment_id,activity,completed_at) SELECT ?,?,?,? WHERE (SELECT COUNT(DISTINCT word_id) FROM attempts WHERE child_id=? AND assignment_id=? AND correct=1 AND created_at>=? AND activity=? AND word_id IN (${requiredIds.map(()=>'?').join(',')}))>=?`).bind(child.id,assignment!.id,activity,answerTime,child.id,assignment!.id,assignment!.updated_at,activity,...requiredIds,required)
  ]);
  await syncHomeworkRewards(env.DB,child.id,[assignment!],now);
  const rewards=await readRewards(env.DB,child.id);

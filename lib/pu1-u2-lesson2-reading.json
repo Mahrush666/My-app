@@ -127,30 +127,17 @@
   ],
   "questions": [
     {
-      "id": "pu1-u2-l2-q1",
+      "id": "pu1-u2-l2-complete-family",
       "scene": "pu1-u2-l2-scene-1",
-      "text": "Who is asking about his family?",
+      "text": "Mum, are these animals ___?",
       "options": [
-        "Harry.",
-        "Shelly.",
-        "Rocky.",
-        "Gracie."
+        "my brothers",
+        "my sisters",
+        "my classmates",
+        "my family"
       ],
-      "answer": 2,
-      "explanation": "Rocky asks his mum about his family."
-    },
-    {
-      "id": "pu1-u2-l2-q2",
-      "scene": "pu1-u2-l2-scene-1",
-      "text": "Are all these animals Rocky’s family?",
-      "options": [
-        "Yes, they are.",
-        "No, they aren’t.",
-        "Yes, she is.",
-        "No, he isn’t."
-      ],
-      "answer": 1,
-      "explanation": "Mum says they aren’t his family."
+      "answer": 3,
+      "explanation": "Mum, are these animals my family?"
     },
     {
       "id": "pu1-u2-l2-q3",
@@ -158,9 +145,7 @@
       "text": "Is Shelly Rocky’s sister?",
       "options": [
         "Yes, she is.",
-        "No, she isn’t.",
-        "Yes, he is.",
-        "No, he isn’t."
+        "No, she isn’t."
       ],
       "answer": 1,
       "explanation": "Shelly is Rocky’s friend."
@@ -171,9 +156,7 @@
       "text": "Who is Shelly?",
       "options": [
         "Rocky’s friend.",
-        "Rocky’s sister.",
-        "Rocky’s mother.",
-        "Rocky’s grandmother."
+        "Rocky’s sister."
       ],
       "answer": 0,
       "explanation": "She isn’t his sister. She’s his friend."
@@ -184,11 +167,9 @@
       "text": "Is Harry Rocky’s brother?",
       "options": [
         "Yes, he is.",
-        "No, she isn’t.",
-        "Yes, she is.",
         "No, he isn’t."
       ],
-      "answer": 3,
+      "answer": 1,
       "explanation": "Harry isn’t Rocky’s brother. He’s his friend."
     },
     {
@@ -196,117 +177,60 @@
       "scene": "pu1-u2-l2-scene-3",
       "text": "Who is Harry?",
       "options": [
-        "Rocky’s father.",
         "Rocky’s brother.",
-        "Rocky’s friend.",
-        "Rocky’s grandfather."
+        "Rocky’s friend."
       ],
-      "answer": 2,
+      "answer": 1,
       "explanation": "Harry is Rocky’s friend."
     },
     {
-      "id": "pu1-u2-l2-q7",
-      "scene": "pu1-u2-l2-scene-4",
-      "text": "What does Rocky want to know?",
-      "options": [
-        "Where his friends live.",
-        "Who his brothers and sisters are.",
-        "What colour Harry is.",
-        "Where Jenny is."
-      ],
-      "answer": 1,
-      "explanation": "Rocky wants to know who his brothers and sisters are."
-    },
-    {
-      "id": "pu1-u2-l2-q8",
+      "id": "pu1-u2-l2-complete-eggs",
       "scene": "pu1-u2-l2-scene-5",
-      "text": "What can you see in the nest?",
+      "text": "There are two ___.",
       "options": [
-        "Books.",
-        "Socks.",
-        "Balls.",
-        "Eggs."
-      ],
-      "answer": 3,
-      "explanation": "There are eggs in the nest."
-    },
-    {
-      "id": "pu1-u2-l2-q9",
-      "scene": "pu1-u2-l2-scene-6",
-      "text": "Who is the girl chick?",
-      "options": [
-        "Rocky’s sister.",
-        "Rocky’s mother.",
-        "Rocky’s friend.",
-        "Rocky’s grandmother."
+        "eggs",
+        "books",
+        "chairs",
+        "bananas"
       ],
       "answer": 0,
-      "explanation": "Rocky says, “She’s my sister!”"
+      "explanation": "There are two eggs."
     },
     {
-      "id": "pu1-u2-l2-q10",
-      "scene": "pu1-u2-l2-scene-6",
-      "text": "Who is the boy chick?",
-      "options": [
-        "Rocky’s father.",
-        "Rocky’s friend.",
-        "Rocky’s grandfather.",
-        "Rocky’s brother."
-      ],
-      "answer": 3,
-      "explanation": "Rocky says, “He’s my brother.”"
-    },
-    {
-      "id": "pu1-u2-l2-q11",
+      "id": "pu1-u2-l2-be-she",
       "scene": "pu1-u2-l2-scene-7",
-      "text": "Who is she?",
+      "text": "She ___ a girl.",
       "options": [
-        "He’s Jim.",
-        "She’s Jenny.",
-        "They’re friends.",
-        "I’m Rocky."
+        "is",
+        "are",
+        "am"
+      ],
+      "answer": 0,
+      "explanation": "She is a girl."
+    },
+    {
+      "id": "pu1-u2-l2-be-he",
+      "scene": "pu1-u2-l2-scene-7",
+      "text": "He ___ a boy.",
+      "options": [
+        "is",
+        "are",
+        "am"
+      ],
+      "answer": 0,
+      "explanation": "He is a boy."
+    },
+    {
+      "id": "pu1-u2-l2-be-they",
+      "scene": "pu1-u2-l2-scene-8",
+      "text": "They ___ friends.",
+      "options": [
+        "is",
+        "are",
+        "am"
       ],
       "answer": 1,
-      "explanation": "She’s Jenny. She’s a girl."
-    },
-    {
-      "id": "pu1-u2-l2-q12",
-      "scene": "pu1-u2-l2-scene-7",
-      "text": "Who is he?",
-      "options": [
-        "She’s Jenny.",
-        "We’re boys.",
-        "He’s Jim.",
-        "They’re family."
-      ],
-      "answer": 2,
-      "explanation": "He’s Jim. He’s a boy."
-    },
-    {
-      "id": "pu1-u2-l2-q13",
-      "scene": "pu1-u2-l2-scene-8",
-      "text": "Choose the full form of “They’re friends.”",
-      "options": [
-        "They are friends.",
-        "They is friends.",
-        "They am friends.",
-        "They isn’t friends."
-      ],
-      "answer": 0,
-      "explanation": "They’re means they are."
-    },
-    {
-      "id": "pu1-u2-l2-q14",
-      "scene": "pu1-u2-l2-scene-8",
-      "text": "Choose the full form of “I’m Sam.”",
-      "options": [
-        "I is Sam.",
-        "I are Sam.",
-        "I am Sam.",
-        "I aren’t Sam."
-      ],
-      "answer": 2,
-      "explanation": "I’m means I am."
+      "explanation": "They are friends."
     }
   ],
   "orders": [

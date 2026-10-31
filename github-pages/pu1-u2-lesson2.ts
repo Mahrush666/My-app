@@ -49,7 +49,7 @@ export const powerUp1Unit2Lesson2:Lesson={...{
       "icon": "",
       "sentence": "She’s your friend.",
       "category": "Rocky’s family",
-      "picture": "lessons/pu1-u2-lesson2/friend.webp"
+      "picture": "lessons/pu1-u2-lesson2/friend-people.webp"
     },
     {
       "id": "pu1-u2-l2-brother",
@@ -58,7 +58,7 @@ export const powerUp1Unit2Lesson2:Lesson={...{
       "icon": "",
       "sentence": "He’s my brother.",
       "category": "Rocky’s family",
-      "picture": "lessons/pu1-u2-lesson2/brother.webp"
+      "picture": "lessons/pu1-u2-lesson2/brother-people.webp"
     },
     {
       "id": "pu1-u2-l2-sister",
@@ -67,7 +67,7 @@ export const powerUp1Unit2Lesson2:Lesson={...{
       "icon": "",
       "sentence": "She’s my sister.",
       "category": "Rocky’s family",
-      "picture": "lessons/pu1-u2-lesson2/sister.webp"
+      "picture": "lessons/pu1-u2-lesson2/sister-people.webp"
     },
     {
       "id": "pu1-u2-l2-mother",
@@ -76,7 +76,7 @@ export const powerUp1Unit2Lesson2:Lesson={...{
       "icon": "",
       "sentence": "This is my mother.",
       "category": "Rocky’s family",
-      "picture": "lessons/pu1-u2-lesson2/mother.webp"
+      "picture": "lessons/pu1-u2-lesson2/mother-people.webp"
     },
     {
       "id": "pu1-u2-l2-family",
@@ -85,7 +85,7 @@ export const powerUp1Unit2Lesson2:Lesson={...{
       "icon": "",
       "sentence": "They’re family.",
       "category": "Rocky’s family",
-      "picture": "lessons/pu1-u2-lesson2/scene-6.webp"
+      "picture": "lessons/pu1-u2-lesson2/family-people.webp"
     },
     {
       "id": "pu1-u2-l2-eggs",

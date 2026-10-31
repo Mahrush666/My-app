@@ -5,9 +5,9 @@ import {speak,stopSpeaking,type Word} from './words';
 import {publicAsset} from '../lib/public-runtime';
 import {spellingGaps,spellingOrder,spellingTiles} from '../lib/spelling-steps';
 type Saved=Record<string,number>;
-export default function SpellingPractice({vocabulary,scope,onAnswer}:{vocabulary:Word[];scope?:string;onAnswer:(w:Word,correct:boolean,correction:boolean,stage:number)=>Promise<void>}){
+export default function SpellingPractice({persist=true,vocabulary,scope,onAnswer}:{persist?:boolean;vocabulary:Word[];scope?:string;onAnswer:(w:Word,correct:boolean,correction:boolean,stage:number)=>Promise<void>}){
  const key='wordquest-spelling-v1:'+ (scope||'guest')+':'+vocabulary.map(w=>(w.id||w.en)+'='+w.en).join('|');
- const [saved,setSaved]=useState<Saved>(()=>{try{const v=JSON.parse(localStorage.getItem(key)||'{}');return v&&typeof v==='object'?v:{}}catch{return {}}});
+ const [saved,setSaved]=useState<Saved>(()=>{if(!persist)return {};try{const v=JSON.parse(localStorage.getItem(key)||'{}');return v&&typeof v==='object'?v:{}}catch{return {}}});
  const rounds=useMemo(()=>Array.from({length:Math.ceil(vocabulary.length/3)},(_,i)=>vocabulary.slice(i*3,i*3+3)),[vocabulary]);
  const [round,setRound]=useState<number|null>(null),[step,setStep]=useState(0);
  const [chosen,setChosen]=useState<number[]>([]),[correct,setCorrect]=useState(false),[saving,setSaving]=useState(false),[message,setMessage]=useState('');
@@ -18,7 +18,7 @@ export default function SpellingPractice({vocabulary,scope,onAnswer}:{vocabulary
  const tiles=useMemo(()=>word?spellingTiles(word.en,gaps):[],[word,gaps]);
  useEffect(()=>{setChosen([]);setCorrect(false);setMessage('');marked.current=false;stopSpeaking()},[round,step]);
  useEffect(()=>()=>stopSpeaking(),[]);
- function remember(next:number){if(round===null)return;const update:Saved={...saved,[round]:next};setSaved(update);if(rounds.every((words,i)=>(update[i]||0)>=words.length*5))window.dispatchEvent(new CustomEvent('wordquest-exercise-finished',{detail:{kind:'exercise'}}));try{localStorage.setItem(key,JSON.stringify(update))}catch{}}
+ function remember(next:number){if(round===null)return;const update:Saved={...saved,[round]:next};setSaved(update);if(rounds.every((words,i)=>(update[i]||0)>=words.length*5))window.dispatchEvent(new CustomEvent('wordquest-exercise-finished',{detail:{kind:'exercise'}}));if(persist)try{localStorage.setItem(key,JSON.stringify(update))}catch{}}
  function open(i:number){setChosen([]);setCorrect(false);setMessage('');const at=saved[i];setStep(Number.isInteger(at)&&at>=0&&at<rounds[i].length*5?at:0);setRound(i);}
  async function check(){
   if(!word||busy.current||correct||chosen.length!==gaps.length)return;

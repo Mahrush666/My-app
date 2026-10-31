@@ -1,0 +1,50 @@
+{
+  "assets": [
+    {
+      "file": "chant.mp4",
+      "sha256": "9709c8c026750de152c9e2f613df923e0a367e47e6f011c58d70dc0cfdad3d93",
+      "parts": [
+        "chant.mp4.000.part",
+        "chant.mp4.001.part",
+        "chant.mp4.002.part",
+        "chant.mp4.003.part",
+        "chant.mp4.004.part",
+        "chant.mp4.005.part",
+        "chant.mp4.006.part",
+        "chant.mp4.007.part",
+        "chant.mp4.008.part",
+        "chant.mp4.009.part",
+        "chant.mp4.010.part",
+        "chant.mp4.011.part",
+        "chant.mp4.012.part",
+        "chant.mp4.013.part",
+        "chant.mp4.014.part",
+        "chant.mp4.015.part",
+        "chant.mp4.016.part",
+        "chant.mp4.017.part",
+        "chant.mp4.018.part"
+      ]
+    },
+    {
+      "file": "families.mp4",
+      "sha256": "9214ba297df9470946888f409329aa6f80a482067e9884da143a1f7ca929ce08",
+      "parts": [
+        "families.mp4.000.part",
+        "families.mp4.001.part",
+        "families.mp4.002.part",
+        "families.mp4.003.part",
+        "families.mp4.004.part",
+        "families.mp4.005.part",
+        "families.mp4.006.part",
+        "families.mp4.007.part",
+        "families.mp4.008.part",
+        "families.mp4.009.part",
+        "families.mp4.010.part",
+        "families.mp4.011.part",
+        "families.mp4.012.part",
+        "families.mp4.013.part",
+        "families.mp4.014.part"
+      ]
+    }
+  ]
+}

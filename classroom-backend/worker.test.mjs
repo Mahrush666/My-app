@@ -952,3 +952,12 @@ test('class creation permission is opt-in, campus scoped, and grants access only
  assert.equal((await api('/groups',{name:'Revoked'},token)).status,403);
  await DB.sqlite.close();
 });
+
+test('Power Up 1 Unit 2 family vocabulary is assignable with spelling and bundled lesson activities',async()=>{
+ const {api,DB}=await setup();const owner=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Unit 2 family'},owner)).body.id;
+ const words=['mother','father','brother','sister','grandmother','grandfather','family','twins'].map(w=>'pu1-u2-vocabulary1-'+w);
+ const result=await api('/assignments',{groupId:group,unitId:'pu1-u2-vocabulary1',activities:['video','look-listen','word-sound','sound-word','word-choice','spell','reactor'],wordIds:words,title:'All about us'},owner);
+ assert.equal(result.status,200,JSON.stringify(result.body));const state=(await api('/teacher',undefined,owner)).body;const saved=state.assignments.find(a=>a.id===result.body.id);assert.deepEqual(JSON.parse(saved.word_ids),words);assert(JSON.parse(saved.activities).includes('spell'));
+ await DB.sqlite.close();
+});

@@ -929,3 +929,26 @@ test('endless weekly schedules, exceptions, future deletion and next class beyon
  const dashboard=await studentDashboard(DB,{id:kids[0].id,group_id:group},Date.parse('2030-01-07T00:00:00Z'));assert.equal(dashboard.nextClass.day,'2030-01-07');
  }finally{await DB.sqlite.close()}
 });
+
+test('class creation permission is opt-in, campus scoped, and grants access only to created classes',async()=>{
+ const {api,DB}=await setup();const owner=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const campus=(await api('/campuses',{name:'East'},owner)).body.id;
+ const other=(await api('/groups',{name:'Other class',campusId:campus},owner)).body.id;
+ const cfg={name:'Creator',username:'creator',role:'teacher',active:true,permissions:[],groups:[],campusId:campus};
+ const id=(await api('/staff-save',cfg,owner)).body.id;
+ const invite=(await api('/staff-invite',{id},owner)).body.invite;await api('/staff-accept',{invite,password:'creator-password'});
+ const token=(await api('/teacher-login',{username:'creator',password:'creator-password'})).body.token;
+ assert.equal((await api('/groups',{name:'Denied'},token)).status,403);
+ assert.equal((await api('/staff-save',{...cfg,id,permissions:['classes']},owner)).status,200);
+ assert.equal((await api('/groups',{name:'Wrong campus',campusId:'main'},token)).status,403);
+ const created=await Promise.all(['First','Second'].map(name=>api('/groups',{name},token)));
+ assert(created.every(r=>r.status===200));
+ const state=(await api('/teacher',undefined,token)).body;
+ assert.deepEqual(new Set(state.groups.map(g=>g.id)),new Set(created.map(r=>r.body.id)));
+ assert(state.groups.every(g=>g.campus_id===campus));assert(!state.groups.some(g=>g.id===other));
+ assert.equal((await api('/teacher-students',{groupId:created[0].body.id,names:['No roster permission']},token)).status,403);
+ assert.equal((await api('/delete-group',{id:created[0].body.id,confirm:true},token)).status,403);
+ await api('/staff-save',{...cfg,id,permissions:[],groups:created.map(r=>r.body.id)},owner);
+ assert.equal((await api('/groups',{name:'Revoked'},token)).status,403);
+ await DB.sqlite.close();
+});

@@ -20,7 +20,8 @@ export async function authorizeStaff(db:D1Database,access:StaffAccess,path:strin
  if(path==='/daily-practice-report'||path==='/weekly-homework-report'){group(url.searchParams.get('group'));return;}
  if(path==='/homework-report'){await child(url.searchParams.get('child'));const row=await db.prepare('SELECT group_id FROM assignments WHERE id=?').bind(url.searchParams.get('assignment')||'').first<{group_id:string}>();group(row?.group_id);return;}
  if(path==='/rewards'){await child(url.searchParams.get('child'));return;}
- if(path==='/groups'||path.startsWith('/staff')||path==='/delete-group')deny();
+ if(path==='/groups'){need('classes');if(data.campusId!==undefined&&data.campusId!==access.campusId)deny();return;}
+ if(path.startsWith('/staff')||path==='/delete-group')deny();
  if(['/teacher-students','/move-student','/approve','/invite','/student-link','/student-invite','/rename-group'].includes(path))need('students');
  else if(path==='/attendance')need('attendance');
  else if(path==='/schedule'||path==='/update-meeting'||path==='/delete-meeting')need('schedule');

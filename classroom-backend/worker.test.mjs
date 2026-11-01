@@ -1064,7 +1064,11 @@ test('Beehive curriculum retires repeated drills in old homework while keeping h
  await DB.prepare('INSERT INTO assignments(id,group_id,unit_id,title,activities,word_ids,due_date,updated_at) VALUES(?,?,?,?,?,?,?,?)').bind('legacy-beehive',group.id,'beehive1-u4-lesson6','Nature grammar',old,ids,'',10).run();
  await DB.prepare('INSERT INTO completions VALUES(?,?,?,?)').bind(child,'legacy-beehive','word-choice',12).run();
  await DB.prepare('INSERT INTO config(key,value) VALUES(?,?)').bind('lesson_settings:beehive1-u4-lesson6',JSON.stringify({activities:['look-listen','reactor'],age:'6–12'})).run();
+ const today=new Date(Date.now()+8*3600000).toISOString().slice(0,10);
+ await DB.prepare('INSERT INTO daily_runs VALUES(?,?,?,?,?,?,?)').bind('old-beehive-run',child,group.id,today,JSON.stringify([{unitId:'beehive1-u4-lesson6',activity:'reactor',wordId:'beehive1-u4-l6-tree'}]),10,0).run();
+ await DB.prepare('INSERT INTO daily_answers VALUES(?,?,?,?,?,?)').bind('old-daily-answer','old-beehive-run','old-task',1,11,'tree').run();
  const settings=(await api('/lesson-settings')).body.settings;assert.deepEqual(settings['beehive1-u4-lesson6'].activities,['video','story-quiz']);
+ assert.notEqual((await DB.prepare('SELECT day FROM daily_runs WHERE id=?').bind('old-beehive-run').first()).day,today);assert(await DB.prepare('SELECT * FROM daily_answers WHERE id=?').bind('old-daily-answer').first(),'Retired sessions keep their saved answers');
  const updated=await DB.prepare('SELECT activities,updated_at FROM assignments WHERE id=?').bind('legacy-beehive').first();assert.deepEqual(JSON.parse(updated.activities),['story-quiz']);assert.equal(updated.updated_at,10);assert(await DB.prepare('SELECT * FROM completions WHERE child_id=? AND activity=?').bind(child,'word-choice').first());
  assert.equal((await api('/assignments',{groupId:group.id,unitId:'beehive1-u4-lesson6',activities:['word-choice']},owner)).status,400);
  const wrong=await api('/progress',{childId:child,assignmentId:'legacy-beehive',activity:'story-quiz',wordId:'beehive1-u4-l6-q1',answer:'0',correct:true,eventId:crypto.randomUUID()},student);assert.equal(wrong.body.correct,false);

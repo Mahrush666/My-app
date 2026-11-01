@@ -1020,3 +1020,19 @@ test('ACT3 Unit 7 Lesson 3 is assignable and checks all twelve animal-action sen
  const report=(await api('/homework-report?child='+kid+'&assignment='+saved.body.id,undefined,owner)).body;assert.equal(report.exercises.find(e=>e.id==='story-quiz').questions.length,12);
  await DB.sqlite.close();
 });
+
+test('Smart Phonics Unit 3 has eight decoding words and checks all six original short-e sentences',async()=>{
+ const{api,DB}=await setup();const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Short e readers'},teacher)).body;
+ const child=(await api('/teacher-students',{groupId:group.id,names:['Short e reader']},teacher)).body.students[0].id;
+ const access=(await api('/student-link',{childId:child,reuse:true},teacher)).body.access;
+ const student=(await api('/student-login',{access})).body.token;
+ const task=await api('/assignments',{groupId:group.id,unitId:'smart-phonics2-u3',activities:['word-sound','sound-word','sentence-speak']},teacher);assert.equal(task.status,200);
+ const post=(activity,wordId,answer,correct=true)=>api('/progress',{childId:child,assignmentId:task.body.id,activity,wordId,answer,correct,eventId:crypto.randomUUID()},student);
+ for(const activity of ['word-sound','sound-word'])for(const word of ['jet','net','vet','wet','bed','red','hen','pen'])assert.equal((await post(activity,'sp2-u3-'+word)).status,200);
+ assert.equal((await post('sentence-speak','sp2-u3-sentence-0','The hen is red.')).body.correct,false);
+ const lines=['The man goes to the bed.','The bed is red.','The hen goes to the bed.','The bed is wet.','The hen has a nap.','Oh! The hen is red!'];
+ for(const[i,text]of lines.entries()){const r=await post('sentence-speak','sp2-u3-sentence-'+i,text);assert.equal(r.body.correct,true);assert.equal(r.body.completed.some(c=>c.activity==='sentence-speak'),i===5)}
+ assert.equal((await api('/assignments',{groupId:group.id,unitId:'smart-phonics2-u3',activities:['picture-listen']},teacher)).status,400);
+ await DB.sqlite.close();
+});

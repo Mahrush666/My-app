@@ -3,6 +3,7 @@ import {audioKey,audioSource} from './audio';
 import {shuffle} from './random';
 import {smartPhonics2Unit1} from '../github-pages/smart-phonics2-u1';
 import {smartPhonics2Unit2} from '../github-pages/smart-phonics2-u2';
+import {smartPhonics2Unit3} from '../github-pages/smart-phonics2-u3';
 
 // Avoid minimal pairs (one letter changed, added or removed) in beginner choices.
 export function similarReadingWords(first:string,second:string):boolean{
@@ -20,7 +21,7 @@ export function similarReadingWords(first:string,second:string):boolean{
 export function wordAudioChoices(word:Word,vocabulary:Word[]):Word[]{
  // Extra choices only: the review queue and credit still belong to the current unit.
  const pool=word.id?.startsWith('sp2-u')
-  ?[...vocabulary,...smartPhonics2Unit1.words,...smartPhonics2Unit2.words]:vocabulary;
+  ?[...vocabulary,...smartPhonics2Unit1.words,...smartPhonics2Unit2.words,...smartPhonics2Unit3.words]:vocabulary;
  const labels=new Set([audioKey(word.en)]),sounds=new Set([audioSource(word.en)||audioKey(word.en)]);
  const candidates:Word[]=[];
  for(const candidate of shuffle(pool)){

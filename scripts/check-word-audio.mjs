@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {build} from 'esbuild';
 fs.mkdirSync('.wrangler/word-audio-test',{recursive:true});
-await build({stdin:{contents:`export {wordAudioChoices,similarReadingWords} from './lib/word-audio-choices';export {audioKey,audioSource} from './lib/audio';export {smartPhonics2Unit1 as unit1} from './github-pages/smart-phonics2-u1';export {smartPhonics2Unit2 as unit2} from './github-pages/smart-phonics2-u2';`,resolveDir:process.cwd(),loader:'ts'},bundle:true,platform:'node',format:'esm',outfile:'.wrangler/word-audio-test/index.mjs'});
-const {wordAudioChoices,similarReadingWords,audioKey,audioSource,unit1,unit2}=await import('../.wrangler/word-audio-test/index.mjs');
-for(const lesson of [unit1,unit2]){
+await build({stdin:{contents:`export {wordAudioChoices,similarReadingWords} from './lib/word-audio-choices';export {audioKey,audioSource} from './lib/audio';export {smartPhonics2Unit1 as unit1} from './github-pages/smart-phonics2-u1';export {smartPhonics2Unit2 as unit2} from './github-pages/smart-phonics2-u2';export {smartPhonics2Unit3 as unit3} from './github-pages/smart-phonics2-u3';`,resolveDir:process.cwd(),loader:'ts'},bundle:true,platform:'node',format:'esm',outfile:'.wrangler/word-audio-test/index.mjs'});
+const {wordAudioChoices,similarReadingWords,audioKey,audioSource,unit1,unit2,unit3}=await import('../.wrangler/word-audio-test/index.mjs');
+for(const lesson of [unit1,unit2,unit3]){
 const duplicated=[...lesson.words,{...lesson.words[0],id:'duplicate-can',en:' '+lesson.words[0].en.toUpperCase()+' '}];
 for(const word of lesson.words)for(let round=0;round<100;round++){
  const options=wordAudioChoices(word,duplicated);
@@ -17,4 +17,4 @@ for(const word of lesson.words)for(let round=0;round<100;round++){
 assert.equal(similarReadingWords('can','cat'),true);
 assert.equal(similarReadingWords('can','fan'),true);
 assert.equal(similarReadingWords('can','hat'),false);
-console.log('PASS: 1600 Unit 1/2 questions contain four distinct choices, no minimal pairs and exactly one correct option.');
+console.log('PASS: 2400 Unit 1/2/3 questions contain four distinct choices, no minimal pairs and exactly one correct option.');

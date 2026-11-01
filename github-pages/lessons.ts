@@ -1,3 +1,4 @@
+import {smartPhonics2Unit3} from './smart-phonics2-u3';
 import {act3Unit7Lesson3} from './act3-u7-lesson3';
 import {beehive1Unit4} from './beehive1-u4';
 import {powerUp1Unit2Lesson2} from './pu1-u2-lesson2';
@@ -45,6 +46,7 @@ export const lessons: Lesson[] = ([
  ...beehive1Unit4,
  smartPhonics2Unit1,
  smartPhonics2Unit2,
+ smartPhonics2Unit3,
  powerUp1Unit2Vocabulary,
  powerUp1Unit2Lesson2,
  powerUp1Unit7Vocabulary,

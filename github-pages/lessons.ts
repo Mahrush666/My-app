@@ -1,3 +1,4 @@
+import {act3Unit7Lesson3} from './act3-u7-lesson3';
 import {beehive1Unit4} from './beehive1-u4';
 import {powerUp1Unit2Lesson2} from './pu1-u2-lesson2';
 import {powerUp1Unit2Vocabulary} from './pu1-u2-vocabulary1';
@@ -37,6 +38,7 @@ const actionWords: Word[] = [
  ['climb','爬','🧗'],['swim','游泳','🏊'],['walk','走','🚶'],['jump','跳','🤸'],['run','跑','🏃'],
 ].map(([en,zh,icon])=>({id:'pu-starter-u7-'+en,en,zh,icon,picture:'lessons/pu-starter-u7-lesson1/'+en+'.webp',category:'Free time',sentence:'I can '+en+'.'}));
 export const lessons: Lesson[] = ([
+ act3Unit7Lesson3,
  play2Unit4Lesson1,
  play2Unit4Lesson2,
  play2Unit4Lesson21,

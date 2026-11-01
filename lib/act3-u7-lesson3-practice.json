@@ -1,0 +1,230 @@
+{
+  "title": "What can animals do?",
+  "scenes": [
+    {
+      "id": "act3-u7-l3-scene-swim",
+      "image": "lessons/act3-u7-lesson3/swim.webp",
+      "label": "Alligators can swim.",
+      "full": [
+        "Alligators can swim."
+      ],
+      "easy": [
+        "Alligators can swim."
+      ]
+    },
+    {
+      "id": "act3-u7-l3-scene-climb",
+      "image": "lessons/act3-u7-lesson3/climb.webp",
+      "label": "Monkeys can climb trees.",
+      "full": [
+        "Monkeys can climb trees."
+      ],
+      "easy": [
+        "Monkeys can climb trees."
+      ]
+    },
+    {
+      "id": "act3-u7-l3-scene-run",
+      "image": "lessons/act3-u7-lesson3/run.webp",
+      "label": "Rhinos can run.",
+      "full": [
+        "Rhinos can run."
+      ],
+      "easy": [
+        "Rhinos can run."
+      ]
+    },
+    {
+      "id": "act3-u7-l3-scene-fly",
+      "image": "lessons/act3-u7-lesson3/fly.webp",
+      "label": "Parrots can fly.",
+      "full": [
+        "Parrots can fly."
+      ],
+      "easy": [
+        "Parrots can fly."
+      ]
+    },
+    {
+      "id": "act3-u7-l3-scene-jump",
+      "image": "lessons/act3-u7-lesson3/jump.webp",
+      "label": "Tigers can jump.",
+      "full": [
+        "Tigers can jump."
+      ],
+      "easy": [
+        "Tigers can jump."
+      ]
+    },
+    {
+      "id": "act3-u7-l3-scene-swing",
+      "image": "lessons/act3-u7-lesson3/swing.webp",
+      "label": "Monkeys can swing.",
+      "full": [
+        "Monkeys can swing."
+      ],
+      "easy": [
+        "Monkeys can swing."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "act3-u7-l3-picture-swim",
+      "scene": "act3-u7-l3-scene-swim",
+      "text": "Look at the picture. Choose the correct sentence.",
+      "options": [
+        "Alligators can swim.",
+        "Monkeys can climb trees.",
+        "Rhinos can run.",
+        "Parrots can fly."
+      ],
+      "answer": 0,
+      "explanation": "Alligators can swim."
+    },
+    {
+      "id": "act3-u7-l3-picture-climb",
+      "scene": "act3-u7-l3-scene-climb",
+      "text": "Look at the picture. Choose the correct sentence.",
+      "options": [
+        "Alligators can swim.",
+        "Monkeys can climb trees.",
+        "Rhinos can run.",
+        "Parrots can fly."
+      ],
+      "answer": 1,
+      "explanation": "Monkeys can climb trees."
+    },
+    {
+      "id": "act3-u7-l3-picture-run",
+      "scene": "act3-u7-l3-scene-run",
+      "text": "Look at the picture. Choose the correct sentence.",
+      "options": [
+        "Alligators can swim.",
+        "Monkeys can climb trees.",
+        "Rhinos can run.",
+        "Parrots can fly."
+      ],
+      "answer": 2,
+      "explanation": "Rhinos can run."
+    },
+    {
+      "id": "act3-u7-l3-picture-fly",
+      "scene": "act3-u7-l3-scene-fly",
+      "text": "Look at the picture. Choose the correct sentence.",
+      "options": [
+        "Alligators can swim.",
+        "Monkeys can climb trees.",
+        "Rhinos can run.",
+        "Parrots can fly."
+      ],
+      "answer": 3,
+      "explanation": "Parrots can fly."
+    },
+    {
+      "id": "act3-u7-l3-picture-jump",
+      "scene": "act3-u7-l3-scene-jump",
+      "text": "Look at the picture. Choose the correct sentence.",
+      "options": [
+        "Tigers can jump.",
+        "Alligators can swim.",
+        "Monkeys can climb trees.",
+        "Rhinos can run."
+      ],
+      "answer": 0,
+      "explanation": "Tigers can jump."
+    },
+    {
+      "id": "act3-u7-l3-picture-swing",
+      "scene": "act3-u7-l3-scene-swing",
+      "text": "Look at the picture. Choose the correct sentence.",
+      "options": [
+        "Alligators can swim.",
+        "Monkeys can swing.",
+        "Rhinos can run.",
+        "Parrots can fly."
+      ],
+      "answer": 1,
+      "explanation": "Monkeys can swing."
+    },
+    {
+      "id": "act3-u7-l3-question-swim",
+      "scene": "act3-u7-l3-scene-swim",
+      "text": "What can alligators do?",
+      "options": [
+        "Alligators can fly.",
+        "Alligators can read books.",
+        "Alligators can swim.",
+        "Alligators can play the piano."
+      ],
+      "answer": 2,
+      "explanation": "Alligators can swim."
+    },
+    {
+      "id": "act3-u7-l3-question-climb",
+      "scene": "act3-u7-l3-scene-climb",
+      "text": "What can monkeys do?",
+      "options": [
+        "Monkeys can fly.",
+        "Monkeys can read books.",
+        "Monkeys can play the piano.",
+        "Monkeys can climb trees."
+      ],
+      "answer": 3,
+      "explanation": "Monkeys can climb trees."
+    },
+    {
+      "id": "act3-u7-l3-question-run",
+      "scene": "act3-u7-l3-scene-run",
+      "text": "What can rhinos do?",
+      "options": [
+        "Rhinos can run.",
+        "Rhinos can fly.",
+        "Rhinos can climb trees.",
+        "Rhinos can read books."
+      ],
+      "answer": 0,
+      "explanation": "Rhinos can run."
+    },
+    {
+      "id": "act3-u7-l3-question-fly",
+      "scene": "act3-u7-l3-scene-fly",
+      "text": "What can parrots do?",
+      "options": [
+        "Parrots can read books.",
+        "Parrots can fly.",
+        "Parrots can drive cars.",
+        "Parrots can play football."
+      ],
+      "answer": 1,
+      "explanation": "Parrots can fly."
+    },
+    {
+      "id": "act3-u7-l3-question-jump",
+      "scene": "act3-u7-l3-scene-jump",
+      "text": "What can tigers do?",
+      "options": [
+        "Tigers can fly.",
+        "Tigers can read books.",
+        "Tigers can jump.",
+        "Tigers can play the piano."
+      ],
+      "answer": 2,
+      "explanation": "Tigers can jump."
+    },
+    {
+      "id": "act3-u7-l3-question-swing",
+      "scene": "act3-u7-l3-scene-swing",
+      "text": "What can monkeys do on a vine?",
+      "options": [
+        "Monkeys can fly.",
+        "Monkeys can read books.",
+        "Monkeys can drive cars.",
+        "Monkeys can swing."
+      ],
+      "answer": 3,
+      "explanation": "Monkeys can swing."
+    }
+  ],
+  "orders": []
+}

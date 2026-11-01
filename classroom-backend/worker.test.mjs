@@ -1006,3 +1006,17 @@ test('Beehive 1 Unit 4 has ten assignable page lessons with checked grammar, sto
  for(const r of story.readingStory.orders)assert.equal((await api('/progress',{childId:kid,assignmentId:order,activity:'story-order',wordId:r.id,answer:r.scenes.join(','),eventId:crypto.randomUUID()},parent)).body.correct,true);
  await DB.sqlite.close();
 });
+
+test('ACT3 Unit 7 Lesson 3 is assignable and checks all twelve animal-action sentence answers',async()=>{
+ const{api,DB}=await setup();const owner=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'ACT3 animals'},owner)).body;
+ const parent=(await api('/register',{username:'act3_family',password:'parent-password',consent:true})).body.token;
+ const kid=(await api('/children',{name:'ACT3 learner',invite:group.invite},parent)).body.id;await api('/approve',{childId:kid,approved:true},owner);
+ const{build}=await import('esbuild');await build({entryPoints:['github-pages/act3-u7-lesson3.ts'],bundle:true,platform:'node',format:'esm',outfile:'.wrangler/act3-u7-lesson3/server-lesson.mjs'});const{act3Unit7Lesson3:l}=await import('../.wrangler/act3-u7-lesson3/server-lesson.mjs');
+ const saved=await api('/assignments',{groupId:group.id,unitId:l.id,activities:l.defaultActivities,wordIds:l.words.map(w=>w.id),title:l.title},owner);assert.equal(saved.status,200,JSON.stringify(saved.body));
+ const q0=l.readingStory.questions[0];const event={childId:kid,assignmentId:saved.body.id,activity:'story-quiz',wordId:q0.id,answer:String((q0.answer+1)%4),correct:true,eventId:crypto.randomUUID()};assert.equal((await api('/progress',event,parent)).body.correct,false);
+ for(const q of l.readingStory.questions)assert.equal((await api('/progress',{...event,wordId:q.id,answer:String(q.answer),eventId:crypto.randomUUID()},parent)).body.correct,true);
+ const homework=(await api('/homework?child='+kid,undefined,parent)).body;assert(homework.completed.some(c=>c.assignment_id===saved.body.id&&c.activity==='story-quiz'));
+ const report=(await api('/homework-report?child='+kid+'&assignment='+saved.body.id,undefined,owner)).body;assert.equal(report.exercises.find(e=>e.id==='story-quiz').questions.length,12);
+ await DB.sqlite.close();
+});

@@ -1,3 +1,4 @@
+import {starterUnit8Weather} from './pu-starter-u8-lesson6';
 import {smartPhonics2Unit3} from './smart-phonics2-u3';
 import {act3Unit7Lesson3} from './act3-u7-lesson3';
 import {beehive1Unit4} from './beehive1-u4';
@@ -67,6 +68,7 @@ export const lessons: Lesson[] = ([
  unit8Lesson1,
  unit8Lesson2,
  unit8Lesson3,
+ starterUnit8Weather,
  {id:'pu-starter-u7-lesson1',book:'Power up Starter',title:'Unit 7 · Lesson 1 · Free time',unit:{id:'pu-starter-u7',number:7,title:'Unit 7 · Free time'},lessonTitle:'Lesson 1 · Actions',words:actionWords,readings:[],videos:[{title:'Action chant',src:'lessons/pu-starter-u7-lesson1/action-chant.mp4',poster:'lessons/pu-starter-u7-lesson1/jump.webp'}],defaultActivities:['video','picture-listen']},
  {id:'pu-starter-u7-reading',book:'Power up Starter',title:'Unit 7 · Reading',unit:{id:'pu-starter-u7',number:7,title:'Unit 7 · Free time'},lessonTitle:'Reading · Queen of the River',words:[],readings:[],story:queenOfTheRiver,defaultActivities:['story']},
 ] satisfies Lesson[]).map((l:Lesson)=>l.book==='Power up Starter'?{...l,defaultAge:'3–5',defaultActivities:l.defaultActivities||youngActivities}:l.book==='Power Up 1'&&l.id.includes('-vocabulary')?{...l,defaultActivities:[...new Set<ActivityId>(['spell','word-choice',...(l.defaultActivities||[]).filter(a=>!['picture-listen','sound-picture'].includes(a))])]}:l);

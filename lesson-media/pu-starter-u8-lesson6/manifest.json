@@ -1,0 +1,73 @@
+{
+  "assets": [
+    {
+      "file": "snowy-song.mp4",
+      "sha256": "05055f811d66a6e56637da6e66ae1db3bfe63ca508d3bbc231a3b6be233139d8",
+      "parts": [
+        "snowy-song.mp4.000.part",
+        "snowy-song.mp4.001.part",
+        "snowy-song.mp4.002.part",
+        "snowy-song.mp4.003.part",
+        "snowy-song.mp4.004.part",
+        "snowy-song.mp4.005.part",
+        "snowy-song.mp4.006.part",
+        "snowy-song.mp4.007.part",
+        "snowy-song.mp4.008.part",
+        "snowy-song.mp4.009.part",
+        "snowy-song.mp4.010.part",
+        "snowy-song.mp4.011.part",
+        "snowy-song.mp4.012.part",
+        "snowy-song.mp4.013.part",
+        "snowy-song.mp4.014.part",
+        "snowy-song.mp4.015.part"
+      ]
+    },
+    {
+      "file": "weather-listen.m4a",
+      "sha256": "df9a5c1b6e47f8ce5b960fc48dab5f8b1095b9d2384a1d7b9defbcd5b286d52f",
+      "parts": [
+        "weather-listen.m4a.000.part",
+        "weather-listen.m4a.001.part",
+        "weather-listen.m4a.002.part"
+      ]
+    },
+    {
+      "file": "weather-questions.m4a",
+      "sha256": "bdaf1bd6bca7ea5c86cb58d51ced46ca42142b3b8aa245c761f7037f5598a630",
+      "parts": [
+        "weather-questions.m4a.000.part",
+        "weather-questions.m4a.001.part",
+        "weather-questions.m4a.002.part"
+      ]
+    },
+    {
+      "file": "weather-video.mp4",
+      "sha256": "d9cb255ada264562b1d72728f2674784ce8db351bdcbfba376256ee10b50d115",
+      "parts": [
+        "weather-video.mp4.000.part",
+        "weather-video.mp4.001.part",
+        "weather-video.mp4.002.part",
+        "weather-video.mp4.003.part",
+        "weather-video.mp4.004.part",
+        "weather-video.mp4.005.part",
+        "weather-video.mp4.006.part",
+        "weather-video.mp4.007.part",
+        "weather-video.mp4.008.part",
+        "weather-video.mp4.009.part",
+        "weather-video.mp4.010.part",
+        "weather-video.mp4.011.part",
+        "weather-video.mp4.012.part",
+        "weather-video.mp4.013.part",
+        "weather-video.mp4.014.part",
+        "weather-video.mp4.015.part",
+        "weather-video.mp4.016.part",
+        "weather-video.mp4.017.part",
+        "weather-video.mp4.018.part",
+        "weather-video.mp4.019.part",
+        "weather-video.mp4.020.part",
+        "weather-video.mp4.021.part",
+        "weather-video.mp4.022.part"
+      ]
+    }
+  ]
+}

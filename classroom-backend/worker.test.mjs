@@ -1077,3 +1077,17 @@ test('Beehive curriculum retires repeated drills in old homework while keeping h
  const report=(await api('/homework-report?child='+child+'&assignment=legacy-beehive',undefined,owner)).body;assert.equal(report.exercises[0].title,'Build the Scene 布置场景');assert.equal(report.exercises[0].questions.length,6);
  await api('/lesson-settings');assert.equal((await DB.prepare('SELECT activities FROM assignments WHERE id=?').bind('legacy-beehive').first()).activities,updated.activities);await DB.sqlite.close();
 });
+
+test('Starter Unit 8 weather is assignable as picture/audio homework with optional full-sentence speaking',async()=>{
+ const{api,DB}=await setup();const owner=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Little weather explorers'},owner)).body;
+ const child=(await api('/teacher-students',{groupId:group.id,names:['Weather learner']},owner)).body.students[0].id;
+ const access=(await api('/student-link',{childId:child,reuse:true},owner)).body.access,student=(await api('/student-login',{access})).body.token;
+ const saved=await api('/assignments',{groupId:group.id,unitId:'pu-starter-u8-lesson6',activities:['video','look-listen','picture-listen','sound-picture','reactor']},owner);assert.equal(saved.status,200,JSON.stringify(saved.body));
+ for(const activity of ['spell','word-choice','word-sound','sound-word'])assert.equal((await api('/assignments',{groupId:group.id,unitId:'pu-starter-u8-lesson6',activities:[activity]},owner)).status,400);
+ const weather=['sunny','rainy','cloudy','windy','snowy'];for(const activity of ['picture-listen','sound-picture','reactor'])for(const word of weather)assert.equal((await api('/progress',{childId:child,assignmentId:saved.body.id,activity,wordId:'pu-starter-u8-l6-'+word,correct:true,eventId:crypto.randomUUID()},student)).status,200);
+ const hw=(await api('/homework?child='+child,undefined,student)).body;assert.equal(hw.homeworkProgress[saved.body.id].total,15);assert.equal(hw.homeworkProgress[saved.body.id].percent,100);assert.equal(hw.completed.filter(c=>c.assignment_id===saved.body.id).length,3);
+ const speaking=(await api('/assignments',{groupId:group.id,unitId:'pu-starter-u8-lesson6',activities:['sentence-speak']},owner)).body.id;
+ const say=(word,answer)=>api('/progress',{childId:child,assignmentId:speaking,activity:'sentence-speak',wordId:'pu-starter-u8-l6-'+word+'-sentence',answer,eventId:crypto.randomUUID()},student);
+ assert.equal((await say('sunny','sunny')).body.correct,false);for(const word of weather)assert.equal((await say(word,"It's "+word+'.')).body.correct,true);assert((await api('/homework?child='+child,undefined,student)).body.completed.some(c=>c.assignment_id===speaking&&c.activity==='sentence-speak'));await DB.sqlite.close();
+});

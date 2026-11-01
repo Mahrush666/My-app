@@ -2,7 +2,7 @@ import {createContext,useContext,useEffect,useMemo,useState,type ReactNode} from
 type Language='en'|'zh'|'both';
 const key='wordquest-teacher-language';
 const Context=createContext<{language:Language;setLanguage:(language:'en'|'zh')=>void}>({language:'both',setLanguage:()=>{}});
-const words:Record<string,string>={'Home':'主页','Students':'学生','Attendance':'出勤','Homework':'作业','Calendar':'日历','Reports':'报告','Assign homework':'布置作业','Good morning':'早上好','Good afternoon':'下午好','Good evening':'晚上好','Classes today':'今日课程','Students active':'在读学生','Homework done':'已完成作业','Last 7 days':'最近七天','Upcoming classes':'接下来的课','Recent homework':'最近作业','Finished':'已完成','Practising':'练习中','Today':'今天','min':'分钟','students':'学生','Book & unit':'课本与单元','Homework title':'作业标题','Teacher account':'教师账号','Choose a class':'选择班级','Saving…':'保存中…','Loading…':'加载中…'};
+const words:Record<string,string>={'Home':'主页','Students':'学生','Attendance':'出勤','Homework':'作业','Calendar':'日历','Reports':'报告','Assign homework':'布置作业','Good morning':'早上好','Good afternoon':'下午好','Good evening':'晚上好','Classes today':'今日课程','Students active':'在读学生','Homework done':'已完成作业','Last 7 days':'最近七天','Today’s classes':'今日课程','Recent homework':'最近作业','Finished':'已完成','Practising':'练习中','Today':'今天','min':'分钟','students':'学生','Book & unit':'课本与单元','Homework title':'作业标题','Teacher account':'教师账号','Choose a class':'选择班级','Saving…':'保存中…','Loading…':'加载中…'};
 export function translateUi(text:string,language:Language){
  if(language==='both')return text;
  const leading=text.match(/^\s*/)?.[0]||'',trailing=text.match(/\s*$/)?.[0]||'',value=text.trim(),index=value.search(/[\u3400-\u9fff]/);

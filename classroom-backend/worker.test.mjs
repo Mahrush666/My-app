@@ -1001,7 +1001,7 @@ test('Beehive 1 Unit 4 has ten assignable page lessons with checked grammar, sto
   if(l.readingStory.questions.length){const first=l.readingStory.questions[0];const event={childId:kid,assignmentId:saved.body.id,activity:'story-quiz',wordId:first.id,answer:String((first.answer+1)%first.options.length),correct:true,eventId:crypto.randomUUID()};assert.equal((await api('/progress',event,parent)).body.correct,false);for(const q of l.readingStory.questions){const checked=await api('/progress',{...event,wordId:q.id,answer:String(q.answer),eventId:crypto.randomUUID()},parent);assert.equal(checked.body.correct,true);count++}assert((await api('/homework?child='+kid,undefined,parent)).body.completed.some(c=>c.assignment_id===saved.body.id&&c.activity==='story-quiz'))}
   if(![1,5,9].includes(index+1))assert.equal((await api('/assignments',{groupId:group.id,unitId:l.id,activities:['spell'],wordIds:l.words.map(w=>w.id),title:'Unsupported spelling'},owner)).status,400);
  }
- assert.equal(count,64);assert.equal((await api('/homework?child='+kid,undefined,parent)).body.assignments.length,10);
+ assert.equal(count,59);assert.equal((await api('/homework?child='+kid,undefined,parent)).body.assignments.length,10);
  const story=units[6];const order=(await api('/assignments',{groupId:group.id,unitId:story.id,activities:['story-order'],wordIds:[],title:'Story order'},owner)).body.id;
  for(const r of story.readingStory.orders)assert.equal((await api('/progress',{childId:kid,assignmentId:order,activity:'story-order',wordId:r.id,answer:r.scenes.join(','),eventId:crypto.randomUUID()},parent)).body.correct,true);
  await DB.sqlite.close();
@@ -1053,4 +1053,23 @@ test('Phonics listening sentence builder checks order, reports six sentences and
  homework=(await api('/homework?child='+child,undefined,student)).body;assert(homework.completed.some(c=>c.assignment_id===saved.body.id&&c.activity==='sentence-build'));
  const report=(await api('/homework-report?child='+child+'&assignment='+saved.body.id,undefined,teacher)).body;assert.equal(report.exercises[0].questions.length,6);assert(report.exercises[0].questions[0].attempts.some(a=>!a.correct));assert(report.exercises[0].questions.every(q=>q.attempts.some(a=>a.correct)));
  await DB.sqlite.close();
+});
+
+test('Beehive curriculum retires repeated drills in old homework while keeping history and checking mission answers',async()=>{
+ const{api,DB}=await setup();const owner=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Beehive missions'},owner)).body;
+ const child=(await api('/teacher-students',{groupId:group.id,names:['Explorer']},owner)).body.students[0].id;
+ const access=(await api('/student-link',{childId:child,reuse:true},owner)).body.access,student=(await api('/student-login',{access})).body.token;
+ const old='["look-listen","word-choice","story-quiz","reactor"]',ids=JSON.stringify(['tree','lake','flower','plant','beach','shell'].map(w=>'beehive1-u4-l6-'+w));
+ await DB.prepare('INSERT INTO assignments(id,group_id,unit_id,title,activities,word_ids,due_date,updated_at) VALUES(?,?,?,?,?,?,?,?)').bind('legacy-beehive',group.id,'beehive1-u4-lesson6','Nature grammar',old,ids,'',10).run();
+ await DB.prepare('INSERT INTO completions VALUES(?,?,?,?)').bind(child,'legacy-beehive','word-choice',12).run();
+ await DB.prepare('INSERT INTO config(key,value) VALUES(?,?)').bind('lesson_settings:beehive1-u4-lesson6',JSON.stringify({activities:['look-listen','reactor'],age:'6–12'})).run();
+ const settings=(await api('/lesson-settings')).body.settings;assert.deepEqual(settings['beehive1-u4-lesson6'].activities,['video','story-quiz']);
+ const updated=await DB.prepare('SELECT activities,updated_at FROM assignments WHERE id=?').bind('legacy-beehive').first();assert.deepEqual(JSON.parse(updated.activities),['story-quiz']);assert.equal(updated.updated_at,10);assert(await DB.prepare('SELECT * FROM completions WHERE child_id=? AND activity=?').bind(child,'word-choice').first());
+ assert.equal((await api('/assignments',{groupId:group.id,unitId:'beehive1-u4-lesson6',activities:['word-choice']},owner)).status,400);
+ const wrong=await api('/progress',{childId:child,assignmentId:'legacy-beehive',activity:'story-quiz',wordId:'beehive1-u4-l6-q1',answer:'0',correct:true,eventId:crypto.randomUUID()},student);assert.equal(wrong.body.correct,false);
+ const answers=[1,0,0,1,1,0];for(const[i,answer]of answers.entries())assert.equal((await api('/progress',{childId:child,assignmentId:'legacy-beehive',activity:'story-quiz',wordId:'beehive1-u4-l6-q'+(i+1),answer:String(answer),eventId:crypto.randomUUID()},student)).body.correct,true);
+ const hw=(await api('/homework?child='+child,undefined,student)).body;assert.equal(hw.homeworkProgress['legacy-beehive'].percent,100);assert.deepEqual(hw.homeworkProgress['legacy-beehive'].exercises.map(e=>e.activity),['story-quiz']);
+ const report=(await api('/homework-report?child='+child+'&assignment=legacy-beehive',undefined,owner)).body;assert.equal(report.exercises[0].title,'Build the Scene 布置场景');assert.equal(report.exercises[0].questions.length,6);
+ await api('/lesson-settings');assert.equal((await DB.prepare('SELECT activities FROM assignments WHERE id=?').bind('legacy-beehive').first()).activities,updated.activities);await DB.sqlite.close();
 });

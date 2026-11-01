@@ -142,7 +142,10 @@
         "No, it isn’t."
       ],
       "answer": 1,
-      "explanation": "It’s a cat."
+      "explanation": "It’s a cat.",
+      "mission": {
+        "kind": "detective"
+      }
     },
     {
       "id": "beehive1-u4-l4-q2",
@@ -153,7 +156,10 @@
         "No, it isn’t."
       ],
       "answer": 0,
-      "explanation": "It’s a fish."
+      "explanation": "It’s a fish.",
+      "mission": {
+        "kind": "detective"
+      }
     },
     {
       "id": "beehive1-u4-l4-q3",
@@ -164,7 +170,10 @@
         "No, it isn’t."
       ],
       "answer": 1,
-      "explanation": "It’s a dog."
+      "explanation": "It’s a dog.",
+      "mission": {
+        "kind": "detective"
+      }
     },
     {
       "id": "beehive1-u4-l4-q4",
@@ -175,7 +184,10 @@
         "No, it isn’t."
       ],
       "answer": 1,
-      "explanation": "It’s a frog."
+      "explanation": "It’s a frog.",
+      "mission": {
+        "kind": "detective"
+      }
     },
     {
       "id": "beehive1-u4-l4-q5",
@@ -186,7 +198,10 @@
         "No, it isn’t."
       ],
       "answer": 1,
-      "explanation": "It’s a duck."
+      "explanation": "It’s a duck.",
+      "mission": {
+        "kind": "detective"
+      }
     },
     {
       "id": "beehive1-u4-l4-q6",
@@ -197,7 +212,10 @@
         "No, it isn’t."
       ],
       "answer": 0,
-      "explanation": "It’s a snake."
+      "explanation": "It’s a snake.",
+      "mission": {
+        "kind": "detective"
+      }
     },
     {
       "id": "beehive1-u4-l4-q7",
@@ -208,7 +226,10 @@
         "No, it isn’t."
       ],
       "answer": 1,
-      "explanation": "It’s a cat."
+      "explanation": "It’s a cat.",
+      "mission": {
+        "kind": "detective"
+      }
     },
     {
       "id": "beehive1-u4-l4-q8",
@@ -219,7 +240,10 @@
         "No, it isn’t."
       ],
       "answer": 0,
-      "explanation": "It’s a spider."
+      "explanation": "It’s a spider.",
+      "mission": {
+        "kind": "detective"
+      }
     },
     {
       "id": "beehive1-u4-l4-q9",
@@ -230,7 +254,10 @@
         "No, it isn’t."
       ],
       "answer": 0,
-      "explanation": "It’s a snake."
+      "explanation": "It’s a snake.",
+      "mission": {
+        "kind": "detective"
+      }
     },
     {
       "id": "beehive1-u4-l4-q10",
@@ -241,7 +268,10 @@
         "No, it isn’t."
       ],
       "answer": 1,
-      "explanation": "It’s a dog."
+      "explanation": "It’s a dog.",
+      "mission": {
+        "kind": "detective"
+      }
     }
   ],
   "orders": []

@@ -1,3 +1,4 @@
+import {beehiveActivities,beehiveContextDefaults,beehiveLessonNumber} from './beehive-activities';
 const definedActivityOptions = [
  ['video','🎵','Watch & listen · Lesson media','Listen to original recordings or watch a story, song or chant from the lesson.'],
  ['story','🎧','Watch & listen · Story pictures','Pre-readers. Story pictures with the original lesson audio.'],
@@ -39,7 +40,7 @@ export function validateSettings(input: unknown, ids: string[]): Settings {
  const activities=enabledActivities(value.activities);
  // Old speaking-only links become listening practice instead of an empty lesson.
  if(!activities.length&&value.activities.includes('picture-speak'))activities.push('picture-listen');
- output[id]={activities,age:typeof value.age==='string'?value.age.slice(0,40):''};
+ output[id]={activities:beehiveActivities(id,activities,beehiveContextDefaults[beehiveLessonNumber(id)]||activities),age:typeof value.age==='string'?value.age.slice(0,40):''};
  }
  }return output;
 }

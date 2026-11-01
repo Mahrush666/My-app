@@ -1,3 +1,4 @@
+import {updateBeehiveAssignments} from './beehive-curriculum';
 import {isListeningSentenceLesson} from '../lib/sentence-lesson';
 import {homeworkTime} from '../lib/homework-time';
 import {isSentenceLesson} from '../lib/sentence-lesson';
@@ -53,6 +54,7 @@ export async function handle(request:Request,env:Env){
  }
  const now=Date.now();
  if(path==='/lesson-settings'&&request.method==='GET'){
+ await updateBeehiveAssignments(env.DB);
  return respond({settings:await publishedSettings(env.DB,lessons)});
  }
 

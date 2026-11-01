@@ -1,0 +1,18 @@
+import {useState} from 'react';
+import {Volume2,Search,Plus,Minus} from 'lucide-react';
+import {speak} from '../lib/audio';
+import {publicAsset} from '../lib/public-runtime';
+import type {IllustratedReading} from '../lib/illustrated-reading';
+import './beehive-missions.css';
+type Question=IllustratedReading['questions'][number];
+export default function BeehiveMission({question:q,image,choice,onSelect,correct,busy}:{question:Question;image:string;choice:number|null;onSelect:(i:number|null)=>void;correct:boolean;busy:boolean}){
+ const [peek,setPeek]=useState(0),[count,setCount]=useState(0);const m=q.mission!,locked=busy||correct;
+ const title=m.kind==='detective'?'Animal Detective 动物侦探':m.kind==='scene'?'Build the Scene 布置场景':'Coconut Rescue 椰子救援';
+ const sound=m.audio||q.text;
+ const listen=<button className="primary mission-listen" aria-label="Listen to the mission" onClick={()=>speak(sound)}><Volume2 size={22}/>Listen 听一听</button>;
+ function changeCount(next:number){const n=Math.max(0,Math.min(4,next));setCount(n);onSelect(n===0?null:n===1?0:1)}
+ return <section className={'beehive-mission mission-'+m.kind+(correct?' mission-solved':'')}><header><span className="mission-badge">{m.kind==='detective'?'🔍':m.kind==='scene'?'🌿':'🥥'}</span><h3>{title}</h3></header>
+ {m.kind==='detective'?<><div className={'detective-window peek-'+(correct?3:peek)}><img src={publicAsset(image)} alt={correct?'Animal revealed':'Mystery animal detail'} decoding="async"/>{!correct&&<div className="detective-shutters" aria-hidden="true"><span/><span/><span/></div>}</div><div className="mission-question"><p>{q.text}</p>{listen}</div><button className="mission-hint" disabled={locked||peek>=2} onClick={()=>setPeek(n=>Math.min(n+1,2))}><Search size={18}/>{peek>=2?'Ready to solve? 选答案吧':'Reveal a clue 看线索'}</button></>:m.kind==='scene'?<><p className="mission-instruction">Listen, then add what you hear. 听句子，放入正确数量的物品。</p>{listen}<div className="mission-landscape" aria-label="Your nature scene"><span className="mission-sun" aria-hidden="true">☀️</span>{Array.from({length:count},(_,i)=><img key={i} className={'scene-object object-'+i} src={publicAsset('lessons/beehive1-u4/'+m.object+'.webp')} alt={'Object '+(i+1)}/>)}{count===0&&<span className="scene-empty">＋</span>}</div><div className="scene-controls"><button aria-label="Remove an object" disabled={locked||count===0} onClick={()=>changeCount(count-1)}><Minus/></button><span aria-live="polite">{count} / 4</span><button className="primary" aria-label="Add an object" disabled={locked||count===4} onClick={()=>changeCount(count+1)}><Plus/></button></div></>:<><div className="coconut-stage" aria-label="Animal tower"><span className="coconut-leaves" aria-hidden="true">🌴 🥥</span><div className="animal-stack">{[...(m.stack||[]),...(correct&&choice!==null?[m.choices![choice]]:[])].map((animal,i)=><img key={i} className={correct&&i===(m.stack||[]).length?'animal-lands':''} src={publicAsset('lessons/beehive1-u4/mission-'+animal+'.webp')} alt={'Tower animal '+(i+1)}/>)}</div>{!(m.stack?.length||correct)&&<span className="tower-empty">?</span>}</div><p className="mission-instruction">{q.text}</p>{listen}</>}
+ {m.kind!=='scene'&&<div className={'mission-options '+(m.kind==='tower'?'animal-options':'')} role="group" aria-label="Mission answers">{q.options.map((text,i)=><button key={i} aria-pressed={choice===i} aria-label={text} disabled={locked} onClick={()=>{onSelect(i);speak(text)}}>{m.kind==='tower'?<img src={publicAsset('lessons/beehive1-u4/mission-'+m.choices![i]+'.webp')} alt=""/>:<span aria-hidden="true">{i===0?'✓':'✕'}</span>}<span>{text}</span></button>)}</div>}
+ </section>;
+}

@@ -120,7 +120,12 @@
         "There are"
       ],
       "answer": 1,
-      "explanation": "There are some trees."
+      "explanation": "There are some trees.",
+      "mission": {
+        "kind": "scene",
+        "object": "tree",
+        "audio": "There are some trees."
+      }
     },
     {
       "id": "beehive1-u4-l6-q2",
@@ -131,7 +136,12 @@
         "There are"
       ],
       "answer": 0,
-      "explanation": "There’s a lake."
+      "explanation": "There’s a lake.",
+      "mission": {
+        "kind": "scene",
+        "object": "lake",
+        "audio": "There’s a lake."
+      }
     },
     {
       "id": "beehive1-u4-l6-q3",
@@ -142,7 +152,12 @@
         "There are"
       ],
       "answer": 0,
-      "explanation": "There’s a flower."
+      "explanation": "There’s a flower.",
+      "mission": {
+        "kind": "scene",
+        "object": "flower",
+        "audio": "There’s a flower."
+      }
     },
     {
       "id": "beehive1-u4-l6-q4",
@@ -153,7 +168,12 @@
         "There are"
       ],
       "answer": 1,
-      "explanation": "There are some bees."
+      "explanation": "There are some bees.",
+      "mission": {
+        "kind": "scene",
+        "object": "bee",
+        "audio": "There are some bees."
+      }
     },
     {
       "id": "beehive1-u4-l6-q5",
@@ -164,7 +184,12 @@
         "There are"
       ],
       "answer": 1,
-      "explanation": "There are some plants."
+      "explanation": "There are some plants.",
+      "mission": {
+        "kind": "scene",
+        "object": "plant",
+        "audio": "There are some plants."
+      }
     },
     {
       "id": "beehive1-u4-l6-q6",
@@ -175,18 +200,12 @@
         "There are"
       ],
       "answer": 0,
-      "explanation": "There’s a frog."
-    },
-    {
-      "id": "beehive1-u4-l6-q7",
-      "scene": "beehive1-u4-l6-scene-1",
-      "text": "There’s = ___.",
-      "options": [
-        "There is",
-        "There are"
-      ],
-      "answer": 0,
-      "explanation": "There’s means there is."
+      "explanation": "There’s a frog.",
+      "mission": {
+        "kind": "scene",
+        "object": "frog",
+        "audio": "There’s a frog."
+      }
     }
   ],
   "orders": []

@@ -1,3 +1,4 @@
+import type {IllustratedReading} from '../lib/illustrated-reading';
 import type {Lesson} from './lessons';
 import reading1 from '../lib/beehive1-u4-lesson1-reading.json';
 import reading2 from '../lib/beehive1-u4-lesson2-reading.json';
@@ -9,7 +10,7 @@ import reading7 from '../lib/beehive1-u4-lesson7-reading.json';
 import reading8 from '../lib/beehive1-u4-lesson8-reading.json';
 import reading9 from '../lib/beehive1-u4-lesson9-reading.json';
 import reading10 from '../lib/beehive1-u4-lesson10-reading.json';
-export const beehive1Unit4:Lesson[]=[
+const pageLessons:Lesson[]=[
 {...{
   "id": "beehive1-u4-lesson1",
   "book": "Beehive 1",
@@ -597,7 +598,7 @@ export const beehive1Unit4:Lesson[]=[
       "picture": "lessons/beehive1-u4/cat.webp"
     }
   ]
-},readingStory:reading3},
+},readingStory:reading3 as IllustratedReading},
 {...{
   "id": "beehive1-u4-lesson4",
   "book": "Beehive 1",
@@ -792,7 +793,7 @@ export const beehive1Unit4:Lesson[]=[
       "picture": "lessons/beehive1-u4/snake.webp"
     }
   ]
-},readingStory:reading4},
+},readingStory:reading4 as IllustratedReading},
 {...{
   "id": "beehive1-u4-lesson5",
   "book": "Beehive 1",
@@ -1137,7 +1138,7 @@ export const beehive1Unit4:Lesson[]=[
       "picture": "lessons/beehive1-u4/flower.webp"
     }
   ]
-},readingStory:reading6},
+},readingStory:reading6 as IllustratedReading},
 {...{
   "id": "beehive1-u4-lesson7",
   "book": "Beehive 1",
@@ -1289,7 +1290,7 @@ export const beehive1Unit4:Lesson[]=[
       "picture": "lessons/beehive1-u4/story-1.webp"
     }
   ]
-},readingStory:reading7},
+},readingStory:reading7 as IllustratedReading},
 {...{
   "id": "beehive1-u4-lesson8",
   "book": "Beehive 1",
@@ -1778,3 +1779,10 @@ export const beehive1Unit4:Lesson[]=[
   ]
 },readingStory:reading10}
 ];
+
+// Word teaching belongs to vocabulary pages. Later pages use familiar words in context.
+export const beehive1Unit4:Lesson[]=pageLessons.map((lesson,i)=>{
+ const n=i+1;if([1,5,9].includes(n))return lesson;
+ const defaults:Record<number,import('../lib/unit-activities').ActivityId[]>={2:['video','story-quiz'],3:['video','story-quiz'],4:['story-quiz'],6:['video','story-quiz'],7:['reading','story-quiz'],8:['reading','story-quiz'],10:['reading','story-quiz']};
+ return {...lesson,defaultActivities:defaults[n],allowedActivities:lesson.allowedActivities?.filter(a=>['video','reading','story-quiz','story-order','sentence-speak'].includes(a))};
+});

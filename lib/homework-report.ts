@@ -1,3 +1,4 @@
+import {beehiveMissionName} from './beehive-activities';
 import {isListeningSentenceLesson} from './sentence-lesson';
 import type {HomeworkTime} from './homework-time';
 import type {Lesson} from '../github-pages/lessons';
@@ -32,7 +33,7 @@ export function homeworkReport(student:string,assignment:{title:string;activitie
    const labels:Record<string,string>={'sentence-build':'Build the sentence 组句子','word-choice':'Choose the written word 选单词','picture-listen':'Picture → choose the sound 看图选音','word-sound':'Read → choose the sound 读词选音','sound-word':'Listen → choose the word 听音选词','sound-picture':'Listen → choose the picture 听音选图','yes-no':'Look, listen and answer yes/no 看图听音判断','spell':'Spell the whole word 完整拼写','reactor':'Word Reactor · vocabulary challenge 单词挑战'};
    add(w.id!,labels[activity]||'Practise the word 练习词汇',w.en);
   }
-  return {id:activity,title:activityOptions.find(a=>a[0]===activity)?.[2]||activity,questions};
+  return {id:activity,title:(activity==='story-quiz'?beehiveMissionName(lesson.id):undefined)||activityOptions.find(a=>a[0]===activity)?.[2]||activity,questions};
  });
  return {student,title:assignment.title,lesson:lesson.title,finished:activities.filter(requiresAnswers).every(a=>completed.includes(a)),exercises};
 }

@@ -135,7 +135,10 @@
         "No, it isn’t."
       ],
       "answer": 0,
-      "explanation": "It’s a cat."
+      "explanation": "It’s a cat.",
+      "mission": {
+        "kind": "detective"
+      }
     },
     {
       "id": "beehive1-u4-l3-q2",
@@ -146,7 +149,10 @@
         "No, it isn’t."
       ],
       "answer": 1,
-      "explanation": "It’s a snake."
+      "explanation": "It’s a snake.",
+      "mission": {
+        "kind": "detective"
+      }
     },
     {
       "id": "beehive1-u4-l3-q3",
@@ -157,7 +163,10 @@
         "No, it isn’t."
       ],
       "answer": 0,
-      "explanation": "It’s a dog."
+      "explanation": "It’s a dog.",
+      "mission": {
+        "kind": "detective"
+      }
     },
     {
       "id": "beehive1-u4-l3-q4",
@@ -168,7 +177,10 @@
         "No, it isn’t."
       ],
       "answer": 0,
-      "explanation": "It’s a duck."
+      "explanation": "It’s a duck.",
+      "mission": {
+        "kind": "detective"
+      }
     },
     {
       "id": "beehive1-u4-l3-q5",
@@ -179,7 +191,10 @@
         "No, it isn’t."
       ],
       "answer": 1,
-      "explanation": "It’s a frog."
+      "explanation": "It’s a frog.",
+      "mission": {
+        "kind": "detective"
+      }
     },
     {
       "id": "beehive1-u4-l3-q6",
@@ -190,7 +205,10 @@
         "No, it isn’t."
       ],
       "answer": 0,
-      "explanation": "It’s a fish."
+      "explanation": "It’s a fish.",
+      "mission": {
+        "kind": "detective"
+      }
     },
     {
       "id": "beehive1-u4-l3-q7",
@@ -201,7 +219,10 @@
         "No, it isn’t."
       ],
       "answer": 1,
-      "explanation": "It’s a spider."
+      "explanation": "It’s a spider.",
+      "mission": {
+        "kind": "detective"
+      }
     },
     {
       "id": "beehive1-u4-l3-q8",
@@ -212,7 +233,10 @@
         "No, it isn’t."
       ],
       "answer": 0,
-      "explanation": "It’s a bee."
+      "explanation": "It’s a bee.",
+      "mission": {
+        "kind": "detective"
+      }
     }
   ],
   "orders": [],

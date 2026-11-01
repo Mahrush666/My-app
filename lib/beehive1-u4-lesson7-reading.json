@@ -82,95 +82,109 @@
   ],
   "questions": [
     {
-      "id": "beehive1-u4-l7-q1",
+      "id": "beehive1-u4-l7-rescue-dog",
       "scene": "beehive1-u4-l7-scene-1",
-      "text": "A dog is on a ___.",
+      "text": "Who is on the beach?",
       "options": [
-        "beach",
-        "lake",
-        "tree"
-      ],
-      "answer": 0,
-      "explanation": "A dog is on a beach."
-    },
-    {
-      "id": "beehive1-u4-l7-q2",
-      "scene": "beehive1-u4-l7-scene-1",
-      "text": "There are some ___.",
-      "options": [
-        "coconuts",
-        "books",
-        "chairs"
-      ],
-      "answer": 0,
-      "explanation": "There are some coconuts."
-    },
-    {
-      "id": "beehive1-u4-l7-q3",
-      "scene": "beehive1-u4-l7-scene-2",
-      "text": "Who jumps on the dog?",
-      "options": [
+        "The dog.",
         "The cat.",
+        "The snake.",
         "The frog."
       ],
       "answer": 0,
-      "explanation": "The cat jumps on the dog."
+      "explanation": "A dog is on a beach.",
+      "mission": {
+        "kind": "tower",
+        "audio": "A dog is on a beach.",
+        "stack": [],
+        "choices": [
+          "dog",
+          "cat",
+          "snake",
+          "frog"
+        ]
+      }
     },
     {
-      "id": "beehive1-u4-l7-q4",
+      "id": "beehive1-u4-l7-rescue-cat",
       "scene": "beehive1-u4-l7-scene-3",
-      "text": "Can the cat get the coconuts?",
+      "text": "Who jumps on the dog?",
       "options": [
-        "Yes, it can.",
-        "No, it can’t."
+        "The dog.",
+        "The cat.",
+        "The snake.",
+        "The frog."
       ],
       "answer": 1,
-      "explanation": "The cat can’t get the coconuts."
+      "explanation": "Look, Cat! Coconuts! Jump on me!",
+      "mission": {
+        "kind": "tower",
+        "audio": "Look, Cat! Coconuts! Jump on me!",
+        "stack": [
+          "dog"
+        ],
+        "choices": [
+          "dog",
+          "cat",
+          "snake",
+          "frog"
+        ]
+      }
     },
     {
-      "id": "beehive1-u4-l7-q5",
-      "scene": "beehive1-u4-l7-scene-4",
-      "text": "Is it a cat on a dog?",
-      "options": [
-        "Yes, it is.",
-        "No, it isn’t."
-      ],
-      "answer": 0,
-      "explanation": "It is a cat on a dog."
-    },
-    {
-      "id": "beehive1-u4-l7-q6",
+      "id": "beehive1-u4-l7-rescue-snake",
       "scene": "beehive1-u4-l7-scene-5",
-      "text": "Can the snake get the coconuts?",
+      "text": "Who jumps on the cat?",
       "options": [
-        "Yes, it can.",
-        "No, it can’t."
+        "The dog.",
+        "The cat.",
+        "The snake.",
+        "The frog."
       ],
-      "answer": 1,
-      "explanation": "The snake can’t get the coconuts."
+      "answer": 2,
+      "explanation": "Look, Snake! Coconuts! Jump on me!",
+      "mission": {
+        "kind": "tower",
+        "audio": "Look, Snake! Coconuts! Jump on me!",
+        "stack": [
+          "dog",
+          "cat"
+        ],
+        "choices": [
+          "dog",
+          "cat",
+          "snake",
+          "frog"
+        ]
+      }
     },
     {
-      "id": "beehive1-u4-l7-q7",
+      "id": "beehive1-u4-l7-rescue-frog",
       "scene": "beehive1-u4-l7-scene-6",
       "text": "Who comes next?",
       "options": [
-        "A frog.",
-        "A duck."
+        "The dog.",
+        "The cat.",
+        "The snake.",
+        "The frog."
       ],
-      "answer": 0,
-      "explanation": "Here’s a frog."
-    },
-    {
-      "id": "beehive1-u4-l7-q8",
-      "scene": "beehive1-u4-l7-scene-6",
-      "text": "Jump on ___.",
-      "options": [
-        "me",
-        "my",
-        "I"
-      ],
-      "answer": 0,
-      "explanation": "Jump on me!"
+      "answer": 3,
+      "explanation": "Look, Frog! Coconuts! Jump on me!",
+      "mission": {
+        "kind": "tower",
+        "audio": "Look, Frog! Coconuts! Jump on me!",
+        "stack": [
+          "dog",
+          "cat",
+          "snake"
+        ],
+        "choices": [
+          "dog",
+          "cat",
+          "snake",
+          "frog"
+        ]
+      }
     }
   ],
   "orders": [

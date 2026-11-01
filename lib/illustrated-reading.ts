@@ -1,5 +1,6 @@
 export type ReadingScene={id:string;image:string;label:string;full:string[];easy:string[]};
-export type IllustratedReading={title:string;audio?:string;references?:{title:string;image:string;audio:string}[];scenes:ReadingScene[];questions:{id:string;scene:string;text:string;options:string[];answer:number;explanation:string}[];orders:{id:string;title:string;scenes:string[]}[]};
+export type ReadingMission={kind:'detective'|'scene'|'tower';audio?:string;object?:string;stack?:string[];choices?:string[]};
+export type IllustratedReading={title:string;audio?:string;references?:{title:string;image:string;audio:string}[];scenes:ReadingScene[];questions:{id:string;scene:string;text:string;options:string[];answer:number;explanation:string;mission?:ReadingMission}[];orders:{id:string;title:string;scenes:string[]}[]};
 // Shared by browser and server. Unknown items and malformed choices are never accepted.
 export function checkStoryAnswer(story:IllustratedReading,activity:string,itemId:string,answer:string):boolean|null{
  if(activity==='story-quiz'){

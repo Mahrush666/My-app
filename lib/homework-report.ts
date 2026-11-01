@@ -1,3 +1,4 @@
+import {isListeningSentenceLesson} from './sentence-lesson';
 import type {HomeworkTime} from './homework-time';
 import type {Lesson} from '../github-pages/lessons';
 import {activityOptions} from './unit-activities';
@@ -14,8 +15,8 @@ export function homeworkReport(student:string,assignment:{title:string;activitie
   function add(id:string,prompt:string,expected:string,kind=activity){questions.push({id:kind+':'+id,prompt,expected,attempts:current.filter(a=>a.activity===kind&&a.word_id===id).map(a=>({correct:Number(a.correct)===1,at:Number(a.created_at)}))})}
   if(activity==='story-quiz')for(const q of lesson.readingStory?.questions||[])add(q.id,q.text,q.options[q.answer]);
   else if(activity==='story-order')for(const q of lesson.readingStory?.orders||[])add(q.id,q.title,q.scenes.map(id=>lesson.readingStory!.scenes.find(s=>s.id===id)?.label||id).join(' → '));
-  else if(activity==='sentence-speak'){
-   if(lesson.sentencePractice)for(const q of lesson.sentencePractice)add(q.id,q.prompt||'Read the sentence 朗读句子',q.text);
+  else if(activity==='sentence-speak'||activity==='sentence-build'&&isListeningSentenceLesson(lesson.id)){
+   if(lesson.sentencePractice)for(const q of lesson.sentencePractice)add(q.id,activity==='sentence-build'?'Listen and order the words 听音组句':q.prompt||'Read the sentence 朗读句子',q.text);
    else for(const w of words.filter(w=>w.sentence.trim().split(/\s+/).length>1))add(w.id!,'Read the sentence 朗读句子',w.sentence);
   }else if(activity==='lesson'){
    for(const stage of ['listen','spell','sentence'])for(const w of words){if(stage==='sentence'&&(!w.sentence||w.sentence.trim().split(/\s+/).length<2))continue;add(w.id!,'Guided lesson · '+stage,stage==='sentence'?w.sentence:w.en,'lesson:'+stage)}

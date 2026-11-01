@@ -1,3 +1,4 @@
+import {isListeningSentenceLesson} from '../lib/sentence-lesson';
 import {homeworkTime} from '../lib/homework-time';
 import {isSentenceLesson} from '../lib/sentence-lesson';
 import {readStudentProgress,reactorLeaderboard} from './student-progress';
@@ -311,14 +312,14 @@ export async function handle(request:Request,env:Env){
  const assignment=await env.DB.prepare('SELECT * FROM assignments WHERE id=? AND group_id=?').bind(text(data.assignmentId,80),child.group_id).first<{id:string;unit_id:string;activities:string;word_ids:string;updated_at:number}>();requireValue(assignment,'This assignment is no longer available. Refresh your homework.');
  const activities=JSON.parse(assignment!.activities) as string[];const activity=text(data.activity,40);requireValue(activities.includes(activity),'This activity is not assigned.');
  requireValue(data.complete!==true,'Homework finishes automatically after the required answers.');
- if(activity==='sentence-speak'||activity==='story-quiz'||activity==='story-order'){
+ if(activity==='sentence-speak'||activity==='sentence-build'&&isListeningSentenceLesson(assignment!.unit_id)||activity==='story-quiz'||activity==='story-order'){
  const unit=lessons.find(l=>l.id===assignment!.unit_id),story=unit?.readingStory;
  const itemId=text(data.wordId,100),answer=text(data.answer,1000);
  let correct:boolean|null=null,required=0;let requiredIds:string[]=[];
- if(activity==='sentence-speak'){
+ if(activity==='sentence-speak'||activity==='sentence-build'){
   const sentences=unit?.sentencePractice?sentencePracticeWords(unit.sentencePractice):unit?.words.filter(w=>JSON.parse(assignment!.word_ids).includes(w.id)&&w.sentence.trim().split(/\s+/).length>1)||[];
   const word=sentences.find(w=>w.id===itemId);requireValue(word,'This sentence is not assigned.');
-  correct=speechMatches(answer,word!.sentence);requiredIds=sentences.map(w=>w.id!);required=requiredIds.length;
+  correct=activity==='sentence-build'?answer===word!.sentence:speechMatches(answer,word!.sentence);requiredIds=sentences.map(w=>w.id!);required=requiredIds.length;
  }else{requireValue(story,'This story is unavailable.');correct=checkStoryAnswer(story!,activity,itemId,answer);requiredIds=(activity==='story-quiz'?story!.questions:story!.orders).map(q=>q.id);required=requiredIds.length;}
  requireValue(correct!==null,'Choose a valid answer.');
  const id=text(data.eventId,80);requireValue(/^[a-zA-Z0-9-]{16,80}$/.test(id),'An answer identifier is required.');

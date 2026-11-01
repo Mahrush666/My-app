@@ -7,8 +7,8 @@ const entries:[string,string,string][]=[['jet','喷气式飞机','-et'],['net','
 export const smartPhonics2Unit3:Lesson={
  id:'smart-phonics2-u3',book:'Smart Phonics 2',title:'Unit 3 · Short Vowel e',
  unit:{id:'smart-phonics2-unit3',number:3,title:'Unit 3 · Short Vowel e'},lessonTitle:'Short e · -et, -ed and -en',defaultAge:'6–12',
- defaultActivities:['word-sound','sound-word','sentence-speak'],
- allowedActivities:['word-sound','sound-word','sentence-speak','reading','reactor'],
+ defaultActivities:['reading','word-sound','sound-word','sentence-build','sentence-speak'],
+ allowedActivities:['word-sound','sound-word','sentence-speak','sentence-build','reading','reactor'],
  words:entries.map(([en,zh,category])=>({id:'sp2-u3-'+en,en,zh,icon:'',sentence:en,category})),
  sentencePractice:sentences.map((text,i)=>({id:'sp2-u3-sentence-'+i,text})),
  readings:[{id:'sp2-u3-reading',title:'The red bed',text:sentences.join(' '),level:'Reading',hint:''}],readingStory:story

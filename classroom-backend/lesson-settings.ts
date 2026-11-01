@@ -1,3 +1,4 @@
+import {isListeningSentenceLesson} from '../lib/sentence-lesson';
 import type {D1Database} from '@cloudflare/workers-types';
 import type {Lesson} from '../github-pages/lessons';
 import {validateSettings,type Settings} from '../lib/unit-activities';
@@ -12,7 +13,7 @@ export function assignmentSettingsUpdates(db:D1Database,assignment:{id:string;gr
  const statements=[db.prepare('UPDATE assignments SET activities=? WHERE id=?').bind(JSON.stringify(activities),assignment.id),db.prepare('DELETE FROM completions WHERE assignment_id=?').bind(assignment.id)];
  for(const activity of activities.filter(requiresAnswers)){
   const sentences=lesson.sentencePractice?.length??lesson.words.filter(w=>words.includes(w.id!)&&w.sentence.trim().split(/\s+/).length>1).length;
-  const required=activity==='story-quiz'?lesson.readingStory?.questions.length||0:activity==='story-order'?lesson.readingStory?.orders.length||0:activity==='sentence-speak'?sentences:activity==='lesson'?words.length*2+Math.min(4,sentences):words.length;
+  const required=activity==='story-quiz'?lesson.readingStory?.questions.length||0:activity==='story-order'?lesson.readingStory?.orders.length||0:(activity==='sentence-speak'||activity==='sentence-build'&&isListeningSentenceLesson(lesson.id))?sentences:activity==='lesson'?words.length*2+Math.min(4,sentences):words.length;
   if(!required)continue;
   const filter=activity==='lesson'?"t.activity IN ('lesson:listen','lesson:spell','lesson:sentence')":activity==='reactor'?"t.activity IN ('reactor','reactor:build','reactor:spelling','reactor:meaning')":'t.activity=?';
   const distinct=activity==='lesson'?'t.activity || t.word_id':'t.word_id';

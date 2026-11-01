@@ -1036,3 +1036,21 @@ test('Smart Phonics Unit 3 has eight decoding words and checks all six original 
  assert.equal((await api('/assignments',{groupId:group.id,unitId:'smart-phonics2-u3',activities:['picture-listen']},teacher)).status,400);
  await DB.sqlite.close();
 });
+
+test('Phonics listening sentence builder checks order, reports six sentences and shares daily homework credit',async()=>{
+ const{api,DB}=await setup();const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Story listeners'},teacher)).body;
+ const child=(await api('/teacher-students',{groupId:group.id,names:['Listener']},teacher)).body.students[0].id;
+ const access=(await api('/student-link',{childId:child,reuse:true},teacher)).body.access,student=(await api('/student-login',{access})).body.token;
+ const saved=await api('/assignments',{groupId:group.id,unitId:'smart-phonics2-u3',activities:['reading','sentence-build'],dailyPractice:true},teacher);assert.equal(saved.status,200,JSON.stringify(saved.body));
+ const post=(id,answer)=>api('/progress',{childId:child,assignmentId:saved.body.id,activity:'sentence-build',wordId:id,answer,correct:true,eventId:crypto.randomUUID()},student);
+ assert.equal((await post('sp2-u3-sentence-0','man The goes to the bed.')).body.correct,false);assert.equal((await post('sp2-u3-jet','jet')).status,400);
+ const lines=['The man goes to the bed.','The bed is red.','The hen goes to the bed.','The bed is wet.','The hen has a nap.','Oh! The hen is red!'];
+ for(let i=0;i<3;i++)assert.equal((await post('sp2-u3-sentence-'+i,lines[i])).body.correct,true);
+ let homework=(await api('/homework?child='+child,undefined,student)).body;assert.equal(homework.homeworkProgress[saved.body.id].percent,50);
+ const run=(await api('/daily-practice',{childId:child},student)).body;assert(run.tasks.length>0);assert(run.tasks.every(t=>t.kind==='sentence'&&t.listen===t.expected&&t.wordId.startsWith('sp2-u3-sentence-')));assert(run.tasks.every(t=>Number(t.wordId.split('-').at(-1))>=3));
+ for(const task of run.tasks)assert.equal((await api('/daily-practice-answer',{childId:child,runId:run.id,taskId:task.id,answer:task.expected,eventId:crypto.randomUUID()},student)).body.correct,true);
+ homework=(await api('/homework?child='+child,undefined,student)).body;assert(homework.completed.some(c=>c.assignment_id===saved.body.id&&c.activity==='sentence-build'));
+ const report=(await api('/homework-report?child='+child+'&assignment='+saved.body.id,undefined,teacher)).body;assert.equal(report.exercises[0].questions.length,6);assert(report.exercises[0].questions[0].attempts.some(a=>!a.correct));assert(report.exercises[0].questions.every(q=>q.attempts.some(a=>a.correct)));
+ await DB.sqlite.close();
+});

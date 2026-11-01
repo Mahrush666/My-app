@@ -1,3 +1,4 @@
+import {isListeningSentenceLesson} from './sentence-lesson';
 import type {Lesson} from '../github-pages/lessons';
 import {requiresAnswers} from './homework-completion';
 export type ExerciseProgress={activity:string;done:number;total:number;finished:boolean};
@@ -9,7 +10,7 @@ export function homeworkItems(assignment:{word_ids:string},lesson:Lesson|undefin
  let items:string[]=[];
  if(activity==='story-quiz')items=lesson?.readingStory?.questions.map(q=>activity+':'+q.id)||[];
  else if(activity==='story-order')items=lesson?.readingStory?.orders.map(q=>activity+':'+q.id)||[];
- else if(activity==='sentence-speak')items=(lesson?.sentencePractice?.map(s=>s.id)||words.filter(w=>w.sentence.trim().split(/\s+/).length>1).map(w=>w.id!)).map(id=>activity+':'+id);
+ else if(activity==='sentence-speak'||activity==='sentence-build'&&isListeningSentenceLesson(lesson?.id))items=(lesson?.sentencePractice?.map(s=>s.id)||words.filter(w=>w.sentence.trim().split(/\s+/).length>1).map(w=>w.id!)).map(id=>activity+':'+id);
  else if(activity==='spell')items=ids.flatMap(id=>[1,2,3,4,5].map(step=>(step===5?'spell':'spell:step'+step)+':'+id));
  else if(activity==='lesson')items=[...ids.flatMap(id=>['lesson:listen:'+id,'lesson:spell:'+id]),...words.filter(w=>w.sentence.trim().split(/\s+/).length>1).slice(0,4).map(w=>'lesson:sentence:'+w.id)];
  else items=ids.map(id=>activity+':'+id);

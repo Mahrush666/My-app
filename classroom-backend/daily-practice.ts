@@ -1,3 +1,4 @@
+import {isListeningSentenceLesson} from '../lib/sentence-lesson';
 import type {D1Database} from '@cloudflare/workers-types';
 import {lessons} from '../github-pages/lessons';
 import {publishedSettings} from './lesson-settings';
@@ -36,6 +37,7 @@ export async function dailyPractice(db:D1Database,child:Child,now:number){
  if(young&&!['picture-listen','sound-picture','yes-no','reactor'].includes(activity))continue;
  if(activity==='yes-no')for(const w of words){const truth=Math.random()>=.5;pool.push({id:a.id+':yes-no:'+w.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),creditActivity:activity,unitId:lesson.id,activity,wordId:w.id!,kind:'audio-options',prompt:'Listen and answer. 听一听，选答案。',image:w.picture,listen:yesNoQuestion(w,truth,words),expected:truth?'Yes':'No',options:[{id:'yes',text:'Yes'},{id:'no',text:'No'}]})}
  if(activity==='story-quiz')for(const q of lesson.readingStory?.questions||[]){pool.push({id:a.id+':'+q.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),unitId:lesson.id,activity,wordId:q.id,kind:'written',prompt:q.text,image:lesson.readingStory!.scenes.find(s=>s.id===q.scene)?.image,expected:q.options[q.answer],options:shuffle(q.options.map((text,i)=>({id:String(i),text})))});}
+ if(activity==='sentence-build'&&isListeningSentenceLesson(lesson.id)){for(const s of lesson.sentencePractice||[])pool.push({id:a.id+':sentence-build:'+s.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),creditActivity:activity,unitId:lesson.id,activity,wordId:s.id,kind:'sentence',prompt:'Listen and build the sentence.',listen:s.text,expected:s.text});continue;}
  if(!['word-choice','sound-picture','picture-listen','word-sound','sound-word','spell','sentence-build','reactor'].includes(activity))continue;
  for(const w of words){const others=shuffle(words.filter(x=>x.id!==w.id&&(!isSentenceLesson(lesson.id)||x.category===w.category))).slice(0,3),options=(activity==='word-sound'||activity==='sound-word'?wordAudioChoices(w,words):shuffle([w,...others])).map(dailyWord);if(options.length<4)continue;
  let kind:DailyTask['kind']='written',listen:string|undefined,prompt=w.zh||'Choose the correct answer.',image=w.picture;

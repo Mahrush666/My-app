@@ -48,7 +48,9 @@ export async function dailyPractice(db:D1Database,child:Child,now:number){
  else if(activity==='sound-picture'||activity==='reactor'&&young){kind='pictures';listen=w.en;image=undefined;prompt='Listen and choose a picture.';if(options.some(o=>!o.image))continue}
  else if(activity==='picture-listen'||activity==='word-sound'){kind='audio-options';prompt=activity==='word-sound'?w.en:'Choose the sound.'}
  else if(activity==='sound-word'){listen=w.en;image=undefined;prompt='Listen and choose.'}
- for(const creditActivity of activity==='spell'?['spell:step1','spell:step2','spell:step3','spell:step4','spell']:[activity])pool.push({id:a.id+':'+creditActivity+':'+w.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),creditActivity,unitId:lesson.id,activity,wordId:w.id!,kind,prompt,image,listen,expected:w.en,options});
+ const expected=activity==='picture-listen'&&w.pictureListening?w.pictureListening.answer:w.en;
+ if(activity==='picture-listen'&&w.pictureListening){listen=w.pictureListening.question;prompt='Listen and choose the answer.';image=w.pictureListening.image||w.picture;for(const option of options){const source=words.find(x=>x.id===option.id);option.text=source?.pictureListening?.answer||option.text}}
+ for(const creditActivity of activity==='spell'?['spell:step1','spell:step2','spell:step3','spell:step4','spell']:[activity])pool.push({id:a.id+':'+creditActivity+':'+w.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),creditActivity,unitId:lesson.id,activity,wordId:w.id!,kind,prompt,image,listen,expected,options});
  }}
  const answered=new Set(saved.results.filter(t=>t.assignment_id===a.id&&Number(t.correct)===1&&Number(t.created_at)>=Number(a.updated_at)).map(t=>(t.activity.startsWith('reactor:')?'reactor':t.activity)+':'+t.word_id));
  const complete=new Set(completions.results.filter(c=>c.assignment_id===a.id).map(c=>c.activity));

@@ -1,3 +1,4 @@
+import {archivedAssignments} from './assignment-overview';
 import {isListeningSentenceLesson} from '../lib/sentence-lesson';
 import type {D1Database} from '@cloudflare/workers-types';
 import {lessons} from '../github-pages/lessons';
@@ -13,15 +14,16 @@ import {preReaderAge} from '../lib/homework-order';
 type Child={id:string;group_id:string};
 export async function dailyEnabled(db:D1Database,group:string){return Number((await db.prepare('SELECT enabled FROM daily_practice_groups WHERE group_id=?').bind(group).first<{enabled:number}>())?.enabled)===1}
 export async function dailyPractice(db:D1Database,child:Child,now:number){
- const day=dailyDay(now);if(!await dailyEnabled(db,child.group_id))return {enabled:false,day};
+ const day=dailyDay(now);const archived=await archivedAssignments(db);if(!await dailyEnabled(db,child.group_id))return {enabled:false,day};
  let run=await db.prepare('SELECT * FROM daily_runs WHERE child_id=? AND group_id=? AND day=?').bind(child.id,child.group_id,day).first<{id:string;tasks:string;finished_at:number;created_at:number}>();
  if(run){
  const current=await db.prepare('SELECT id,updated_at FROM assignments WHERE group_id=?').bind(child.group_id).all<{id:string;updated_at:number}>();
- const stale=(JSON.parse(run.tasks) as DailyTask[]).some(t=>{const a=current.results.find(a=>a.id===t.assignmentId);return !a||(t.assignmentVersion!==undefined?Number(t.assignmentVersion)!==Number(a.updated_at):Number(run!.created_at)<Number(a.updated_at))});
+ const stale=(JSON.parse(run.tasks) as DailyTask[]).some(t=>{const a=current.results.find(a=>a.id===t.assignmentId&&!archived.has(a.id));return !a||(t.assignmentVersion!==undefined?Number(t.assignmentVersion)!==Number(a.updated_at):Number(run!.created_at)<Number(a.updated_at))});
  if(stale){await db.batch([db.prepare('DELETE FROM daily_answers WHERE run_id=?').bind(run.id),db.prepare('DELETE FROM daily_runs WHERE id=?').bind(run.id)]);run=null;}
  }
  if(!run){
  const assignments=await db.prepare('SELECT * FROM assignments WHERE group_id=? ORDER BY updated_at DESC,id').bind(child.group_id).all<{id:string;unit_id:string;activities:string;word_ids:string;updated_at:number}>();
+ assignments.results=assignments.results.filter(a=>!archived.has(a.id));
  const reviews=await db.prepare('SELECT word_id,due FROM reviews WHERE child_id=?').bind(child.id).all<{word_id:string;due:number}>();
  const missed=await db.prepare('SELECT word_id FROM attempts WHERE child_id=? AND correct=0 ORDER BY created_at DESC LIMIT 100').bind(child.id).all<{word_id:string}>();
  const settings=await publishedSettings(db,lessons);
@@ -68,6 +70,7 @@ export async function answerDaily(db:D1Database,child:Child,now:number,data:{run
  if(!await dailyEnabled(db,child.group_id))throw Error('Daily practice is turned off for this class.');
  const run=await db.prepare('SELECT * FROM daily_runs WHERE id=? AND child_id=? AND group_id=? AND day=?').bind(String(data.runId),child.id,child.group_id,dailyDay(now)).first<{id:string;tasks:string;finished_at:number;created_at:number}>();
  if(!run)throw Error('Reopen today’s adventure to continue.');const tasks=JSON.parse(run.tasks) as DailyTask[],task=tasks.find(t=>t.id===data.taskId);if(!task||typeof data.answer!=='string'||data.answer.length>1000||typeof data.eventId!=='string'||! /^[a-zA-Z0-9-]{16,80}$/.test(data.eventId))throw Error('Choose a valid daily answer.');
+ if((await archivedAssignments(db)).has(task.assignmentId))throw Error('This homework is archived. Open a new daily practice.');
  const assignment=await db.prepare('SELECT * FROM assignments WHERE id=? AND group_id=?').bind(task.assignmentId,child.group_id).first<{id:string;unit_id:string;activities:string;word_ids:string;updated_at:number;title:string}>();
  const valid=assignment&&assignment.unit_id===task.unitId&&(task.assignmentVersion!==undefined?Number(task.assignmentVersion)===Number(assignment.updated_at):Number(run.created_at)>=Number(assignment.updated_at))&&(JSON.parse(assignment.activities) as string[]).includes(task.activity);
  if(!valid)throw Error('Your teacher updated this homework. Reopen Daily Practice for fresh questions.');

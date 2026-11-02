@@ -1110,3 +1110,34 @@ test('Power Up 1 Unit 2 lessons 3–5 assign source practice, track exact answer
  }
  await DB.sqlite.close();
 });
+
+test('Homework manager counts exact partial tasks, preserves edits, archives/restores history and enforces staff class access',async()=>{
+ const{api,DB}=await setup();const owner=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const g=(await api('/groups',{name:'Homework manager class'},owner)).body;
+ const child=(await api('/teacher-students',{groupId:g.id,names:['Learner']},owner)).body.students[0].id;
+ const access=(await api('/student-link',{childId:child,reuse:true},owner)).body.access,student=(await api('/student-login',{access})).body.token;
+ const words=['climb','swim','walk','jump'].map(x=>'pu-starter-u7-'+x),payload={groupId:g.id,unitId:'pu-starter-u7-lesson1',activities:['picture-listen'],wordIds:words,title:'Actions',dailyPractice:true};
+ const id=(await api('/assignments',payload,owner)).body.id;
+ const answer=wordId=>api('/progress',{childId:child,assignmentId:id,activity:'picture-listen',wordId,correct:true,eventId:crypto.randomUUID()},student);
+ await answer(words[0]);await answer(words[1]);
+ let overview=(await api('/assignment-overview?group='+g.id,undefined,owner)).body.assignments.find(a=>a.id===id);assert.equal(overview.percent,50);assert.equal(overview.finished,0);assert.equal(overview.students[0].progress.done,2);
+ const old=(await DB.prepare('SELECT * FROM assignments WHERE id=?').bind(id).first());
+ assert.equal((await api('/assignments',{...payload,id,title:'Renamed',dueDate:'2026-12-01',preserveProgress:true},owner)).status,200);
+ assert.equal((await DB.prepare('SELECT updated_at FROM assignments WHERE id=?').bind(id).first()).updated_at,old.updated_at);
+ assert.equal((await api('/homework?child='+child,undefined,student)).body.homeworkProgress[id].percent,50);
+ await answer(words[2]);await answer(words[3]);
+ overview=(await api('/assignment-overview?group='+g.id,undefined,owner)).body.assignments.find(a=>a.id===id);assert.equal(overview.finished,1);assert.equal(overview.percent,100);
+ assert.equal((await api('/assignments',{...payload,id,activities:['picture-listen','sound-picture'],preserveProgress:true},owner)).status,200);
+ let hw=(await api('/homework?child='+child,undefined,student)).body;assert.equal(hw.homeworkProgress[id].percent,50);assert(hw.completed.some(c=>c.assignment_id===id&&c.activity==='picture-listen'));assert(!hw.completed.some(c=>c.assignment_id===id&&c.activity==='sound-picture'));
+ const daily=(await api('/daily-practice',{childId:child},student)).body;assert(daily.tasks.length);const event=daily.tasks[0];await api('/daily-practice-answer',{childId:child,runId:daily.id,taskId:event.id,answer:event.expected,eventId:crypto.randomUUID()},student);
+ const attempts=(await DB.prepare('SELECT COUNT(*) AS n FROM attempts WHERE assignment_id=?').bind(id).first()).n;
+ assert.equal((await api('/archive-assignment',{id,archived:true},owner)).status,200);assert.equal((await api('/homework?child='+child,undefined,student)).body.assignments.length,0);assert.equal((await DB.prepare('SELECT COUNT(*) AS n FROM attempts WHERE assignment_id=?').bind(id).first()).n,attempts);assert(await DB.prepare('SELECT id FROM daily_runs WHERE id=?').bind(daily.id).first());
+ assert.equal((await answer(words[0])).status,400);assert.equal((await api('/teacher',undefined,owner)).body.assignments.find(a=>a.id===id).archived,true);
+ assert.equal((await api('/daily-practice',{childId:child},student)).body.tasks?.length||0,0);
+ assert.equal((await api('/archive-assignment',{id,archived:false},owner)).status,200);hw=(await api('/homework?child='+child,undefined,student)).body;assert.equal(hw.assignments.length,1);assert(hw.homeworkProgress[id].done>=4);
+ assert.equal((await api('/assignment-overview?group='+g.id,undefined,student)).status,403);assert.equal((await api('/archive-assignment',{id,archived:true},student)).status,403);
+ const staff=(await api('/staff-save',{name:'Scoped',username:'hwscoped',role:'teacher',permissions:['assignments'],groups:[g.id],active:true},owner)).body;const invitation=(await api('/staff-invite',{id:staff.id},owner)).body.invite;assert.equal((await api('/staff-accept',{invite:invitation,password:'staff-password'})).status,200);const token=(await api('/teacher-login',{username:'hwscoped',password:'staff-password'})).body.token;
+ const other=(await api('/groups',{name:'Other class'},owner)).body;const otherId=(await api('/assignments',{...payload,groupId:other.id},owner)).body.id;
+ assert.equal((await api('/assignment-overview?group='+g.id,undefined,token)).status,200);assert.equal((await api('/assignment-overview?group='+other.id,undefined,token)).status,403);assert.equal((await api('/archive-assignment',{id:otherId,archived:true},token)).status,403);assert.equal((await api('/archive-assignment',{id,archived:true},token)).status,200);
+ await DB.sqlite.close();
+});

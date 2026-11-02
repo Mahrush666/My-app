@@ -17,7 +17,7 @@ export async function authorizeStaff(db:D1Database,access:StaffAccess,path:strin
  const group=(id:unknown)=>{if(typeof id!=='string'||!access.groups.includes(id))deny()};
  const child=async(id:unknown)=>{const row=await db.prepare('SELECT group_id FROM children WHERE id=?').bind(typeof id==='string'?id:'').first<{group_id:string}>();group(row?.group_id)};
  if(path==='/teacher'||path==='/calendar')return;
- if(path==='/daily-practice-report'||path==='/weekly-homework-report'){group(url.searchParams.get('group'));return;}
+ if(path==='/daily-practice-report'||path==='/weekly-homework-report'||path==='/assignment-overview'){group(url.searchParams.get('group'));return;}
  if(path==='/homework-report'){await child(url.searchParams.get('child'));const row=await db.prepare('SELECT group_id FROM assignments WHERE id=?').bind(url.searchParams.get('assignment')||'').first<{group_id:string}>();group(row?.group_id);return;}
  if(path==='/rewards'){await child(url.searchParams.get('child'));return;}
  if(path==='/groups'){need('classes');if(data.campusId!==undefined&&data.campusId!==access.campusId)deny();return;}
@@ -26,7 +26,7 @@ export async function authorizeStaff(db:D1Database,access:StaffAccess,path:strin
  else if(path==='/attendance')need('attendance');
  else if(path==='/schedule'||path==='/update-meeting'||path==='/delete-meeting')need('schedule');
  else if(path==='/lesson-settings')need('materials');
- else if(path==='/assignments')need('assignments');
+ else if(path==='/assignments'||path==='/archive-assignment')need('assignments');
  else if(path==='/delete-assignment'){need('delete');need('assignments');}
  else if(path==='/delete-student'){need('delete');need('students');}
  else if(path==='/reward-award'||path==='/reward-undo')need('rewards');
@@ -35,7 +35,7 @@ export async function authorizeStaff(db:D1Database,access:StaffAccess,path:strin
  if(data.childId!==undefined)await child(data.childId);
  if(path==='/delete-student')await child(data.id);
  if(path==='/rename-group')group(data.id);
- if(path==='/delete-assignment'||path==='/assignments'&&data.id){const row=await db.prepare('SELECT group_id FROM assignments WHERE id=?').bind(String(data.id||'')).first<{group_id:string}>();group(row?.group_id)}
+ if(path==='/archive-assignment'||path==='/delete-assignment'||path==='/assignments'&&data.id){const row=await db.prepare('SELECT group_id FROM assignments WHERE id=?').bind(String(data.id||'')).first<{group_id:string}>();group(row?.group_id)}
  if(path==='/attendance'||path==='/update-meeting'||path==='/delete-meeting'){const row=await db.prepare('SELECT group_id FROM class_meetings WHERE id=?').bind(String(path==='/attendance'?data.meetingId:data.id)).first<{group_id:string}>();group(row?.group_id)}
  if(path==='/attendance'&&Array.isArray(data.marks)){
  const ids=[...new Set(data.marks.map(m=>m&&typeof m==='object'?String((m as Record<string,unknown>).childId||''):''))];

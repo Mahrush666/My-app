@@ -154,13 +154,13 @@ export const starterUnit8Weather:Lesson={
       "title": "Weather · Listen, point and say",
       "audioOnly": true,
       "src": "lessons/pu-starter-u8-lesson6/weather-listen.m4a",
-      "poster": "lessons/pu-starter-u8-lesson6/sunny.webp"
+      "poster": "lessons/pu-starter-u8-lesson6/weather-listen-book.webp"
     },
     {
       "title": "Weather · Listen and answer",
       "audioOnly": true,
       "src": "lessons/pu-starter-u8-lesson6/weather-questions.m4a",
-      "poster": "lessons/pu-starter-u8-lesson6/rainy.webp"
+      "poster": "lessons/pu-starter-u8-lesson6/weather-questions-book.webp"
     }
   ]
 };

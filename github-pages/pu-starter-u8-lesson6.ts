@@ -133,6 +133,12 @@ export const starterUnit8Weather:Lesson={
   ],
   "videos": [
     {
+      "title": "How’s the Weather? · Super Simple Songs",
+      "kind": "song",
+      "src": "lessons/pu-starter-u8-lesson6/hows-the-weather.mp4",
+      "poster": "lessons/pu-starter-u8-lesson6/hows-the-weather-poster.webp"
+    },
+    {
       "title": "Snowy weather song",
       "kind": "song",
       "src": "lessons/pu-starter-u8-lesson6/snowy-song.mp4",

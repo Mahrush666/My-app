@@ -1,6 +1,31 @@
 {
   "assets": [
     {
+      "file": "hows-the-weather.mp4",
+      "sha256": "9427495f3f59bcba69c2e5974a16471c6ed79b43855a2913b3491885c7a26f7f",
+      "parts": [
+        "hows-the-weather.mp4.000.part",
+        "hows-the-weather.mp4.001.part",
+        "hows-the-weather.mp4.002.part",
+        "hows-the-weather.mp4.003.part",
+        "hows-the-weather.mp4.004.part",
+        "hows-the-weather.mp4.005.part",
+        "hows-the-weather.mp4.006.part",
+        "hows-the-weather.mp4.007.part",
+        "hows-the-weather.mp4.008.part",
+        "hows-the-weather.mp4.009.part",
+        "hows-the-weather.mp4.010.part",
+        "hows-the-weather.mp4.011.part",
+        "hows-the-weather.mp4.012.part",
+        "hows-the-weather.mp4.013.part",
+        "hows-the-weather.mp4.014.part",
+        "hows-the-weather.mp4.015.part",
+        "hows-the-weather.mp4.016.part",
+        "hows-the-weather.mp4.017.part",
+        "hows-the-weather.mp4.018.part"
+      ]
+    },
+    {
       "file": "snowy-song.mp4",
       "sha256": "05055f811d66a6e56637da6e66ae1db3bfe63ca508d3bbc231a3b6be233139d8",
       "parts": [

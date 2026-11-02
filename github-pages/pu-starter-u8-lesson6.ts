@@ -38,6 +38,10 @@ export const starterUnit8Weather:Lesson={
       "action": {
         "subject": "it",
         "ing": "sunny"
+      },
+      "pictureListening": {
+        "question": "How’s the weather?",
+        "answer": "It’s sunny."
       }
     },
     {
@@ -51,6 +55,10 @@ export const starterUnit8Weather:Lesson={
       "action": {
         "subject": "it",
         "ing": "rainy"
+      },
+      "pictureListening": {
+        "question": "How’s the weather?",
+        "answer": "It’s rainy."
       }
     },
     {
@@ -64,6 +72,10 @@ export const starterUnit8Weather:Lesson={
       "action": {
         "subject": "it",
         "ing": "cloudy"
+      },
+      "pictureListening": {
+        "question": "How’s the weather?",
+        "answer": "It’s cloudy."
       }
     },
     {
@@ -77,6 +89,10 @@ export const starterUnit8Weather:Lesson={
       "action": {
         "subject": "it",
         "ing": "windy"
+      },
+      "pictureListening": {
+        "question": "How’s the weather?",
+        "answer": "It’s windy."
       }
     },
     {
@@ -90,6 +106,10 @@ export const starterUnit8Weather:Lesson={
       "action": {
         "subject": "it",
         "ing": "snowy"
+      },
+      "pictureListening": {
+        "question": "How’s the weather?",
+        "answer": "It’s snowy."
       }
     }
   ],

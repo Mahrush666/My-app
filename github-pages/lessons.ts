@@ -1,3 +1,4 @@
+import {act2Unit8Lesson3} from './act2-u8-lesson3';
 import {act2Unit8Lesson2} from './act2-u8-lesson2';
 import {powerUp1Unit2Lesson5} from './pu1-u2-lesson5';
 import {powerUp1Unit2Lesson4} from './pu1-u2-lesson4';
@@ -45,6 +46,7 @@ const actionWords: Word[] = [
 ].map(([en,zh,icon])=>({id:'pu-starter-u7-'+en,en,zh,icon,picture:'lessons/pu-starter-u7-lesson1/'+en+'.webp',category:'Free time',sentence:'I can '+en+'.'}));
 export const lessons: Lesson[] = ([
  act2Unit8Lesson2,
+ act2Unit8Lesson3,
  act3Unit7Lesson3,
  play2Unit4Lesson1,
  play2Unit4Lesson2,

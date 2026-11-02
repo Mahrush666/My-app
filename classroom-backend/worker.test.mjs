@@ -1159,3 +1159,21 @@ test('ACT2 clothes is pre-reader homework with full colour sentences, daily cred
  const defaults=await api('/assignments',{groupId:group.id,unitId,activities:['look-listen','picture-listen','sound-picture','reactor']},teacher);assert.equal(defaults.status,200);
  await DB.sqlite.close();
 });
+
+test('ACT2 Lesson 3 checks plural clothing sentences, pre-reader settings and daily homework credit',async()=>{
+ const{api,DB}=await setup();const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'ACT2 more clothes'},teacher)).body;
+ const child=(await api('/teacher-students',{groupId:group.id,names:['Clothes learner']},teacher)).body.students[0].id;
+ const access=(await api('/student-link',{childId:child,reuse:true},teacher)).body.access,student=(await api('/student-login',{access})).body.token;
+ const unitId='act2-u8-lesson3';const saved=await api('/assignments',{groupId:group.id,unitId,activities:['picture-listen'],dailyPractice:true},teacher);assert.equal(saved.status,200,JSON.stringify(saved.body));
+ for(const activity of ['spell','word-choice','word-sound','sound-word','reading','sentence-build'])assert.equal((await api('/assignments',{groupId:group.id,unitId,activities:[activity]},teacher)).status,400);
+ const first='act2-u8-l3-shorts';assert.equal((await api('/progress',{childId:child,assignmentId:saved.body.id,activity:'picture-listen',wordId:first,correct:true,eventId:crypto.randomUUID()},student)).status,200);
+ let hw=(await api('/homework?child='+child,undefined,student)).body;assert.equal(hw.homeworkProgress[saved.body.id].done,1);assert.equal(hw.homeworkProgress[saved.body.id].total,7);
+ const run=(await api('/daily-practice',{childId:child},student)).body;assert.equal(run.tasks.length,12);assert.equal(new Set(run.tasks.map(t=>t.wordId)).size,6);for(const task of run.tasks){assert.equal(task.kind,'audio-options');assert.equal(task.listen,'What are you wearing?');assert(task.image.includes('/wearing-'));assert(task.expected.startsWith('I’m wearing '));assert.equal(task.options.length,4);assert.equal(new Set(task.options.map(o=>o.text)).size,4);assert(task.options.every(o=>o.text.startsWith('I’m wearing ')));}
+ const task=run.tasks[0];assert.equal((await api('/daily-practice-answer',{childId:child,runId:run.id,taskId:task.id,answer:'shorts',eventId:crypto.randomUUID()},student)).body.correct,false);
+ for(const t of run.tasks)assert.equal((await api('/daily-practice-answer',{childId:child,runId:run.id,taskId:t.id,answer:t.expected,eventId:crypto.randomUUID()},student)).body.correct,true);
+ hw=(await api('/homework?child='+child,undefined,student)).body;assert.equal(hw.homeworkProgress[saved.body.id].percent,100);assert.equal(hw.homeworkProgress[saved.body.id].done,7);
+ const report=(await api('/homework-report?child='+child+'&assignment='+saved.body.id,undefined,teacher)).body;assert.equal(report.exercises[0].questions.length,7);assert(report.exercises[0].questions.every(q=>q.prompt==='What are you wearing?'&&q.expected.startsWith('I’m wearing ')));
+ const defaults=await api('/assignments',{groupId:group.id,unitId,activities:['look-listen','picture-listen','sound-picture','reactor']},teacher);assert.equal(defaults.status,200);
+ await DB.sqlite.close();
+});

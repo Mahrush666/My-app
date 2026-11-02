@@ -1,0 +1,182 @@
+{
+  "assets": [
+    {
+      "directory": "pu1-u2-lesson3",
+      "file": "song.mp4",
+      "sha256": "bb3287b38942a5497dc8c20c0079cd335e3f749b352025a38c8267610fe1d4e8",
+      "parts": [
+        "l3-song-mp4-000.part",
+        "l3-song-mp4-001.part",
+        "l3-song-mp4-002.part",
+        "l3-song-mp4-003.part",
+        "l3-song-mp4-004.part",
+        "l3-song-mp4-005.part",
+        "l3-song-mp4-006.part",
+        "l3-song-mp4-007.part",
+        "l3-song-mp4-008.part",
+        "l3-song-mp4-009.part",
+        "l3-song-mp4-010.part",
+        "l3-song-mp4-011.part",
+        "l3-song-mp4-012.part",
+        "l3-song-mp4-013.part",
+        "l3-song-mp4-014.part",
+        "l3-song-mp4-015.part",
+        "l3-song-mp4-016.part",
+        "l3-song-mp4-017.part",
+        "l3-song-mp4-018.part",
+        "l3-song-mp4-019.part",
+        "l3-song-mp4-020.part",
+        "l3-song-mp4-021.part",
+        "l3-song-mp4-022.part",
+        "l3-song-mp4-023.part",
+        "l3-song-mp4-024.part",
+        "l3-song-mp4-025.part",
+        "l3-song-mp4-026.part",
+        "l3-song-mp4-027.part",
+        "l3-song-mp4-028.part",
+        "l3-song-mp4-029.part"
+      ]
+    },
+    {
+      "directory": "pu1-u2-lesson3",
+      "file": "action-song.mp4",
+      "sha256": "96b19d3877473977132ef925e607741da29271032a9a29faee949953ebd1e1de",
+      "parts": [
+        "l3-action-song-mp4-000.part",
+        "l3-action-song-mp4-001.part",
+        "l3-action-song-mp4-002.part",
+        "l3-action-song-mp4-003.part",
+        "l3-action-song-mp4-004.part",
+        "l3-action-song-mp4-005.part",
+        "l3-action-song-mp4-006.part",
+        "l3-action-song-mp4-007.part",
+        "l3-action-song-mp4-008.part",
+        "l3-action-song-mp4-009.part",
+        "l3-action-song-mp4-010.part",
+        "l3-action-song-mp4-011.part",
+        "l3-action-song-mp4-012.part",
+        "l3-action-song-mp4-013.part",
+        "l3-action-song-mp4-014.part",
+        "l3-action-song-mp4-015.part",
+        "l3-action-song-mp4-016.part",
+        "l3-action-song-mp4-017.part",
+        "l3-action-song-mp4-018.part",
+        "l3-action-song-mp4-019.part",
+        "l3-action-song-mp4-020.part",
+        "l3-action-song-mp4-021.part",
+        "l3-action-song-mp4-022.part",
+        "l3-action-song-mp4-023.part",
+        "l3-action-song-mp4-024.part",
+        "l3-action-song-mp4-025.part",
+        "l3-action-song-mp4-026.part",
+        "l3-action-song-mp4-027.part",
+        "l3-action-song-mp4-028.part",
+        "l3-action-song-mp4-029.part",
+        "l3-action-song-mp4-030.part",
+        "l3-action-song-mp4-031.part",
+        "l3-action-song-mp4-032.part",
+        "l3-action-song-mp4-033.part",
+        "l3-action-song-mp4-034.part",
+        "l3-action-song-mp4-035.part",
+        "l3-action-song-mp4-036.part",
+        "l3-action-song-mp4-037.part",
+        "l3-action-song-mp4-038.part",
+        "l3-action-song-mp4-039.part",
+        "l3-action-song-mp4-040.part",
+        "l3-action-song-mp4-041.part",
+        "l3-action-song-mp4-042.part",
+        "l3-action-song-mp4-043.part"
+      ]
+    },
+    {
+      "directory": "pu1-u2-lesson3",
+      "file": "body-listen.m4a",
+      "sha256": "c8bb18b416a5e7b4e30b7ce972d8500ffef061f45e832baec93d162cfb7e807e",
+      "parts": [
+        "l3-body-listen-m4a-000.part",
+        "l3-body-listen-m4a-001.part",
+        "l3-body-listen-m4a-002.part",
+        "l3-body-listen-m4a-003.part",
+        "l3-body-listen-m4a-004.part",
+        "l3-body-listen-m4a-005.part"
+      ]
+    },
+    {
+      "directory": "pu1-u2-lesson3",
+      "file": "body-follow.m4a",
+      "sha256": "2d7ef80c3353f8d1b54e1a61271908608b208ca2a72a74b9881e874ed9d811f6",
+      "parts": [
+        "l3-body-follow-m4a-000.part",
+        "l3-body-follow-m4a-001.part",
+        "l3-body-follow-m4a-002.part"
+      ]
+    },
+    {
+      "directory": "pu1-u2-lesson3",
+      "file": "dialogue.m4a",
+      "sha256": "d68ae3b2d72b7d2392f26f35cd07c19c4dbf9e1950bcdf85b28ad24f3393b50d",
+      "parts": [
+        "l3-dialogue-m4a-000.part",
+        "l3-dialogue-m4a-001.part"
+      ]
+    },
+    {
+      "directory": "pu1-u2-lesson3",
+      "file": "grammar.m4a",
+      "sha256": "893c027e402e5385818692d4cdb959f7bd74f35bd44d5eebe08f7252a7814144",
+      "parts": [
+        "l3-grammar-m4a-000.part",
+        "l3-grammar-m4a-001.part"
+      ]
+    },
+    {
+      "directory": "pu1-u2-lesson4",
+      "file": "senses.mp4",
+      "sha256": "0bddc9c8dc79009e42195ba3821f73aead8ca5ea4163cd748bd69d83b7e4d035",
+      "parts": [
+        "l4-senses-mp4-000.part",
+        "l4-senses-mp4-001.part",
+        "l4-senses-mp4-002.part",
+        "l4-senses-mp4-003.part",
+        "l4-senses-mp4-004.part",
+        "l4-senses-mp4-005.part",
+        "l4-senses-mp4-006.part",
+        "l4-senses-mp4-007.part",
+        "l4-senses-mp4-008.part",
+        "l4-senses-mp4-009.part",
+        "l4-senses-mp4-010.part",
+        "l4-senses-mp4-011.part",
+        "l4-senses-mp4-012.part",
+        "l4-senses-mp4-013.part",
+        "l4-senses-mp4-014.part",
+        "l4-senses-mp4-015.part",
+        "l4-senses-mp4-016.part",
+        "l4-senses-mp4-017.part",
+        "l4-senses-mp4-018.part",
+        "l4-senses-mp4-019.part",
+        "l4-senses-mp4-020.part",
+        "l4-senses-mp4-021.part"
+      ]
+    },
+    {
+      "directory": "pu1-u2-lesson4",
+      "file": "senses-listen.m4a",
+      "sha256": "6b6e80df2627beeead0c99e7c70c79ee86087bf3d153fcdc88087314fc1ef54a",
+      "parts": [
+        "l4-senses-listen-m4a-000.part",
+        "l4-senses-listen-m4a-001.part"
+      ]
+    },
+    {
+      "directory": "pu1-u2-lesson5",
+      "file": "story.m4a",
+      "sha256": "b317779d3320a82c0ebca2b36f01adeb0cb9bf3782f57ad66f8d1aef01fd5fdc",
+      "parts": [
+        "l5-story-m4a-000.part",
+        "l5-story-m4a-001.part",
+        "l5-story-m4a-002.part",
+        "l5-story-m4a-003.part"
+      ]
+    }
+  ]
+}

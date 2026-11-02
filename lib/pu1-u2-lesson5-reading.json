@@ -1,0 +1,240 @@
+{
+  "title": "Sara’s favourite game",
+  "audio": "lessons/pu1-u2-lesson5/story.m4a",
+  "scenes": [
+    {
+      "id": "pu1-u2-l5-scene-1",
+      "label": "Pablo and Sara",
+      "image": "lessons/pu1-u2-lesson5/scene-1.webp",
+      "full": [
+        "I’m Pablo.",
+        "I live with my mum, dad, grandma and grandpa.",
+        "Today my cousin Sara is here too.",
+        "Sara’s got black hair and brown eyes."
+      ],
+      "easy": [
+        "I’m Pablo.",
+        "I live with my mum, dad, grandma and grandpa.",
+        "Today my cousin Sara is here too.",
+        "Sara’s got black hair and brown eyes."
+      ]
+    },
+    {
+      "id": "pu1-u2-l5-scene-2",
+      "label": "Hide and Seek",
+      "image": "lessons/pu1-u2-lesson5/scene-2.webp",
+      "full": [
+        "Sara’s favourite game is Hide and Seek.",
+        "I close my eyes and I count to ten, and Sara hides."
+      ],
+      "easy": [
+        "Sara’s favourite game is Hide and Seek.",
+        "I close my eyes and I count to ten, and Sara hides."
+      ]
+    },
+    {
+      "id": "pu1-u2-l5-scene-3",
+      "label": "In the cupboard?",
+      "image": "lessons/pu1-u2-lesson5/scene-3.webp",
+      "full": [
+        "Today she’s hiding in the cupboard in the kitchen.",
+        "She’s in the cupboard in the kitchen … again!",
+        "She always hides … Oh, she isn’t there.",
+        "“Sara?” I say. “Where are you?”"
+      ],
+      "easy": [
+        "Today she’s hiding in the cupboard in the kitchen.",
+        "She’s in the cupboard in the kitchen … again!",
+        "She always hides … Oh, she isn’t there.",
+        "“Sara?” I say. “Where are you?”"
+      ]
+    },
+    {
+      "id": "pu1-u2-l5-scene-4",
+      "label": "Next to the bookcase?",
+      "image": "lessons/pu1-u2-lesson5/scene-4.webp",
+      "full": [
+        "Is she next to the bookcase?",
+        "No, she isn’t.",
+        "“Sara?” I say. “Where are you?”"
+      ],
+      "easy": [
+        "Is she next to the bookcase?",
+        "No, she isn’t.",
+        "“Sara?” I say. “Where are you?”"
+      ]
+    },
+    {
+      "id": "pu1-u2-l5-scene-5",
+      "label": "In the garden?",
+      "image": "lessons/pu1-u2-lesson5/scene-5.webp",
+      "full": [
+        "“Is she in the garden?”",
+        "No, she isn’t.",
+        "“Sara!” I say. “Where are you?”"
+      ],
+      "easy": [
+        "“Is she in the garden?”",
+        "No, she isn’t.",
+        "“Sara!” I say. “Where are you?”"
+      ]
+    },
+    {
+      "id": "pu1-u2-l5-scene-6",
+      "label": "Under the table!",
+      "image": "lessons/pu1-u2-lesson5/scene-6.webp",
+      "full": [
+        "Mum, Dad, Grandma and Grandpa come to help, but we can’t find Sara anywhere!",
+        "Then Grandma sees Sara’s crayons on the table.",
+        "“Is she under the table?” she says.",
+        "“Yes!” says Mum. “She is! Hello, Sara!”",
+        "“Sara!” I say."
+      ],
+      "easy": [
+        "Mum, Dad, Grandma and Grandpa come to help, but we can’t find Sara anywhere!",
+        "Then Grandma sees Sara’s crayons on the table.",
+        "“Is she under the table?” she says.",
+        "“Yes!” says Mum. “She is! Hello, Sara!”",
+        "“Sara!” I say."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "pu1-u2-l5-q1",
+      "scene": "pu1-u2-l5-scene-1",
+      "text": "Who is Sara?",
+      "options": [
+        "Pablo’s sister.",
+        "Pablo’s cousin.",
+        "Pablo’s teacher."
+      ],
+      "answer": 1,
+      "explanation": "Sara is Pablo’s cousin."
+    },
+    {
+      "id": "pu1-u2-l5-q2",
+      "scene": "pu1-u2-l5-scene-1",
+      "text": "Sara’s got ___ hair.",
+      "options": [
+        "black",
+        "red",
+        "blue"
+      ],
+      "answer": 0,
+      "explanation": "Sara’s got black hair and brown eyes."
+    },
+    {
+      "id": "pu1-u2-l5-q3",
+      "scene": "pu1-u2-l5-scene-2",
+      "text": "What game do they play?",
+      "options": [
+        "Football.",
+        "Tennis.",
+        "Hide and Seek."
+      ],
+      "answer": 2,
+      "explanation": "Sara’s favourite game is Hide and Seek."
+    },
+    {
+      "id": "pu1-u2-l5-q4",
+      "scene": "pu1-u2-l5-scene-2",
+      "text": "Pablo counts to ___.",
+      "options": [
+        "five",
+        "ten",
+        "twenty"
+      ],
+      "answer": 1,
+      "explanation": "I close my eyes and I count to ten, and Sara hides."
+    },
+    {
+      "id": "pu1-u2-l5-q5",
+      "scene": "pu1-u2-l5-scene-3",
+      "text": "Is Sara in the cupboard?",
+      "options": [
+        "Yes, she is.",
+        "No, she isn’t."
+      ],
+      "answer": 1,
+      "explanation": "No, she isn’t."
+    },
+    {
+      "id": "pu1-u2-l5-q6",
+      "scene": "pu1-u2-l5-scene-4",
+      "text": "Is she next to the bookcase?",
+      "options": [
+        "Yes, she is.",
+        "No, she isn’t."
+      ],
+      "answer": 1,
+      "explanation": "No, she isn’t."
+    },
+    {
+      "id": "pu1-u2-l5-q7",
+      "scene": "pu1-u2-l5-scene-5",
+      "text": "Is she in the garden?",
+      "options": [
+        "Yes, she is.",
+        "No, she isn’t."
+      ],
+      "answer": 1,
+      "explanation": "No, she isn’t."
+    },
+    {
+      "id": "pu1-u2-l5-q8",
+      "scene": "pu1-u2-l5-scene-6",
+      "text": "What does Grandma see on the table?",
+      "options": [
+        "Sara’s shoes.",
+        "Sara’s crayons.",
+        "Sara’s bag."
+      ],
+      "answer": 1,
+      "explanation": "Grandma sees Sara’s crayons on the table."
+    },
+    {
+      "id": "pu1-u2-l5-q9",
+      "scene": "pu1-u2-l5-scene-6",
+      "text": "Is she under the table?",
+      "options": [
+        "Yes, she is.",
+        "No, she isn’t."
+      ],
+      "answer": 0,
+      "explanation": "Yes, she is!"
+    },
+    {
+      "id": "pu1-u2-l5-q10",
+      "scene": "pu1-u2-l5-scene-6",
+      "text": "Where is Sara?",
+      "options": [
+        "In the cupboard.",
+        "In the garden.",
+        "Under the table."
+      ],
+      "answer": 2,
+      "explanation": "Sara is under the table."
+    }
+  ],
+  "orders": [
+    {
+      "id": "pu1-u2-l5-order-1",
+      "title": "Where is Sara?",
+      "scenes": [
+        "pu1-u2-l5-scene-3",
+        "pu1-u2-l5-scene-4",
+        "pu1-u2-l5-scene-5"
+      ]
+    },
+    {
+      "id": "pu1-u2-l5-order-2",
+      "title": "Finding Sara",
+      "scenes": [
+        "pu1-u2-l5-scene-2",
+        "pu1-u2-l5-scene-5",
+        "pu1-u2-l5-scene-6"
+      ]
+    }
+  ]
+}

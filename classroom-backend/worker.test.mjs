@@ -1091,3 +1091,22 @@ test('Starter Unit 8 weather is assignable as picture/audio homework with option
  const say=(word,answer)=>api('/progress',{childId:child,assignmentId:speaking,activity:'sentence-speak',wordId:'pu-starter-u8-l6-'+word+'-sentence',answer,eventId:crypto.randomUUID()},student);
  assert.equal((await say('sunny','sunny')).body.correct,false);for(const word of weather)assert.equal((await say(word,"It's "+word+'.')).body.correct,true);assert((await api('/homework?child='+child,undefined,student)).body.completed.some(c=>c.assignment_id===speaking&&c.activity==='sentence-speak'));await DB.sqlite.close();
 });
+
+test('Power Up 1 Unit 2 lessons 3–5 assign source practice, track exact answers and restrict spelling to vocabulary',async()=>{
+ const{api,DB}=await setup();const owner=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'All about us'},owner)).body;
+ const child=(await api('/teacher-students',{groupId:group.id,names:['Unit 2 learner']},owner)).body.students[0].id;
+ const access=(await api('/student-link',{childId:child,reuse:true},owner)).body.access,student=(await api('/student-login',{access})).body.token;
+ const{build}=await import('esbuild');await build({stdin:{contents:"export{lessons}from'./github-pages/lessons';",resolveDir:process.cwd(),loader:'ts'},bundle:true,platform:'node',format:'esm',outfile:'.wrangler/content-pu1-u2-new/server-lessons.mjs'});const{lessons}=await import('../.wrangler/content-pu1-u2-new/server-lessons.mjs');
+ for(const unitId of ['pu1-u2-vocabulary2','pu1-u2-cross-curricular','pu1-u2-reading']){
+  const l=lessons.find(l=>l.id===unitId);const saved=await api('/assignments',{groupId:group.id,unitId,activities:l.defaultActivities,wordIds:l.words.map(w=>w.id)},owner);assert.equal(saved.status,200,JSON.stringify(saved.body));
+  const post=(activity,wordId,answer)=>api('/progress',{childId:child,assignmentId:saved.body.id,activity,wordId,answer,correct:true,eventId:crypto.randomUUID()},student);
+  const q0=l.readingStory.questions[0];assert.equal((await post('story-quiz',q0.id,String((q0.answer+1)%q0.options.length))).body.correct,false);
+  for(const q of l.readingStory.questions)assert.equal((await post('story-quiz',q.id,String(q.answer))).body.correct,true);
+  for(const r of l.readingStory.orders)assert.equal((await post('story-order',r.id,r.scenes.join(','))).body.correct,true);
+  const hw=(await api('/homework?child='+child,undefined,student)).body;assert(hw.completed.some(c=>c.assignment_id===saved.body.id&&c.activity==='story-quiz'));
+  const report=(await api('/homework-report?child='+child+'&assignment='+saved.body.id,undefined,owner)).body;const ex=report.exercises.find(e=>e.id==='story-quiz');assert.equal(ex.questions.length,l.readingStory.questions.length);assert(ex.questions[0].attempts.some(a=>!a.correct));assert(ex.questions.every(q=>q.attempts.some(a=>a.correct)));
+  if(unitId!=='pu1-u2-vocabulary2')assert.equal((await api('/assignments',{groupId:group.id,unitId,activities:['spell']},owner)).status,400);
+ }
+ await DB.sqlite.close();
+});

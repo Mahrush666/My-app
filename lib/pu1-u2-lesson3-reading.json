@@ -1,0 +1,291 @@
+{
+  "title": "Move your body · Have got",
+  "scenes": [
+    {
+      "id": "pu1-u2-l3-scene-1",
+      "label": "Move your body",
+      "image": "lessons/pu1-u2-lesson3/song-page.webp",
+      "full": [
+        "Move your body, Jenny.",
+        "Move your tail, Cameron.",
+        "Move your body, Jenny.",
+        "Move your tail, Cameron.",
+        "Move, move your body.",
+        "Move your legs and your feet.",
+        "Move, move your body and now put your arms up."
+      ],
+      "easy": [
+        "Move your body, Jenny.",
+        "Move your tail, Cameron.",
+        "Move your body, Jenny.",
+        "Move your tail, Cameron.",
+        "Move, move your body.",
+        "Move your legs and your feet.",
+        "Move, move your body and now put your arms up."
+      ]
+    },
+    {
+      "id": "pu1-u2-l3-scene-2",
+      "label": "Touch your hair and your face",
+      "image": "lessons/pu1-u2-lesson3/song-page.webp",
+      "full": [
+        "Move your body, Jenny.",
+        "Move your tail, Cameron.",
+        "Move your body, Jenny.",
+        "Move your tail, Cameron.",
+        "Stop! Now move your head.",
+        "Touch your hair and your face.",
+        "Move, move your body.",
+        "Touch your ears and your nose."
+      ],
+      "easy": [
+        "Move your body, Jenny.",
+        "Move your tail, Cameron.",
+        "Move your body, Jenny.",
+        "Move your tail, Cameron.",
+        "Stop! Now move your head.",
+        "Touch your hair and your face.",
+        "Move, move your body.",
+        "Touch your ears and your nose."
+      ]
+    },
+    {
+      "id": "pu1-u2-l3-scene-3",
+      "label": "Open your mouth and clap your hands",
+      "image": "lessons/pu1-u2-lesson3/song-page.webp",
+      "full": [
+        "Move your body, Jenny.",
+        "Move your tail, Cameron.",
+        "Move your body, Jenny.",
+        "Move your tail, Cameron.",
+        "Stop! Now close your eyes.",
+        "Open your mouth and clap your hands.",
+        "Move, move your body.",
+        "Touch your ears and your nose.",
+        "Move your body, Jenny.",
+        "Move your tail, Cameron.",
+        "Move your body, Jenny.",
+        "Move your tail, Cameron."
+      ],
+      "easy": [
+        "Move your body, Jenny.",
+        "Move your tail, Cameron.",
+        "Move your body, Jenny.",
+        "Move your tail, Cameron.",
+        "Stop! Now close your eyes.",
+        "Open your mouth and clap your hands.",
+        "Move, move your body.",
+        "Touch your ears and your nose.",
+        "Move your body, Jenny.",
+        "Move your tail, Cameron.",
+        "Move your body, Jenny.",
+        "Move your tail, Cameron."
+      ]
+    },
+    {
+      "id": "pu1-u2-l3-scene-4",
+      "label": "Pictures of my brother and sister",
+      "image": "lessons/pu1-u2-lesson3/children.webp",
+      "full": [
+        "Girl: Look at my pictures, Sam. They’re pictures of me and my brother and sister.",
+        "Sam: Oh, they’ve got black hair. You haven’t got black hair.",
+        "Girl: No, I haven’t. I’ve got brown hair, and I’ve got green eyes.",
+        "Sam: Have your brother and sister got green eyes?",
+        "Girl: No, they haven’t. My sister has got blue eyes and my brother has got brown eyes."
+      ],
+      "easy": [
+        "Girl: Look at my pictures, Sam. They’re pictures of me and my brother and sister.",
+        "Sam: Oh, they’ve got black hair. You haven’t got black hair.",
+        "Girl: No, I haven’t. I’ve got brown hair, and I’ve got green eyes.",
+        "Sam: Have your brother and sister got green eyes?",
+        "Girl: No, they haven’t. My sister has got blue eyes and my brother has got brown eyes."
+      ]
+    },
+    {
+      "id": "pu1-u2-l3-scene-5",
+      "label": "Gracie’s Grammar",
+      "image": "lessons/pu1-u2-lesson3/grammar.webp",
+      "full": [
+        "I’ve got brown hair.",
+        "They’ve got blue eyes.",
+        "Have you got red hair?",
+        "I haven’t got black hair.",
+        "They haven’t got green eyes.",
+        "Yes, I have.",
+        "No, I haven’t."
+      ],
+      "easy": [
+        "I’ve got brown hair.",
+        "They’ve got blue eyes.",
+        "Have you got red hair?",
+        "I haven’t got black hair.",
+        "They haven’t got green eyes.",
+        "Yes, I have.",
+        "No, I haven’t."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "pu1-u2-l3-q1",
+      "scene": "pu1-u2-l3-scene-1",
+      "text": "Move your ___ and your feet.",
+      "options": [
+        "legs",
+        "nose",
+        "mouth",
+        "hair"
+      ],
+      "answer": 0,
+      "explanation": "Move your legs and your feet."
+    },
+    {
+      "id": "pu1-u2-l3-q2",
+      "scene": "pu1-u2-l3-scene-2",
+      "text": "Touch your hair and your ___.",
+      "options": [
+        "tail",
+        "face",
+        "foot",
+        "arm"
+      ],
+      "answer": 1,
+      "explanation": "Touch your hair and your face."
+    },
+    {
+      "id": "pu1-u2-l3-q3",
+      "scene": "pu1-u2-l3-scene-3",
+      "text": "Open your ___ and clap your hands.",
+      "options": [
+        "eye",
+        "ear",
+        "mouth",
+        "nose"
+      ],
+      "answer": 2,
+      "explanation": "Open your mouth and clap your hands."
+    },
+    {
+      "id": "pu1-u2-l3-q4",
+      "scene": "pu1-u2-l3-scene-4",
+      "text": "What colour hair has the girl got?",
+      "options": [
+        "Black.",
+        "Red.",
+        "Blue.",
+        "Brown."
+      ],
+      "answer": 3,
+      "explanation": "She’s got brown hair."
+    },
+    {
+      "id": "pu1-u2-l3-q5",
+      "scene": "pu1-u2-l3-scene-4",
+      "text": "What colour eyes has her sister got?",
+      "options": [
+        "Blue.",
+        "Brown.",
+        "Green.",
+        "Black."
+      ],
+      "answer": 0,
+      "explanation": "Her sister has got blue eyes."
+    },
+    {
+      "id": "pu1-u2-l3-q6",
+      "scene": "pu1-u2-l3-scene-4",
+      "text": "What colour eyes has her brother got?",
+      "options": [
+        "Green.",
+        "Brown.",
+        "Blue.",
+        "Red."
+      ],
+      "answer": 1,
+      "explanation": "Her brother has got brown eyes."
+    },
+    {
+      "id": "pu1-u2-l3-q7",
+      "scene": "pu1-u2-l3-scene-5",
+      "text": "I ___ brown hair.",
+      "options": [
+        "is",
+        "are",
+        "have got"
+      ],
+      "answer": 2,
+      "explanation": "I have got brown hair."
+    },
+    {
+      "id": "pu1-u2-l3-q8",
+      "scene": "pu1-u2-l3-scene-5",
+      "text": "They ___ blue eyes.",
+      "options": [
+        "has got",
+        "have got",
+        "is"
+      ],
+      "answer": 1,
+      "explanation": "They have got blue eyes."
+    },
+    {
+      "id": "pu1-u2-l3-q9",
+      "scene": "pu1-u2-l3-scene-5",
+      "text": "___ you got red hair?",
+      "options": [
+        "Have",
+        "Has",
+        "Am"
+      ],
+      "answer": 0,
+      "explanation": "Have you got red hair?"
+    },
+    {
+      "id": "pu1-u2-l3-q10",
+      "scene": "pu1-u2-l3-scene-5",
+      "text": "Have you got red hair? Yes, I ___.",
+      "options": [
+        "am",
+        "is",
+        "have"
+      ],
+      "answer": 2,
+      "explanation": "Yes, I have."
+    },
+    {
+      "id": "pu1-u2-l3-q11",
+      "scene": "pu1-u2-l3-scene-5",
+      "text": "Have you got red hair? No, I ___.",
+      "options": [
+        "isn’t",
+        "haven’t",
+        "hasn’t"
+      ],
+      "answer": 1,
+      "explanation": "No, I haven’t."
+    }
+  ],
+  "orders": [],
+  "references": [
+    {
+      "title": "Body parts · Listen and do the actions",
+      "image": "lessons/pu1-u2-lesson3/song-page.webp",
+      "audio": "lessons/pu1-u2-lesson3/body-listen.m4a"
+    },
+    {
+      "title": "Parts of the body · Listen and follow",
+      "image": "lessons/pu1-u2-lesson3/body-listening.webp",
+      "audio": "lessons/pu1-u2-lesson3/body-follow.m4a"
+    },
+    {
+      "title": "My pictures · Listen",
+      "image": "lessons/pu1-u2-lesson3/children.webp",
+      "audio": "lessons/pu1-u2-lesson3/dialogue.m4a"
+    },
+    {
+      "title": "Gracie’s Grammar · Listen",
+      "image": "lessons/pu1-u2-lesson3/grammar.webp",
+      "audio": "lessons/pu1-u2-lesson3/grammar.m4a"
+    }
+  ]
+}

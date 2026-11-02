@@ -96,6 +96,10 @@ for(const asset of beehiveMedia.assets){
 const weatherDir=root+'/lesson-media/pu-starter-u8-lesson6';
 const weatherMedia=JSON.parse(readFileSync(weatherDir+'/manifest.json','utf8')) as {assets:{file:string;sha256:string;parts:string[]}[]};
 for(const asset of weatherMedia.assets){const data=Buffer.concat(asset.parts.map(part=>readFileSync(weatherDir+'/'+part)));if(createHash('sha256').update(data).digest('hex')!==asset.sha256)throw Error('Weather media is incomplete');mkdirSync(root+'/public/lessons/pu-starter-u8-lesson6',{recursive:true});writeFileSync(root+'/public/lessons/pu-starter-u8-lesson6/'+asset.file,data)}
+// Unit 2 lessons 3–5: original song, senses video and source listening tracks.
+const u2NewDir=root+'/lesson-media/pu1-u2-new';
+const u2NewMedia=JSON.parse(readFileSync(u2NewDir+'/manifest.json','utf8')) as {assets:{directory:string;file:string;sha256:string;parts:string[]}[]};
+for(const asset of u2NewMedia.assets){const data=Buffer.concat(asset.parts.map(part=>readFileSync(u2NewDir+'/'+part)));if(createHash('sha256').update(data).digest('hex')!==asset.sha256)throw Error('Unit 2 lesson media is incomplete');mkdirSync(root+'/public/lessons/'+asset.directory,{recursive:true});writeFileSync(root+'/public/lessons/'+asset.directory+'/'+asset.file,data)}
 export default defineConfig({
   root: root + '/github-pages',
   base: process.env.PAGES_BASE || './',

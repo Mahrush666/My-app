@@ -1,0 +1,197 @@
+{
+  "title": "Using our senses",
+  "scenes": [
+    {
+      "id": "pu1-u2-l4-scene-1",
+      "label": "I use my eyes to see.",
+      "image": "lessons/pu1-u2-lesson4/see.webp",
+      "full": [
+        "I use my eyes to see."
+      ],
+      "easy": [
+        "I use my eyes to see."
+      ]
+    },
+    {
+      "id": "pu1-u2-l4-scene-2",
+      "label": "I use my ears to hear.",
+      "image": "lessons/pu1-u2-lesson4/hear.webp",
+      "full": [
+        "I use my ears to hear."
+      ],
+      "easy": [
+        "I use my ears to hear."
+      ]
+    },
+    {
+      "id": "pu1-u2-l4-scene-3",
+      "label": "I use my nose to smell.",
+      "image": "lessons/pu1-u2-lesson4/smell.webp",
+      "full": [
+        "I use my nose to smell."
+      ],
+      "easy": [
+        "I use my nose to smell."
+      ]
+    },
+    {
+      "id": "pu1-u2-l4-scene-4",
+      "label": "I use my tongue to taste.",
+      "image": "lessons/pu1-u2-lesson4/taste.webp",
+      "full": [
+        "I use my tongue to taste."
+      ],
+      "easy": [
+        "I use my tongue to taste."
+      ]
+    },
+    {
+      "id": "pu1-u2-l4-scene-5",
+      "label": "I use my hands to touch.",
+      "image": "lessons/pu1-u2-lesson4/touch.webp",
+      "full": [
+        "I use my hands to touch."
+      ],
+      "easy": [
+        "I use my hands to touch."
+      ]
+    },
+    {
+      "id": "pu1-u2-l4-scene-6",
+      "label": "Using our other senses",
+      "image": "lessons/pu1-u2-lesson4/helping-blind-people.webp",
+      "full": [
+        "Some people can’t see.",
+        "They are blind.",
+        "They use their other senses to help them.",
+        "Today there are many things to help blind people.",
+        "They can read books with their hands.",
+        "They can hear traffic lights.",
+        "A guide dog can see for them."
+      ],
+      "easy": [
+        "Some people can’t see.",
+        "They are blind.",
+        "They use their other senses to help them.",
+        "Today there are many things to help blind people.",
+        "They can read books with their hands.",
+        "They can hear traffic lights.",
+        "A guide dog can see for them."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "pu1-u2-l4-q1",
+      "scene": "pu1-u2-l4-scene-1",
+      "text": "I use my eyes to ___.",
+      "options": [
+        "see",
+        "hear",
+        "smell",
+        "taste"
+      ],
+      "answer": 0,
+      "explanation": "I use my eyes to see."
+    },
+    {
+      "id": "pu1-u2-l4-q2",
+      "scene": "pu1-u2-l4-scene-2",
+      "text": "I use my ears to ___.",
+      "options": [
+        "touch",
+        "hear",
+        "taste",
+        "see"
+      ],
+      "answer": 1,
+      "explanation": "I use my ears to hear."
+    },
+    {
+      "id": "pu1-u2-l4-q3",
+      "scene": "pu1-u2-l4-scene-3",
+      "text": "I use my nose to ___.",
+      "options": [
+        "see",
+        "touch",
+        "smell",
+        "hear"
+      ],
+      "answer": 2,
+      "explanation": "I use my nose to smell."
+    },
+    {
+      "id": "pu1-u2-l4-q4",
+      "scene": "pu1-u2-l4-scene-4",
+      "text": "I use my tongue to ___.",
+      "options": [
+        "hear",
+        "see",
+        "touch",
+        "taste"
+      ],
+      "answer": 3,
+      "explanation": "I use my tongue to taste."
+    },
+    {
+      "id": "pu1-u2-l4-q5",
+      "scene": "pu1-u2-l4-scene-5",
+      "text": "I use my hands to ___.",
+      "options": [
+        "touch",
+        "smell",
+        "see",
+        "hear"
+      ],
+      "answer": 0,
+      "explanation": "I use my hands to touch."
+    },
+    {
+      "id": "pu1-u2-l4-q6",
+      "scene": "pu1-u2-l4-scene-6",
+      "text": "They can read books with their ___.",
+      "options": [
+        "feet",
+        "hands",
+        "nose",
+        "ears"
+      ],
+      "answer": 1,
+      "explanation": "They can read books with their hands."
+    },
+    {
+      "id": "pu1-u2-l4-q7",
+      "scene": "pu1-u2-l4-scene-6",
+      "text": "They can ___ traffic lights.",
+      "options": [
+        "taste",
+        "smell",
+        "hear",
+        "touch"
+      ],
+      "answer": 2,
+      "explanation": "They can hear traffic lights."
+    },
+    {
+      "id": "pu1-u2-l4-q8",
+      "scene": "pu1-u2-l4-scene-6",
+      "text": "What can see for them?",
+      "options": [
+        "A book.",
+        "A table.",
+        "A crayon.",
+        "A guide dog."
+      ],
+      "answer": 3,
+      "explanation": "A guide dog can see for them."
+    }
+  ],
+  "orders": [],
+  "references": [
+    {
+      "title": "The five senses · Listen and say",
+      "image": "lessons/pu1-u2-lesson4/senses-listening.webp",
+      "audio": "lessons/pu1-u2-lesson4/senses-listen.m4a"
+    }
+  ]
+}

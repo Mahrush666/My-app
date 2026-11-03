@@ -22,7 +22,7 @@ export async function authorizeStaff(db:D1Database,access:StaffAccess,path:strin
  if(path==='/rewards'){await child(url.searchParams.get('child'));return;}
  if(path==='/groups'){need('classes');if(data.campusId!==undefined&&data.campusId!==access.campusId)deny();return;}
  if(path.startsWith('/staff')||path==='/delete-group')deny();
- if(['/teacher-students','/move-student','/approve','/invite','/student-link','/student-invite','/rename-group'].includes(path))need('students');
+ if(['/qr-download','/teacher-students','/move-student','/approve','/invite','/student-link','/student-invite','/rename-group'].includes(path))need('students');
  else if(path==='/attendance')need('attendance');
  else if(path==='/schedule'||path==='/update-meeting'||path==='/delete-meeting')need('schedule');
  else if(path==='/lesson-settings')need('materials');

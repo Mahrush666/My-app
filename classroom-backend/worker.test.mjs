@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 const {localDatabase}=await import(process.env.WORDQUEST_TEST_DATABASE==='postgres'?'../supabase/classroom/test-adapter.mjs':'./sqlite-adapter.mjs');
 import {handle} from '../dist-classroom/worker.mjs';
 const origin='https://mahrush666.github.io';
-async function setup(){const DB=await localDatabase();const env={DB,ALLOWED_ORIGINS:origin,TEACHER_PASSWORD:'test-teacher-password'};let seq=0;
+async function setup(extra={}){const DB=await localDatabase();const env={DB,ALLOWED_ORIGINS:origin,TEACHER_PASSWORD:'test-teacher-password',...extra};let seq=0;
  return {DB,async api(path,body,token){const r=await handle(new Request('https://classroom.test'+path,{method:body===undefined?'GET':'POST',headers:{Origin:origin,...(token?{Authorization:'Bearer '+token}:{}),'Content-Type':'application/json','CF-Connecting-IP':'test-'+seq++},body:body===undefined?undefined:JSON.stringify(body)}),env);return {status:r.status,body:await r.json()}}};}
 test('parent registration, child approval, class-specific assignments, protected progress and teacher reports',async()=>{
  const {api,DB}=await setup();
@@ -1177,4 +1177,16 @@ test('ACT2 Lesson 3 checks plural clothing sentences, pre-reader settings and da
  const report=(await api('/homework-report?child='+child+'&assignment='+saved.body.id,undefined,teacher)).body;assert.equal(report.exercises[0].questions.length,7);assert(report.exercises[0].questions.every(q=>q.prompt==='What are you wearing?'&&q.expected.startsWith('I’m wearing ')));
  const defaults=await api('/assignments',{groupId:group.id,unitId,activities:['look-listen','picture-listen','sound-picture','reactor']},teacher);assert.equal(defaults.status,200);
  await DB.sqlite.close();
+});
+
+test('QR download preparation requires a teacher and accepts only bounded PNG attachments',async()=>{
+ const uploaded=[];const {api,DB}=await setup({saveQR:async(png,filename)=>{uploaded.push({png,filename});return{url:'https://files.example.com/qr.png?download='+filename,expiresAt:Date.now()+900000}}});
+ try{
+ const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const parent=(await api('/register',{username:'qr_parent',password:'parent-password',consent:true})).body.token;
+ const QRCode=(await import('qrcode')).default;const image=await QRCode.toDataURL('https://example.com/sample',{width:960});
+ assert.equal((await api('/qr-download',{image})).status,401);assert.equal((await api('/qr-download',{image},parent)).status,403);assert.equal(uploaded.length,0);
+ for(const payload of [{image:'data:image/svg+xml;base64,AAAA'},{image:'data:image/png;base64,AAAA'},{image,filename:'../private.png'},{image:'data:image/png;base64,'+'A'.repeat(400001)}])assert.notEqual((await api('/qr-download',payload,teacher)).status,200);
+ assert.equal(uploaded.length,0);const saved=await api('/qr-download',{image,filename:'student-homework-qr.png'},teacher);assert.equal(saved.status,200);assert.equal(uploaded.length,1);assert.equal(uploaded[0].filename,'student-homework-qr.png');assert.deepEqual([...uploaded[0].png.slice(0,8)],[137,80,78,71,13,10,26,10]);assert.match(saved.body.url,/^https:/);
+ }finally{await DB.sqlite.close()}
 });

@@ -23,7 +23,7 @@ import {supportsActivity} from '../lib/activity-availability';
 import type {D1Database} from '@cloudflare/workers-types';
 import {lessons} from '../github-pages/lessons';
 import {activityOptions,validateSettings,type ActivityId} from '../lib/unit-activities';
-export type Env={DB:D1Database;ALLOWED_ORIGINS:string;TEACHER_PASSWORD?:string;TEACHER_PASSWORD_HASH?:string};
+export type Env={DB:D1Database;ALLOWED_ORIGINS:string;TEACHER_PASSWORD?:string;TEACHER_PASSWORD_HASH?:string;saveQR?:(png:Uint8Array,filename:string)=>Promise<{url:string;expiresAt:number}>};
 const ROSTER_ID='teacher-managed-roster';
 const ROSTER_USERNAME='__teacher_roster__';
 const enc=new TextEncoder();
@@ -50,7 +50,7 @@ export async function handle(request:Request,env:Env){
  let data:Record<string,unknown>={};
  if(request.method==='POST'){
  if(!origin)throw new Failure('Open this through the classroom app.',403);
- const body=await request.text();if(body.length>30000)throw new Failure('This request is too large.',413);
+ const body=await request.text();if(body.length>(path==='/qr-download'?400000:30000))throw new Failure('This request is too large.',413);
  try{data=JSON.parse(body)}catch{throw new Failure('Invalid request.')}
  if(!data||typeof data!=='object'||Array.isArray(data))throw new Failure('Invalid request.');
  }
@@ -111,7 +111,7 @@ export async function handle(request:Request,env:Env){
  if(path==='/campuses'&&request.method==='GET')return respond({campuses:(await env.DB.prepare('SELECT id,name FROM campuses ORDER BY name').all()).results});
  if(path==='/move-class-campus'&&request.method==='POST'){const id=text(data.groupId,80),campusId=text(data.campusId,80);requireValue(await env.DB.prepare('SELECT id FROM groups WHERE id=?').bind(id).first(),'Class not found.');requireValue(await env.DB.prepare('SELECT id FROM campuses WHERE id=?').bind(campusId).first(),'Campus not found.');await env.DB.prepare('INSERT INTO group_campuses(group_id,campus_id) VALUES(?,?) ON CONFLICT(group_id) DO UPDATE SET campus_id=excluded.campus_id').bind(id,campusId).run();return respond({saved:true});}
  }
- const teacherPaths=['/assignment-overview','/archive-assignment','/weekly-homework-report','/daily-practice-report','/lesson-settings','/homework-report','/teacher','/calendar','/schedule','/update-meeting','/attendance','/delete-meeting','/rename-group','/delete-student','/delete-group','/rewards','/reward-award','/reward-undo','/groups','/invite','/teacher-students','/move-student','/student-link','/student-invite','/approve','/assignments','/delete-assignment'];
+ const teacherPaths=['/qr-download','/assignment-overview','/archive-assignment','/weekly-homework-report','/daily-practice-report','/lesson-settings','/homework-report','/teacher','/calendar','/schedule','/update-meeting','/attendance','/delete-meeting','/rename-group','/delete-student','/delete-group','/rewards','/reward-award','/reward-undo','/groups','/invite','/teacher-students','/move-student','/student-link','/student-invite','/approve','/assignments','/delete-assignment'];
  if(access&&(teacherPaths.includes(path)||path.startsWith('/staff')))await authorizeStaff(env.DB,access,path,data,new URL(request.url));
  if(path==='/staff'&&request.method==='GET'){
  if(!access?.owner)throw new Failure('Owner access required.',403);
@@ -141,6 +141,16 @@ export async function handle(request:Request,env:Env){
  return respond({invite});
  }
  const teacher=()=>{if(session.role!=='teacher')throw new Failure('Teacher access required.',403)};
+ if(path==='/qr-download'&&request.method==='POST'){
+ teacher();requireValue(env.saveQR,'QR downloads are temporarily unavailable. Please retry.');
+ const image=typeof data.image==='string'?data.image:'';requireValue(/^data:image\/png;base64,[A-Za-z0-9+/]+={0,2}$/.test(image),'Choose a valid PNG QR image.');
+ let png:Uint8Array;try{png=Uint8Array.from(atob(image.slice(image.indexOf(',')+1)),c=>c.charCodeAt(0))}catch{throw new Failure('Choose a valid PNG QR image.')}
+ requireValue(png.length>=24&&png.length<=262144&&[137,80,78,71,13,10,26,10].every((b,i)=>png[i]===b),'Choose a valid PNG QR image.');
+ const view=new DataView(png.buffer);requireValue(view.getUint32(16)>0&&view.getUint32(16)<=4096&&view.getUint32(20)>0&&view.getUint32(20)<=4096,'The QR image is too large.');
+ const filename=text(data.filename,100)||'student-homework-qr.png';requireValue(/^[a-zA-Z0-9_-][a-zA-Z0-9._-]{0,79}\.png$/.test(filename),'Choose a valid PNG filename.');
+ return respond(await env.saveQR!(png,filename));
+ }
+
  if(['/calendar','/schedule','/update-meeting','/attendance','/delete-meeting','/rename-group','/delete-student','/delete-group'].includes(path)){teacher();try{const result=await teacherTools(env.DB,path,request.method,data,new URL(request.url));if(result){if(path==='/calendar'){let scope=access!;const campus=new URL(request.url).searchParams.get('campus');if(scope.owner&&campus&&campus!=='all'){const classes=await env.DB.prepare("SELECT g.id FROM groups g LEFT JOIN group_campuses gc ON gc.group_id=g.id WHERE COALESCE(gc.campus_id,'main')=?").bind(campus).all<{id:string}>();scope={...scope,owner:false,groups:classes.results.map(g=>g.id)}}const filtered=filterCalendar(result,scope);if(!scope.owner){const students=await env.DB.prepare('SELECT id,group_id FROM children').all<{id:string;group_id:string}>();const visible=new Set(students.results.filter(c=>scope.groups.includes(c.group_id)).map(c=>c.id));filtered.marks=filtered.marks.filter((m:any)=>visible.has(m.child_id))}return respond(filtered)}return respond(result)}}catch(e){if(e instanceof Error&&'status' in e)throw new Failure(e.message,Number(e.status));throw e}}
  const childAccess=async(id:unknown)=>{const c=await env.DB.prepare(scopedChild?'SELECT * FROM children WHERE id=? AND id=?':'SELECT * FROM children WHERE id=? AND parent_id=?').bind(text(id,80),scopedChild||session.account_id).first<{id:string;group_id:string;approved:number}>();if(!c)throw new Failure('Child profile not found.',404);return c};
  if(path==='/rewards'&&request.method==='GET'){

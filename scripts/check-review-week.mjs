@@ -24,8 +24,10 @@ try {
  const dashboard=await studentDashboard(db,{id:'a',group_id:'g'},now);
  assert.equal(dashboard.today,'2026-11-04');assert.equal(dashboard.weekStart,'2026-11-02');
  assert.deepEqual(dashboard.reviewDays,['2026-11-02','2026-11-03','2026-11-04']);
- assert.deepEqual(dashboard.classmates,[{name:'Amy',xp:0,me:true,reviewDays:dashboard.reviewDays},{name:'Ben',xp:0,me:false,reviewDays:['2026-11-03']}]);
+ assert.deepEqual(dashboard.classmates,[{name:'Amy',xp:0,weeklyXP:0,me:true,reviewDays:dashboard.reviewDays},{name:'Ben',xp:0,weeklyXP:0,me:false,reviewDays:['2026-11-03']}]);
  assert.equal(dashboard.weeklyXP,0);assert.equal(JSON.stringify(dashboard).includes('Smith'),false);assert.equal(JSON.stringify(dashboard).includes('Private'),false);
- const reset=await studentDashboard(db,{id:'a',group_id:'g'},week.end);assert.deepEqual(reset.reviewDays,['2026-11-09']);
+ for(const [id,kid,xp,at,revoked] of [['old','a',90,week.start-1,0],['new','a',10,now,0],['undone','a',40,now,1],['peerxp','b',25,week.start-1,0],['hidden','pending',800,now,0],['privatexp','private',999,now,0]])await db.prepare('INSERT INTO reward_events VALUES(?,?,?,?,?,?,?,?)').bind(id,kid,id,'manual','Test XP',xp,at,revoked).run();
+ const totals=await studentDashboard(db,{id:'a',group_id:'g'},now);assert.equal(totals.classmates[0].xp,100);assert.equal(totals.classmates[0].weeklyXP,10);assert.equal(totals.weeklyXP,10);assert.equal(totals.classmates[1].xp,25);assert.equal(totals.classmates[1].weeklyXP,0);
+ const reset=await studentDashboard(db,{id:'a',group_id:'g'},week.end);assert.deepEqual(reset.reviewDays,['2026-11-09']);assert.equal(reset.classmates[0].xp,100,'Total XP survives the Monday reset');assert.equal(reset.weeklyXP,0);
  console.log('PASS: China week boundaries, partial/wrong homework, daily answers, deduplication, extra practice, future exclusion, approved class privacy');
 }finally{await db.sqlite.close()}

@@ -230,6 +230,7 @@ test('rewards are private, homework pays once across rescans and revisions, teac
  assert.equal((await points()).xp,0,'One of two activities is incomplete');
  for(const wordId of words)await api('/progress',{...event,activity:'sound-picture',wordId,eventId:crypto.randomUUID()},parent);
  assert.equal((await points()).xp,10);
+ const dashboard=(await api('/homework?child='+kid,undefined,parent)).body.dashboard;assert.equal(dashboard.classmates.find(c=>c.me).xp,10);assert.equal(dashboard.classmates.find(c=>c.me).weeklyXP,10);
  await Promise.all(Array.from({length:3},()=>api('/homework?child='+kid,undefined,parent)));
  assert.equal((await points()).xp,10,'Repeated/concurrent homework loads pay once');
  await api('/assignments',{...payload,id:assignment},teacher);
@@ -432,7 +433,7 @@ test('student dashboard is class-scoped and extra practice saves SRS without hom
  await DB.prepare('INSERT INTO class_meetings VALUES(?,?,?,?,?)').bind('other',b,'2098-01-01','10:30',60).run();
  const h=(await api('/homework?child='+id,undefined,student)).body;
  assert.deepEqual(h.dashboard.reviewDays,[]);assert.equal(h.dashboard.weeklyXP,10);assert.equal(h.dashboard.nextClass.day,'2099-01-01');
- assert.deepEqual(h.dashboard.classmates,[{name:'Amy',xp:10,me:true,reviewDays:[]},{name:'Ben',xp:25,me:false,reviewDays:[]}]);
+ assert.deepEqual(h.dashboard.classmates,[{name:'Amy',xp:100,weeklyXP:10,me:true,reviewDays:[]},{name:'Ben',xp:25,weeklyXP:25,me:false,reviewDays:[]}]);
  assert.equal((await api('/homework?child='+other,undefined,student)).status,404);
  const body={childId:id,unitId:'pu-starter-u7-lesson1',wordId:'pu-starter-u7-climb',correct:true};
  const first=await api('/practice-progress',body,student);assert.equal(first.status,200);

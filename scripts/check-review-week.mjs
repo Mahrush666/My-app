@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict';
+import {build} from 'esbuild';
+import {localDatabase} from '../supabase/classroom/test-adapter.mjs';
+await build({stdin:{contents:"export {studentDashboard} from './classroom-backend/student-dashboard';export {markReviewDay} from './classroom-backend/review-days';export {chinaWeek} from './lib/student-dashboard'",resolveDir:process.cwd()},bundle:true,platform:'node',format:'esm',outfile:'.wrangler/student-review-week/server.mjs'});
+const {studentDashboard,markReviewDay,chinaWeek}=await import('../.wrangler/student-review-week/server.mjs');
+const db=await localDatabase();
+try {
+ const now=Date.parse('2026-11-04T12:00:00+08:00'),week=chinaWeek(now);
+ assert.equal(new Date(week.start).toISOString(),'2026-11-01T16:00:00.000Z');
+ assert.equal(chinaWeek(week.end-1).start,week.start);
+ assert.equal(chinaWeek(week.end).start,week.end);
+ await db.pg.exec(`INSERT INTO wordquest.accounts VALUES('parent','parent','salt','hash',0);
+ INSERT INTO wordquest.groups(id,name,invite_hash,created_at) VALUES('g','Class A','invite',0),('other','Class B','other',0);
+ INSERT INTO wordquest.children VALUES('a','parent','g','Amy Smith',1,0),('b','parent','g','Ben Jones',1,0),('pending','parent','g','Pending Child',0,0),('private','parent','other','Private Child',1,0);
+ INSERT INTO wordquest.assignments VALUES('assignment','g','test','Test','[]','[]','',0);`);
+ const attempt=async(id,kid,time,correct)=>db.prepare('INSERT INTO attempts VALUES(?,?,?,?,?,?,?)').bind(id,kid,'assignment','picture-listen','word',correct,time).run();
+ await attempt('wrong','a',week.start,0);await attempt('retry','a',week.start+1000,1);
+ await attempt('past','a',week.start-1,1);await attempt('next','a',week.end,1);await attempt('future','a',now+1,1);
+ await attempt('peer','b',week.start+86400000,0);await attempt('pending','pending',week.start,1);await attempt('private','private',week.start,1);
+ await db.prepare('INSERT INTO daily_runs VALUES(?,?,?,?,?,?,?)').bind('run','a','g','2026-11-03','[]',week.start,0).run();
+ await db.prepare('INSERT INTO daily_answers VALUES(?,?,?,?,?,?)').bind('answer','run','task',0,week.start+86400000,'wrong').run();
+ await markReviewDay(db,'a',now);await markReviewDay(db,'a',now);
+ await markReviewDay(db,'a',week.start-1);await markReviewDay(db,'a',week.end);
+ const dashboard=await studentDashboard(db,{id:'a',group_id:'g'},now);
+ assert.equal(dashboard.today,'2026-11-04');assert.equal(dashboard.weekStart,'2026-11-02');
+ assert.deepEqual(dashboard.reviewDays,['2026-11-02','2026-11-03','2026-11-04']);
+ assert.deepEqual(dashboard.classmates,[{name:'Amy',xp:0,me:true,reviewDays:dashboard.reviewDays},{name:'Ben',xp:0,me:false,reviewDays:['2026-11-03']}]);
+ assert.equal(dashboard.weeklyXP,0);assert.equal(JSON.stringify(dashboard).includes('Smith'),false);assert.equal(JSON.stringify(dashboard).includes('Private'),false);
+ const reset=await studentDashboard(db,{id:'a',group_id:'g'},week.end);assert.deepEqual(reset.reviewDays,['2026-11-09']);
+ console.log('PASS: China week boundaries, partial/wrong homework, daily answers, deduplication, extra practice, future exclusion, approved class privacy');
+}finally{await db.sqlite.close()}

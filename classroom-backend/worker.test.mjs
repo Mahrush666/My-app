@@ -431,8 +431,8 @@ test('student dashboard is class-scoped and extra practice saves SRS without hom
  await DB.prepare('INSERT INTO class_meetings VALUES(?,?,?,?,?)').bind('past',a,'2020-01-01','10:30',60).run();
  await DB.prepare('INSERT INTO class_meetings VALUES(?,?,?,?,?)').bind('other',b,'2098-01-01','10:30',60).run();
  const h=(await api('/homework?child='+id,undefined,student)).body;
- assert.equal(h.dashboard.weeklyXP,10);assert.equal(h.dashboard.nextClass.day,'2099-01-01');
- assert.deepEqual(h.dashboard.classmates,[{name:'Amy',xp:10,me:true},{name:'Ben',xp:25,me:false}]);
+ assert.deepEqual(h.dashboard.reviewDays,[]);assert.equal(h.dashboard.weeklyXP,10);assert.equal(h.dashboard.nextClass.day,'2099-01-01');
+ assert.deepEqual(h.dashboard.classmates,[{name:'Amy',xp:10,me:true,reviewDays:[]},{name:'Ben',xp:25,me:false,reviewDays:[]}]);
  assert.equal((await api('/homework?child='+other,undefined,student)).status,404);
  const body={childId:id,unitId:'pu-starter-u7-lesson1',wordId:'pu-starter-u7-climb',correct:true};
  const first=await api('/practice-progress',body,student);assert.equal(first.status,200);
@@ -443,7 +443,7 @@ test('student dashboard is class-scoped and extra practice saves SRS without hom
  const wrong=await api('/practice-progress',{...body,correct:false},student);assert.equal(wrong.body.progress[body.wordId].step,0);
  const correction=await api('/practice-progress',{...body,correction:true},student);assert.deepEqual(correction.body.progress,wrong.body.progress);
  const after=(await api('/homework?child='+id,undefined,student)).body;
- assert.equal(after.dashboard.weeklyXP,10);assert.equal(after.completed.length,0);assert.equal(after.assignments.length,0);
+ assert.deepEqual(after.dashboard.reviewDays,[after.dashboard.today]);assert.equal(after.dashboard.classmates.find(c=>c.me).reviewDays.length,1);assert.equal((await DB.prepare("SELECT key FROM config WHERE key LIKE 'review_day:%'").all()).results.length,1);assert.equal(after.dashboard.weeklyXP,10);assert.equal(after.completed.length,0);assert.equal(after.assignments.length,0);
  await api('/approve',{childId:id,approved:false},owner);
  assert.equal((await api('/homework?child='+id,undefined,student)).body.dashboard,undefined);
  assert.notEqual((await api('/practice-progress',body,student)).status,200);

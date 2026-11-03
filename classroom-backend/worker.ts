@@ -1,3 +1,4 @@
+import {markReviewDay} from './review-days';
 import {assignmentOverview,archivedAssignments,preservedChecklist,retireAssignmentRuns} from './assignment-overview';
 import {updateBeehiveAssignments} from './beehive-curriculum';
 import {isListeningSentenceLesson} from '../lib/sentence-lesson';
@@ -294,6 +295,7 @@ export async function handle(request:Request,env:Env){
  requireValue(unit?.words.some(w=>w.id===wordId),'This word is unavailable.');
  requireValue(typeof data.correct==='boolean','An answer result is required.');
  if(data.correction!==true)await env.DB.prepare(`INSERT INTO reviews(child_id,word_id,step,due) VALUES(?,?,?,?) ON CONFLICT(child_id,word_id) DO UPDATE SET step=CASE WHEN ?=0 THEN 0 WHEN reviews.due>? THEN reviews.step ELSE MIN(reviews.step+1,4) END,due=CASE WHEN ?=0 THEN ? WHEN reviews.due>? THEN reviews.due ELSE ?+CASE MIN(reviews.step+1,4) WHEN 1 THEN 86400000 WHEN 2 THEN 259200000 WHEN 3 THEN 604800000 ELSE 1209600000 END END`).bind(child.id,wordId,data.correct?1:0,now+(data.correct?86400000:600000),Number(data.correct),now,Number(data.correct),now+600000,now,now).run();
+ await markReviewDay(env.DB,child.id,now);
  const reviews=await env.DB.prepare('SELECT word_id,step,due FROM reviews WHERE child_id=?').bind(child.id).all();
  return respond({progress:Object.fromEntries(reviews.results.map(r=>[r.word_id,{step:r.step,due:r.due}]))});
  }

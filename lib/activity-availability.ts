@@ -15,7 +15,7 @@ export function supportsActivity(activity:ActivityId,lesson:Pick<Lesson,'words'|
  if(activity==='word-sound'||activity==='sound-word')return lesson.words.length>=4;
  if(activity==='video')return Boolean(lesson.videos?.length);
  if(activity==='story')return Boolean(lesson.story);
- if(activity==='reading')return lesson.readings.length>0;
+ if(activity==='reading')return Boolean(lesson.readingStory?.scenes.length)||lesson.readings.length>0;
  if(activity==='look-listen')return lesson.words.length>0&&lesson.words.every(w=>w.picture);
  if(activity==='sound-picture')return lesson.words.length>=4&&lesson.words.every(w=>w.picture);
  if(activity==='yes-no')return lesson.words.length>=2&&lesson.words.every(w=>w.picture)&&lesson.words.some(w=>w.action);

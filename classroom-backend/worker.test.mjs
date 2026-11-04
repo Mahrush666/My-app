@@ -1190,3 +1190,27 @@ test('QR download preparation requires a teacher and accepts only bounded PNG at
  assert.equal(uploaded.length,0);const saved=await api('/qr-download',{image,filename:'student-homework-qr.png'},teacher);assert.equal(saved.status,200);assert.equal(uploaded.length,1);assert.equal(uploaded[0].filename,'student-homework-qr.png');assert.deepEqual([...uploaded[0].png.slice(0,8)],[137,80,78,71,13,10,26,10]);assert.match(saved.body.url,/^https:/);
  }finally{await DB.sqlite.close()}
 });
+
+test('Play 2 volcano short rounds save exact questions and daily practice completes the same homework once',async()=>{
+ const {api,DB}=await setup();try{
+ const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const group=(await api('/groups',{name:'Volcano scientists'},teacher)).body;
+ const parent=(await api('/register',{username:'volcano_family',password:'parent-password',consent:true})).body.token;
+ const childId=(await api('/children',{name:'Scientist',invite:group.invite},parent)).body.id;await api('/approve',{childId,approved:true},teacher);
+ const draft={groupId:group.id,unitId:'play2-u4-lesson3',activities:['story-quiz'],dailyPractice:true};
+ const saved=await api('/assignments',draft,teacher);assert.equal(saved.status,200);const assignmentId=saved.body.id;
+ assert.equal((await api('/assignments',{...draft,activities:['spell']},teacher)).status,400,'Long new spellings are not required');
+ const answer=(id,index)=>api('/progress',{childId,assignmentId,activity:'story-quiz',wordId:id,answer:String(index),eventId:crypto.randomUUID()},parent);
+ assert.equal((await answer('volcano-pack-0',1)).body.correct,false);
+ for(let i=0;i<4;i++)assert.equal((await answer('volcano-pack-'+i,i)).body.correct,true);
+ let hw=(await api('/homework?child='+childId,undefined,parent)).body;const partial=hw.homeworkProgress[assignmentId];assert.equal(partial.total,12);assert.equal(partial.done,4);assert.deepEqual(partial.exercises[0].answered,['volcano-pack-0','volcano-pack-1','volcano-pack-2','volcano-pack-3']);assert.equal(hw.rewards.xp,0);
+ const run=(await api('/daily-practice',{childId},parent)).body;assert.equal(run.tasks.length,12);assert(run.tasks.every(t=>t.activity==='story-quiz'&&t.listen&&['pictures','audio-options'].includes(t.kind)));assert(run.tasks.every(t=>t.options.length===4));assert(run.tasks.filter(t=>t.kind==='pictures').every(t=>t.options.every(o=>o.image)));assert(run.tasks.every(t=>!t.wordId.startsWith('volcano-pack-')),'Daily practice prioritises the unfinished rounds');
+ for(const task of run.tasks)assert.equal((await api('/daily-practice-answer',{childId,runId:run.id,taskId:task.id,answer:task.expected,eventId:crypto.randomUUID()},parent)).body.correct,true);
+ hw=(await api('/homework?child='+childId,undefined,parent)).body;assert.equal(hw.homeworkProgress[assignmentId].done,12);assert.equal(hw.homeworkProgress[assignmentId].exercises[0].answered.length,12);assert.equal(hw.completed.length,1);assert.equal(hw.rewards.history.filter(h=>h.kind==='homework').length,1);assert.equal(hw.rewards.history.find(h=>h.kind==='homework').xp,10);
+ await answer('volcano-pack-0',0);assert.equal((await api('/homework?child='+childId,undefined,parent)).body.rewards.xp,20,'Replaying keeps the homework and daily bonuses unique');
+ const report=(await api('/homework-report?child='+childId+'&assignment='+assignmentId,undefined,teacher)).body;assert.equal(report.exercises[0].questions.length,12);assert.deepEqual(report.exercises[0].questions[0].attempts.map(a=>a.correct),[false,true,true]);
+ const monster=(await api('/assignments',{groupId:group.id,unitId:'play2-u4-lesson3-1',activities:['story-quiz']},teacher)).body.id;
+ for(const [i,id]of ['monster-eye','monster-hands','monster-mouth','monster-finish'].entries())assert.equal((await api('/progress',{childId,assignmentId:monster,activity:'story-quiz',wordId:id,answer:String(i),eventId:crypto.randomUUID()},parent)).body.correct,true);
+ hw=(await api('/homework?child='+childId,undefined,parent)).body;assert.equal(hw.homeworkProgress[monster].percent,100);assert.equal(hw.rewards.xp,30);
+ }finally{await DB.sqlite.close()}
+});

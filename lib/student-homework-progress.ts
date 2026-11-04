@@ -1,7 +1,7 @@
 import {isListeningSentenceLesson} from './sentence-lesson';
 import type {Lesson} from '../github-pages/lessons';
 import {requiresAnswers} from './homework-completion';
-export type ExerciseProgress={activity:string;done:number;total:number;finished:boolean};
+export type ExerciseProgress={activity:string;done:number;total:number;finished:boolean;answered?:string[]};
 export type HomeworkProgress={done:number;total:number;percent:number;exercises:ExerciseProgress[]};
 type Assignment={id:string;unit_id:string;activities:string;word_ids:string;updated_at:number};
 type Attempt={assignment_id:string;activity:string;word_id:string|null;correct:number;created_at:number};
@@ -24,7 +24,7 @@ export function studentHomeworkProgress(assignments:Assignment[],lessons:Lesson[
  const items=homeworkItems(a,lesson,activity);
  const answered=new Set(current.map(t=>(activity==='reactor'&&t.activity.startsWith('reactor:')?'reactor':t.activity)+':'+t.word_id));
  const finished=completed.some(c=>c.assignment_id===a.id&&c.activity===activity),total=items.length;
- return {activity,done:finished?total:items.filter(i=>answered.has(i)).length,total,finished};
+ return {activity,done:finished?total:items.filter(i=>answered.has(i)).length,total,finished,...(activity==='story-quiz'?{answered:(finished?items:items.filter(i=>answered.has(i))).map(i=>i.slice(activity.length+1))}:{})};
  });
  const total=exercises.reduce((s,e)=>s+e.total,0),done=exercises.reduce((s,e)=>s+e.done,0);
  return [a.id,{done,total,percent:total?Math.floor(done/total*100):100,exercises}];

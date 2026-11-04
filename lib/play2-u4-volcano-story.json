@@ -1,0 +1,164 @@
+[
+  {
+    "id": "volcano-page-1",
+    "image": "lessons/play2-u4-lesson3/story-2.webp",
+    "label": "Volcano adventure · Page 1",
+    "full": [
+      "Is science your favorite class?",
+      "Yes!",
+      "Do you like doing experiments?",
+      "Yes! Here is a fun experiment!"
+    ],
+    "easy": []
+  },
+  {
+    "id": "volcano-page-2",
+    "image": "lessons/play2-u4-lesson3/story-2.webp",
+    "label": "Volcano adventure · Page 2",
+    "full": [
+      "Let's do it! What do we need?",
+      "We need some vinegar.",
+      "What color is vinegar? How does vinegar smell?"
+    ],
+    "easy": []
+  },
+  {
+    "id": "volcano-page-3",
+    "image": "lessons/play2-u4-lesson3/story-2.webp",
+    "label": "Volcano adventure · Page 3",
+    "full": [
+      "It has no color! Ew, it smells bad!",
+      "What else do we need?",
+      "We need baking soda, a long bottle, red food coloring, and a big bowl of magic sand."
+    ],
+    "easy": []
+  },
+  {
+    "id": "volcano-page-4",
+    "image": "lessons/play2-u4-lesson3/story-2.webp",
+    "label": "Volcano adventure · Page 4",
+    "full": [
+      "What is baking soda?",
+      "Baking soda is sodium bicarbonate used in cooking and cleaning.",
+      "Uhhh?"
+    ],
+    "easy": []
+  },
+  {
+    "id": "volcano-page-5",
+    "image": "lessons/play2-u4-lesson3/story-2.webp",
+    "label": "Volcano adventure · Page 5",
+    "full": [
+      "This is baking soda. Can you touch it? How does it feel? How does it look?",
+      "It's a powder, it's white."
+    ],
+    "easy": []
+  },
+  {
+    "id": "volcano-page-6",
+    "image": "lessons/play2-u4-lesson3/story-2.webp",
+    "label": "Volcano adventure · Page 6",
+    "full": [
+      "How does it smell and taste?",
+      "It doesn't smell.",
+      "It tastes... Ew, salty!"
+    ],
+    "easy": []
+  },
+  {
+    "id": "volcano-page-7",
+    "image": "lessons/play2-u4-lesson3/story-6.webp",
+    "label": "Volcano adventure · Page 7",
+    "full": [
+      "OK! We have all our materials ready. Let's begin.",
+      "First, use the magic sand and the bottle to make the shape of a volcano."
+    ],
+    "easy": []
+  },
+  {
+    "id": "volcano-page-8",
+    "image": "lessons/play2-u4-lesson3/story-6.webp",
+    "label": "Volcano adventure · Page 8",
+    "full": [
+      "You can touch the sand. How does the sand feel?",
+      "I cannot feel!",
+      "It's soft!"
+    ],
+    "easy": []
+  },
+  {
+    "id": "volcano-page-9",
+    "image": "lessons/play2-u4-lesson3/story-6.webp",
+    "label": "Volcano adventure · Page 9",
+    "full": [
+      "It's a little sticky.",
+      "It feels like sand!",
+      "The volcano is ready, now put baking soda inside the bottle."
+    ],
+    "easy": []
+  },
+  {
+    "id": "volcano-page-10",
+    "image": "lessons/play2-u4-lesson3/story-6.webp",
+    "label": "Volcano adventure · Page 10",
+    "full": [
+      "In a cup, carefully mix the vinegar and the red coloring.",
+      "Now, the fun part, we need to pour a little bit of vinegar inside the volcano. Who wants to try?"
+    ],
+    "easy": []
+  },
+  {
+    "id": "volcano-page-11",
+    "image": "lessons/play2-u4-lesson3/story-9.webp",
+    "label": "Volcano adventure · Page 11",
+    "full": [
+      "Teacher, teacher, let me try!",
+      "OK! Rock, paper, scissors, shoot!",
+      "Rock, paper, scissors, shoot!"
+    ],
+    "easy": []
+  },
+  {
+    "id": "volcano-page-12",
+    "image": "lessons/play2-u4-lesson3/story-9.webp",
+    "label": "Volcano adventure · Page 12",
+    "full": [
+      "Rock! Aha! Scissors, scissors, scissors!",
+      "Scissor cut paper, I win!",
+      "Andy, you can go next!",
+      "Thank you, Jake."
+    ],
+    "easy": []
+  },
+  {
+    "id": "volcano-page-13",
+    "image": "lessons/play2-u4-lesson3/story-10.webp",
+    "label": "Volcano adventure · Page 13",
+    "full": [
+      "Ready i2Bot? Just a little. So everyone can try!",
+      "Wow!",
+      "I can see red bubbles!"
+    ],
+    "easy": []
+  },
+  {
+    "id": "volcano-page-14",
+    "image": "lessons/play2-u4-lesson3/story-10.webp",
+    "label": "Volcano adventure · Page 14",
+    "full": [
+      "It's lava! Don't touch it! It's hot!",
+      "It's not hot. But, ew! It stinks!"
+    ],
+    "easy": []
+  },
+  {
+    "id": "volcano-page-15",
+    "image": "lessons/play2-u4-lesson3/story-12.webp",
+    "label": "Volcano adventure · Page 15",
+    "full": [
+      "Lucky me. I can't smell. I don't have a nose!",
+      "Hahaha!"
+    ],
+    "easy": []
+  }
+]

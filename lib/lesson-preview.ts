@@ -8,7 +8,7 @@ export function previewItems(lesson:Lesson,activity:ActivityId):PreviewItem[]{
  const story=lesson.readingStory;
  if(activity==='video')return (lesson.videos||[]).map((v,i)=>({id:v.src,title:v.title,image:v.poster,video:v.audioOnly?undefined:v.src,audio:v.audioOnly?v.src:undefined,sourceIndex:i}));
  if(activity==='story')return lesson.story?lesson.story.scenes.map((s,i)=>({id:'story-'+i,title:s.label,image:lesson.story!.image,audio:i===0?lesson.story!.audio:undefined,sourceIndex:i,crop:{...s,pageWidth:lesson.story!.width,pageHeight:lesson.story!.height}})):[];
- if(activity==='story-quiz')return (story?.questions||[]).map((q,i)=>({id:q.id,title:q.text,image:story?.scenes.find(s=>s.id===q.scene)?.image,choices:q.options,correct:q.options[q.answer],text:[q.explanation],sourceIndex:i}));
+ if(activity==='story-quiz')return (story?.questions||[]).map((q,i)=>({id:q.id,title:q.text,image:story?.scenes.find(s=>s.id===q.scene)?.image,choices:q.options,correct:q.options[q.answer],text:[q.explanation],images:q.mission?.kind==='volcano'?q.mission.choices?.map((src,j)=>({src,label:q.options[j]})):undefined,sourceIndex:i}));
  if(activity==='story-order')return (story?.orders||[]).map((q,i)=>({id:q.id,title:q.title,images:q.scenes.map(id=>story!.scenes.find(s=>s.id===id)!).filter(Boolean).map(s=>({src:s.image,label:s.label})),text:['Correct picture order shown above.'],sourceIndex:i}));
  if(activity==='reading')return story?story.scenes.map((s,i)=>({id:s.id,title:s.label,image:s.image,text:s.full,audio:i===0?story.audio:undefined,sourceIndex:i})):lesson.readings.map((r,i)=>({id:r.id,title:r.title,text:[r.text],sourceIndex:i}));
  if(activity==='picture-listen'&&lesson.words.some(w=>w.pictureListening))return lesson.words.map((w,i)=>({id:w.id||w.en,title:w.pictureListening?.answer||w.en,image:w.pictureListening?.image||w.picture,text:w.pictureListening?[w.pictureListening.question]:[w.zh],sourceIndex:i}));
@@ -24,7 +24,7 @@ export function previewFrom(lesson:Lesson,activity:ActivityId,index:number):Less
  if(activity==='video')return {...lesson,videos:rotate(lesson.videos||[])};
  if(activity==='story'&&lesson.story)return {...lesson,story:{...lesson.story,scenes:rotate(lesson.story.scenes)}};
  if(activity==='reading')return lesson.readingStory?{...lesson,readingStory:{...lesson.readingStory,scenes:rotate(lesson.readingStory.scenes)}}:{...lesson,readings:rotate(lesson.readings)};
- if(activity==='story-quiz'&&lesson.readingStory)return {...lesson,readingStory:{...lesson.readingStory,questions:rotate(lesson.readingStory.questions)}};
+ if(activity==='story-quiz'&&lesson.readingStory)return {...lesson,readingStory:{...lesson.readingStory,rounds:undefined,questions:rotate(lesson.readingStory.questions)}};
  if(activity==='story-order'&&lesson.readingStory)return {...lesson,readingStory:{...lesson.readingStory,orders:rotate(lesson.readingStory.orders)}};
  if((activity==='sentence-speak'||activity==='sentence-build'&&isListeningSentenceLesson(lesson.id))&&lesson.sentencePractice)return {...lesson,sentencePractice:rotate(lesson.sentencePractice)};
  return {...lesson,words:rotate(lesson.words)};

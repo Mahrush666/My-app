@@ -16,7 +16,29 @@ question('volcano-hear','volcano-page-13','I can hear bubbles! Which sense do I 
 const directions=['First, make a volcano with the sand and bottle.','Now put baking soda inside the bottle.','Pour a little vinegar into the volcano.','Choose the picture of the red bubbles.'];
 for(let i=0;i<4;i++)question('volcano-step-'+i,'volcano-page-'+[7,9,10,13][i],directions[i],stepAnswers,i,{kind:'volcano',task:'step',step:i,object:stepImages[i],choices:stepImages,model:i===0?'First, make the volcano. Next, put in baking soda. Then, pour a little vinegar. Look at the bubbles!':undefined});
 export const play2VolcanoStory:IllustratedReading={title:'The Five Senses: Volcano Adventure',scenes:sourceScenes,questions,orders:[],rounds:[{id:'pack',title:'1 · Pack the scientist’s bag 装好实验包',questionIds:questions.slice(0,4).map(q=>q.id)},{id:'senses',title:'2 · Senses detective 感官侦探',questionIds:questions.slice(4,8).map(q=>q.id)},{id:'volcano',title:'3 · Make the volcano 火山冒险',questionIds:questions.slice(8).map(q=>q.id)}]};
-export const play2Unit4Lesson3:Lesson={id:'play2-u4-lesson3',book:'Play 2',title:'Unit 4 · Lesson 3 · Volcano adventure',unit:{id:'play2-u4',number:4,title:'Unit 4 · The Five Senses'},lessonTitle:'Lesson 3 · Volcano adventure',defaultAge:'6–12',defaultActivities:['look-listen','reading','story-quiz','reactor'],allowedActivities:['look-listen','picture-listen','sound-picture','reading','story-quiz','sentence-speak','reactor'],words:[['vinegar','醋','We need some vinegar.'],['baking soda','小苏打',"It's white."],['volcano','火山','Make a volcano.'],['bubbles','泡泡','I can see red bubbles.']].map(([en,zh,sentence])=>({id:'play2-u4-l3-'+en.replaceAll(' ','-'),en,zh,sentence,icon:'',category:'Volcano materials',picture:asset(en.replaceAll(' ','-'))})),readings:[],readingStory:play2VolcanoStory,sentencePractice:[
+// Worksheet vocabulary supplements the original story without rewriting its pages.
+const volcanoVocabulary:[string,string,string,string,string][]=[
+ ['volcano','火山','Make a volcano.','volcano','Science words'],
+ ['experiment','实验','Here is a fun experiment!','experiment','Science words'],
+ ['vinegar','醋','We need some vinegar.','vinegar','Science words'],
+ ['baking soda','小苏打',"It's white.",'baking-soda','Science words'],
+ ['powder','粉末',"It's a powder, it's white.",'white-powder','Science words'],
+ ['sand','沙子','It feels like sand!','sand','Science words'],
+ ['red coloring','红色色素','We need some red coloring.','coloring','Science words'],
+ ['soap','肥皂；洗手液','This is soap.','soap','Science words'],
+ ['bubbles','泡泡','I can see red bubbles.','bubbles','Science words'],
+ ['soft','柔软的',"It's soft!",'feel-soft','How does it feel or smell?'],
+ ['sticky','黏的',"It's a little sticky.",'sticky','How does it feel or smell?'],
+ ['stink','发臭','It stinks!','smell-bad','How does it feel or smell?'],
+ ['see','看见','I can see red bubbles!','eyes','The five senses'],
+ ['hear','听见','I can hear bubbles!','ears','The five senses'],
+ ['smell','闻','It smells bad!','nose','The five senses'],
+ ['feel','感觉；触摸','I can feel the sand.','hands','The five senses'],
+ ['taste','尝','I cannot taste our volcano.','mouth','The five senses'],
+ ['pour','倒','Pour a little vinegar.','pour','Experiment actions'],
+ ['mix','混合；搅拌','Mix the vinegar and the red coloring.','mix','Experiment actions']
+];
+export const play2Unit4Lesson3:Lesson={id:'play2-u4-lesson3',book:'Play 2',title:'Unit 4 · Lesson 3 · Volcano adventure',unit:{id:'play2-u4',number:4,title:'Unit 4 · The Five Senses'},lessonTitle:'Lesson 3 · Volcano adventure',defaultAge:'6–12',defaultActivities:['look-listen','reading','story-quiz','reactor'],allowedActivities:['look-listen','picture-listen','sound-picture','reading','story-quiz','sentence-speak','reactor'],words:volcanoVocabulary.map(([en,zh,sentence,picture,category])=>({id:'play2-u4-l3-'+en.replaceAll(' ','-'),en,zh,sentence,icon:'',category,picture:asset(picture)})),readings:[],readingStory:play2VolcanoStory,sentencePractice:[
 {id:'play2-u4-l3-say-vinegar',text:'We need some vinegar.',picture:asset('vinegar'),prompt:'What do we need?',starter:'We need'},
 {id:'play2-u4-l3-say-white',text:"It's white.",picture:asset('white-powder'),prompt:'How does it look?',starter:"It's"},
 {id:'play2-u4-l3-say-soft',text:"It's soft!",picture:asset('feel-soft'),prompt:'How does the sand feel?',starter:"It's"},

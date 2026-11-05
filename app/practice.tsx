@@ -1,3 +1,5 @@
+import LessonAssets from './lesson-assets';
+import type {LessonMedia} from '../lib/lesson-media';
 import {beehiveMissionName} from '../lib/beehive-activities';
 import ListeningSentenceBuilder from './listening-sentence-builder';
 import SentenceActivities from './sentence-activities';
@@ -33,7 +35,12 @@ import { nextReview,reviewCards } from '@/lib/review-schedule';
 import type { ActivityDraft } from '@/lib/classroom-types';
 import { words, speak, loadProgress, saveProgress, type Progress } from "./words";
 const SentenceSpeaking=lazy(()=>import('../github-pages/local-speech-trial'));
-export default function Practice({preview=false,completedActivities=[],completedQuestions,spellingScope,vocabulary=words,readings=passages,unitId,initialProgress,onActivity,homework=false,homeworkSequence=true,age,onlyDue=false,sentencePractice,story,readingStory,videos,activities:requestedActivities=allActivities}:{preview?:boolean;completedActivities?:string[];completedQuestions?:string[];spellingScope?:string;sentencePractice?:SentencePractice[];readingStory?:IllustratedReading;story?:PictureStory;videos?:LessonVideo[];activities?:ActivityId[];vocabulary?:typeof words;readings?:import("@/lib/classroom-types").ReadingPassage[];unitId?:string;initialProgress?:Progress;onActivity?:(event:import("@/lib/classroom-types").ActivityDraft)=>Promise<void>;age?:string;onlyDue?:boolean;homework?:boolean;homeworkSequence?:boolean}){
+type PracticeProps={preview?:boolean;completedActivities?:string[];completedQuestions?:string[];spellingScope?:string;sentencePractice?:SentencePractice[];readingStory?:IllustratedReading;story?:PictureStory;videos?:LessonVideo[];activities?:ActivityId[];vocabulary?:typeof words;readings?:import("@/lib/classroom-types").ReadingPassage[];unitId?:string;initialProgress?:Progress;onActivity?:(event:import("@/lib/classroom-types").ActivityDraft)=>Promise<void>;age?:string;onlyDue?:boolean;homework?:boolean;homeworkSequence?:boolean;mediaLesson?:LessonMedia;onMediaReady?:(ready:boolean)=>void};
+export default function Practice(props:PracticeProps){
+ const media=props.mediaLesson||{words:props.vocabulary||words,readings:props.readings||passages,story:props.story,readingStory:props.readingStory,videos:props.videos,sentencePractice:props.sentencePractice};
+ return <LessonAssets lesson={media} onReady={props.onMediaReady}><PracticeContent {...props}/></LessonAssets>;
+}
+function PracticeContent({preview=false,completedActivities=[],completedQuestions,spellingScope,vocabulary=words,readings=passages,unitId,initialProgress,onActivity,homework=false,homeworkSequence=true,age,onlyDue=false,sentencePractice,story,readingStory,videos,activities:requestedActivities=allActivities}:PracticeProps){
  useEffect(()=>{prepareAnswerSounds();prepareCelebration();return stopAnswerSounds},[]);
  const [replay,setReplay]=useState(0),[localDone,setLocalDone]=useState<string[]>([]);
  const finishedActivities=[...completedActivities,...localDone];

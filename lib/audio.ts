@@ -7,7 +7,7 @@ let generation = 0;
 const answerPlayers:Partial<Record<'correct'|'incorrect',HTMLAudioElement>>={};
 export function prepareAnswerSounds(){
  if(typeof window==='undefined')return;
- for(const kind of ['correct','incorrect'] as const){if(answerPlayers[kind])continue;const audio=new Audio();audio.src=publicAsset('answer-sounds/'+kind+'.wav');audio.preload='auto';audio.volume=.55;answerPlayers[kind]=audio;}
+ for(const kind of ['correct','incorrect'] as const){const src=publicAsset('answer-sounds/'+kind+'.wav');const audio=answerPlayers[kind]||new Audio();if(audio.getAttribute('src')!==src)audio.src=src;audio.preload='auto';audio.volume=.55;answerPlayers[kind]=audio;}
 }
 export function stopAnswerSounds(){for(const audio of Object.values(answerPlayers)){audio?.pause();if(audio)audio.currentTime=0;}}
 export function playAnswerSound(correct:boolean){
@@ -17,7 +17,8 @@ export function playAnswerSound(correct:boolean){
  try{void audio?.play().catch(()=>{});}catch{}
 }
 export function audioKey(text:string) { return text.trim().toLowerCase().replace(/\s+/g,' ').replace(/[‘’]/g,"'").replace(/[“”]/g,'"'); }
-export function audioSource(text:string) { const file=clips[audioKey(text)];return file?publicAsset('lesson-audio/'+file):undefined; }
+export function recordingPath(text:string){const file=clips[audioKey(text)];return file?'lesson-audio/'+file:undefined}
+export function audioSource(text:string) { const path=recordingPath(text);return path?publicAsset(path):undefined; }
 function report(message:string,src?:string) { window.dispatchEvent(new CustomEvent('wordquest-audio-error',{detail:{message,src}})); }
 export function stopSpeaking() { generation++;player?.pause();if(player)player.currentTime=0;window.speechSynthesis?.cancel();utterance=undefined; }
 export function speak(text:string) {

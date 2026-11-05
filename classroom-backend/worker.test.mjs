@@ -1214,3 +1214,38 @@ test('Play 2 volcano short rounds save exact questions and daily practice comple
  hw=(await api('/homework?child='+childId,undefined,parent)).body;assert.equal(hw.homeworkProgress[monster].percent,100);assert.equal(hw.rewards.xp,30);
  }finally{await DB.sqlite.close()}
 });
+
+test('teacher class practice matches student review days and XP, includes inactive peers, and protects class access',async()=>{
+ const {api,DB}=await setup();try{
+ const owner=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+ const a=(await api('/groups',{name:'Practice A'},owner)).body,b=(await api('/groups',{name:'Private B'},owner)).body;
+ const kids=(await api('/teacher-students',{groupId:a.id,names:['Amy Wang','Ben Li']},owner)).body.students;
+ const other=(await api('/teacher-students',{groupId:b.id,names:['Private child']},owner)).body.students[0].id;
+ const id=kids[0].id,path='/class-practice?group='+a.id;
+ const access=(await api('/student-link',{childId:id},owner)).body.access,student=(await api('/student-login',{access})).body.token;
+ const parent=(await api('/register',{username:'review_parent',password:'parent-password',consent:true})).body.token;
+ assert.equal((await api(path)).status,401);assert.equal((await api(path,undefined,student)).status,403);assert.equal((await api(path,undefined,parent)).status,403);
+ assert.equal((await api('/class-practice?group=missing',undefined,owner)).status,400);
+ const staff=(await api('/staff-save',{name:'Scoped',username:'reviewteacher',role:'assistant',permissions:['attendance'],groups:[a.id],active:true},owner)).body.id;
+ const invite=(await api('/staff-invite',{id:staff},owner)).body.invite;await api('/staff-accept',{invite,password:'teacher-password'});
+ const token=(await api('/teacher-login',{username:'reviewteacher',password:'teacher-password'})).body.token;
+ assert.equal((await api('/class-practice?group='+b.id,undefined,token)).status,403);
+ const initial=(await api(path,undefined,token)).body;
+ assert.equal(initial.students.length,2);assert(initial.students.every(s=>!s.reviewDays.length&&s.xp===0));
+ const now=Date.now(),date=at=>new Date(at+28800000).toISOString().slice(0,10),monday=Date.parse(initial.weekStart+'T00:00:00+08:00');
+ for(const [day,kid] of [[initial.today,id],[date(monday-1),id],[date(monday+7*86400000),id],[initial.today,other]])await DB.prepare('INSERT INTO config(key,value) VALUES(?,?)').bind('review_day:'+day+':'+kid,'1').run();
+ for(const [key,xp,at,revoked] of [['current',15,now,0],['old',20,monday-1,0],['undone',100,now,1]])await DB.prepare('INSERT INTO reward_events VALUES(?,?,?,?,?,?,?,?)').bind(key,id,key,'manual','Test',xp,at,revoked).run();
+ const words=['pu-starter-u7-climb','pu-starter-u7-swim','pu-starter-u7-walk','pu-starter-u7-jump'];
+ const assignment=(await api('/assignments',{groupId:a.id,unitId:'pu-starter-u7-lesson1',activities:['picture-listen'],wordIds:words},owner)).body.id;
+ await api('/progress',{childId:id,assignmentId:assignment,activity:'picture-listen',wordId:words[0],correct:true,eventId:crypto.randomUUID()},student);
+ const result=await api(path,undefined,token);assert.equal(result.status,200);
+ const row=result.body.students.find(s=>s.id===id),dashboard=(await api('/homework?child='+id,undefined,student)).body.dashboard,me=dashboard.classmates.find(s=>s.me);
+ assert.deepEqual(row.reviewDays,[initial.today],'Homework and extra review on same day count once; old/future markers excluded');
+ assert.deepEqual(row.reviewDays,me.reviewDays);assert.equal(row.xp,me.xp);assert.equal(row.weeklyXP,me.weeklyXP);assert.equal(row.xp-row.weeklyXP,20);
+ assert.equal(row.name,'Amy Wang');assert.equal(result.body.students[0].id,id);assert(!result.body.students.some(s=>s.id===other));
+ assert.deepEqual(result.body.students.find(s=>s.id===kids[1].id).reviewDays,[]);
+ await api('/approve',{childId:id,approved:false},owner);assert.deepEqual((await api(path,undefined,token)).body.students.map(s=>s.id),[kids[1].id]);
+ await api('/staff-save',{id:staff,name:'Scoped',username:'reviewteacher',role:'assistant',permissions:['attendance'],groups:[],active:true},owner);
+ assert.equal((await api(path,undefined,token)).status,403,'Access changes take effect immediately');
+ }finally{await DB.sqlite.close()}
+});

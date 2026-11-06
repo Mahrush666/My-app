@@ -4,7 +4,7 @@
     {
       "id": "beehive1-u4-l9-scene-1",
       "label": "Nature in Australia",
-      "image": "lessons/beehive1-u4/page-52.webp",
+      "image": "lessons/beehive1-u4/art/there-is-dialogue.webp",
       "full": [
         "I can see the sea.",
         "I can’t see the sea, but I can see some trees."
@@ -17,7 +17,7 @@
     {
       "id": "beehive1-u4-l9-scene-2",
       "label": "make a sandcastle",
-      "image": "lessons/beehive1-u4/tilly-2.webp",
+      "image": "lessons/beehive1-u4/art/tilly-2.webp",
       "full": [
         "I can make a sandcastle."
       ],
@@ -28,7 +28,7 @@
     {
       "id": "beehive1-u4-l9-scene-3",
       "label": "find shells",
-      "image": "lessons/beehive1-u4/tilly-3.webp",
+      "image": "lessons/beehive1-u4/art/tilly-3.webp",
       "full": [
         "I can find shells."
       ],
@@ -39,7 +39,7 @@
     {
       "id": "beehive1-u4-l9-scene-4",
       "label": "play football",
-      "image": "lessons/beehive1-u4/tilly-4.webp",
+      "image": "lessons/beehive1-u4/art/tilly-4.webp",
       "full": [
         "I can play football."
       ],
@@ -50,7 +50,7 @@
     {
       "id": "beehive1-u4-l9-scene-5",
       "label": "swim",
-      "image": "lessons/beehive1-u4/tilly-5.webp",
+      "image": "lessons/beehive1-u4/art/tilly-5.webp",
       "full": [
         "I can swim in the sea."
       ],
@@ -61,7 +61,7 @@
     {
       "id": "beehive1-u4-l9-scene-6",
       "label": "run",
-      "image": "lessons/beehive1-u4/tilly-6.webp",
+      "image": "lessons/beehive1-u4/art/tilly-6.webp",
       "full": [
         "I can run."
       ],
@@ -72,7 +72,7 @@
     {
       "id": "beehive1-u4-l9-scene-7",
       "label": "read",
-      "image": "lessons/beehive1-u4/tilly-7.webp",
+      "image": "lessons/beehive1-u4/art/tilly-7.webp",
       "full": [
         "I can read in the sun."
       ],

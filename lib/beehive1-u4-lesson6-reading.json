@@ -4,7 +4,7 @@
     {
       "id": "beehive1-u4-l6-scene-1",
       "label": "At the beach",
-      "image": "lessons/beehive1-u4/there-is-dialogue.webp",
+      "image": "lessons/beehive1-u4/art/there-is-dialogue.webp",
       "full": [
         "Look! There’s a beach!",
         "There’s a tree.",
@@ -21,7 +21,7 @@
     {
       "id": "beehive1-u4-l6-scene-2",
       "label": "There’s / There are",
-      "image": "lessons/beehive1-u4/there-is-grammar.webp",
+      "image": "lessons/beehive1-u4/art/some-trees.webp",
       "full": [
         "There are some trees."
       ],
@@ -32,7 +32,7 @@
     {
       "id": "beehive1-u4-l6-scene-3",
       "label": "There’s / There are",
-      "image": "lessons/beehive1-u4/there-is-grammar.webp",
+      "image": "lessons/beehive1-u4/art/lake.webp",
       "full": [
         "There’s a lake."
       ],
@@ -43,7 +43,7 @@
     {
       "id": "beehive1-u4-l6-scene-4",
       "label": "There’s / There are",
-      "image": "lessons/beehive1-u4/there-is-grammar.webp",
+      "image": "lessons/beehive1-u4/art/flower.webp",
       "full": [
         "There’s a flower."
       ],
@@ -54,7 +54,7 @@
     {
       "id": "beehive1-u4-l6-scene-5",
       "label": "There’s / There are",
-      "image": "lessons/beehive1-u4/there-is-grammar.webp",
+      "image": "lessons/beehive1-u4/art/some-bees.webp",
       "full": [
         "There are some bees."
       ],
@@ -65,7 +65,7 @@
     {
       "id": "beehive1-u4-l6-scene-6",
       "label": "There’s / There are",
-      "image": "lessons/beehive1-u4/there-is-grammar.webp",
+      "image": "lessons/beehive1-u4/art/some-plants.webp",
       "full": [
         "There are some plants."
       ],
@@ -76,7 +76,7 @@
     {
       "id": "beehive1-u4-l6-scene-7",
       "label": "There’s / There are",
-      "image": "lessons/beehive1-u4/there-is-grammar.webp",
+      "image": "lessons/beehive1-u4/frog.webp",
       "full": [
         "There’s a frog."
       ],
@@ -87,7 +87,7 @@
     {
       "id": "beehive1-u4-l6-scene-8",
       "label": "Outdoors!",
-      "image": "lessons/beehive1-u4/outdoors-song.webp",
+      "image": "lessons/beehive1-u4/art/outdoors-song.webp",
       "full": [
         "Outdoors! Outdoors!",
         "What can you see?",

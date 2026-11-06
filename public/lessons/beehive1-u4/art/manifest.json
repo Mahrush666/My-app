@@ -1,0 +1,290 @@
+{
+  "source": "Generated illustrations",
+  "generator": "built-in image_gen",
+  "images": [
+    {
+      "file": "alvin-beach.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 197846
+    },
+    {
+      "file": "animal-puzzle-cat.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 143360
+    },
+    {
+      "file": "animal-puzzle-dog.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 131308
+    },
+    {
+      "file": "bahamas-beach.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 211492
+    },
+    {
+      "file": "beach-activities-board.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 213334
+    },
+    {
+      "file": "beach.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 179740
+    },
+    {
+      "file": "climb.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 131864
+    },
+    {
+      "file": "clown-fish.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 113206
+    },
+    {
+      "file": "coast-board.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 121770
+    },
+    {
+      "file": "coconuts.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 180882
+    },
+    {
+      "file": "flower.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 64856
+    },
+    {
+      "file": "fly.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 61130
+    },
+    {
+      "file": "is-it-dialogue.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 220066
+    },
+    {
+      "file": "jump.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 88658
+    },
+    {
+      "file": "lake.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 103388
+    },
+    {
+      "file": "nature-board.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 122032
+    },
+    {
+      "file": "outdoors-scene.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 253086
+    },
+    {
+      "file": "outdoors-song.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 138392
+    },
+    {
+      "file": "plant.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 45558
+    },
+    {
+      "file": "run.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 130044
+    },
+    {
+      "file": "sand.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 212270
+    },
+    {
+      "file": "sandcastle.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 170868
+    },
+    {
+      "file": "sea.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 108734
+    },
+    {
+      "file": "shell.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 69090
+    },
+    {
+      "file": "some-bees.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 71212
+    },
+    {
+      "file": "some-plants.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 130224
+    },
+    {
+      "file": "some-trees.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 92820
+    },
+    {
+      "file": "story-1.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 145912
+    },
+    {
+      "file": "story-2.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 176320
+    },
+    {
+      "file": "story-3.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 169544
+    },
+    {
+      "file": "story-4.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 178876
+    },
+    {
+      "file": "story-5.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 149040
+    },
+    {
+      "file": "story-6.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 182724
+    },
+    {
+      "file": "story-7.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 156040
+    },
+    {
+      "file": "story-8.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 215000
+    },
+    {
+      "file": "sun.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 38444
+    },
+    {
+      "file": "swim.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 110848
+    },
+    {
+      "file": "there-is-dialogue.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 163868
+    },
+    {
+      "file": "tilly-2.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 153508
+    },
+    {
+      "file": "tilly-3.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 162312
+    },
+    {
+      "file": "tilly-4.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 145752
+    },
+    {
+      "file": "tilly-5.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 160186
+    },
+    {
+      "file": "tilly-6.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 133228
+    },
+    {
+      "file": "tilly-7.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 144300
+    },
+    {
+      "file": "tree.webp",
+      "width": 1000,
+      "height": 1000,
+      "bytes": 93412
+    }
+  ],
+  "previouslyGeneratedPreserved": [
+    "cat.webp",
+    "dog.webp",
+    "snake.webp",
+    "duck.webp",
+    "frog.webp",
+    "fish.webp",
+    "spider.webp",
+    "bee.webp",
+    "mission-cat.webp",
+    "mission-dog.webp",
+    "mission-snake.webp",
+    "mission-frog.webp"
+  ]
+}

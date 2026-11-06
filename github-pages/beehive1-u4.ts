@@ -131,14 +131,14 @@ const pageLessons:Lesson[]=[
       "kind": "song",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-072.m4a",
-      "poster": "lessons/beehive1-u4/page-44.webp"
+      "poster": "lessons/beehive1-u4/art/outdoors-scene.webp"
     },
     {
       "title": "Animals · Listen, point and repeat",
       "kind": "lesson",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-071.m4a",
-      "poster": "lessons/beehive1-u4/page-44.webp"
+      "poster": "lessons/beehive1-u4/art/outdoors-scene.webp"
     }
   ],
   "sentencePractice": [
@@ -368,7 +368,7 @@ const pageLessons:Lesson[]=[
       "kind": "lesson",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-073.m4a",
-      "poster": "lessons/beehive1-u4/page-45.webp"
+      "poster": "lessons/beehive1-u4/art/outdoors-scene.webp"
     }
   ],
   "sentencePractice": [
@@ -566,14 +566,14 @@ const pageLessons:Lesson[]=[
       "kind": "lesson",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-074.m4a",
-      "poster": "lessons/beehive1-u4/page-46.webp"
+      "poster": "lessons/beehive1-u4/art/is-it-dialogue.webp"
     },
     {
       "title": "Animals · Listen, number and repeat",
       "kind": "lesson",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-075.m4a",
-      "poster": "lessons/beehive1-u4/page-46.webp"
+      "poster": "lessons/beehive1-u4/art/outdoors-scene.webp"
     }
   ],
   "sentencePractice": [
@@ -812,7 +812,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a tree.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/tree.webp"
+      "picture": "lessons/beehive1-u4/art/tree.webp"
     },
     {
       "id": "beehive1-u4-l5-lake",
@@ -821,7 +821,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a lake.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/lake.webp"
+      "picture": "lessons/beehive1-u4/art/lake.webp"
     },
     {
       "id": "beehive1-u4-l5-flower",
@@ -830,7 +830,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a flower.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/flower.webp"
+      "picture": "lessons/beehive1-u4/art/flower.webp"
     },
     {
       "id": "beehive1-u4-l5-plant",
@@ -839,7 +839,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a plant.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/plant.webp"
+      "picture": "lessons/beehive1-u4/art/plant.webp"
     },
     {
       "id": "beehive1-u4-l5-beach",
@@ -848,7 +848,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a beach.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/beach.webp"
+      "picture": "lessons/beehive1-u4/art/beach.webp"
     },
     {
       "id": "beehive1-u4-l5-shell",
@@ -857,7 +857,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a shell.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/shell.webp"
+      "picture": "lessons/beehive1-u4/art/shell.webp"
     }
   ],
   "readings": [
@@ -896,43 +896,43 @@ const pageLessons:Lesson[]=[
       "kind": "lesson",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-076.m4a",
-      "poster": "lessons/beehive1-u4/page-48.webp"
+      "poster": "lessons/beehive1-u4/art/nature-board.webp"
     },
     {
       "title": "What’s missing? · Listen and say",
       "kind": "lesson",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-077.m4a",
-      "poster": "lessons/beehive1-u4/page-48.webp"
+      "poster": "lessons/beehive1-u4/art/nature-board.webp"
     },
     {
       "title": "Is it a plant? · Listen and follow",
       "kind": "lesson",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-078.m4a",
-      "poster": "lessons/beehive1-u4/page-48.webp"
+      "poster": "lessons/beehive1-u4/art/nature-board.webp"
     }
   ],
   "sentencePractice": [
     {
       "id": "beehive1-u4-l5-say-1",
       "text": "Is it a shell?",
-      "picture": "lessons/beehive1-u4/tree.webp"
+      "picture": "lessons/beehive1-u4/art/tree.webp"
     },
     {
       "id": "beehive1-u4-l5-say-2",
       "text": "No, it isn’t.",
-      "picture": "lessons/beehive1-u4/tree.webp"
+      "picture": "lessons/beehive1-u4/art/tree.webp"
     },
     {
       "id": "beehive1-u4-l5-say-3",
       "text": "Is it a plant?",
-      "picture": "lessons/beehive1-u4/lake.webp"
+      "picture": "lessons/beehive1-u4/art/plant.webp"
     },
     {
       "id": "beehive1-u4-l5-say-4",
       "text": "Yes, it is!",
-      "picture": "lessons/beehive1-u4/flower.webp"
+      "picture": "lessons/beehive1-u4/art/plant.webp"
     }
   ]
 },readingStory:reading5},
@@ -954,7 +954,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a tree.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/tree.webp"
+      "picture": "lessons/beehive1-u4/art/tree.webp"
     },
     {
       "id": "beehive1-u4-l6-lake",
@@ -963,7 +963,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a lake.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/lake.webp"
+      "picture": "lessons/beehive1-u4/art/lake.webp"
     },
     {
       "id": "beehive1-u4-l6-flower",
@@ -972,7 +972,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a flower.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/flower.webp"
+      "picture": "lessons/beehive1-u4/art/flower.webp"
     },
     {
       "id": "beehive1-u4-l6-plant",
@@ -981,7 +981,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a plant.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/plant.webp"
+      "picture": "lessons/beehive1-u4/art/plant.webp"
     },
     {
       "id": "beehive1-u4-l6-beach",
@@ -990,7 +990,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a beach.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/beach.webp"
+      "picture": "lessons/beehive1-u4/art/beach.webp"
     },
     {
       "id": "beehive1-u4-l6-shell",
@@ -999,7 +999,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a shell.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/shell.webp"
+      "picture": "lessons/beehive1-u4/art/shell.webp"
     }
   ],
   "readings": [
@@ -1089,53 +1089,53 @@ const pageLessons:Lesson[]=[
       "kind": "lesson",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-079.m4a",
-      "poster": "lessons/beehive1-u4/page-49.webp"
+      "poster": "lessons/beehive1-u4/art/there-is-dialogue.webp"
     },
     {
       "title": "Outdoors! · Sing along",
       "kind": "song",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-080.m4a",
-      "poster": "lessons/beehive1-u4/page-49.webp"
+      "poster": "lessons/beehive1-u4/art/outdoors-song.webp"
     },
     {
       "title": "Outdoors! · Karaoke",
       "kind": "song",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-081.m4a",
-      "poster": "lessons/beehive1-u4/page-49.webp"
+      "poster": "lessons/beehive1-u4/art/outdoors-song.webp"
     }
   ],
   "sentencePractice": [
     {
       "id": "beehive1-u4-l6-say-1",
       "text": "Look! There’s a beach!",
-      "picture": "lessons/beehive1-u4/there-is-dialogue.webp"
+      "picture": "lessons/beehive1-u4/art/there-is-dialogue.webp"
     },
     {
       "id": "beehive1-u4-l6-say-2",
       "text": "There’s a tree.",
-      "picture": "lessons/beehive1-u4/there-is-dialogue.webp"
+      "picture": "lessons/beehive1-u4/art/there-is-dialogue.webp"
     },
     {
       "id": "beehive1-u4-l6-say-3",
       "text": "There are some shells.",
-      "picture": "lessons/beehive1-u4/there-is-dialogue.webp"
+      "picture": "lessons/beehive1-u4/art/there-is-dialogue.webp"
     },
     {
       "id": "beehive1-u4-l6-say-4",
       "text": "Oh! There are some fish!",
-      "picture": "lessons/beehive1-u4/there-is-dialogue.webp"
+      "picture": "lessons/beehive1-u4/art/there-is-dialogue.webp"
     },
     {
       "id": "beehive1-u4-l6-say-5",
       "text": "There’s a lake.",
-      "picture": "lessons/beehive1-u4/lake.webp"
+      "picture": "lessons/beehive1-u4/art/lake.webp"
     },
     {
       "id": "beehive1-u4-l6-say-6",
       "text": "There’s a flower.",
-      "picture": "lessons/beehive1-u4/flower.webp"
+      "picture": "lessons/beehive1-u4/art/flower.webp"
     }
   ]
 },readingStory:reading6 as IllustratedReading},
@@ -1193,7 +1193,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a coconut.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/coconuts.webp"
+      "picture": "lessons/beehive1-u4/art/coconuts.webp"
     }
   ],
   "readings": [
@@ -1270,24 +1270,24 @@ const pageLessons:Lesson[]=[
       "kind": "lesson",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-082.m4a",
-      "poster": "lessons/beehive1-u4/page-50.webp"
+      "poster": "lessons/beehive1-u4/art/story-1.webp"
     }
   ],
   "sentencePractice": [
     {
       "id": "beehive1-u4-l7-say-1",
       "text": "I can’t get the coconuts!",
-      "picture": "lessons/beehive1-u4/story-3.webp"
+      "picture": "lessons/beehive1-u4/art/story-3.webp"
     },
     {
       "id": "beehive1-u4-l7-say-2",
       "text": "Jump on me!",
-      "picture": "lessons/beehive1-u4/story-2.webp"
+      "picture": "lessons/beehive1-u4/art/story-2.webp"
     },
     {
       "id": "beehive1-u4-l7-say-3",
       "text": "There are some coconuts.",
-      "picture": "lessons/beehive1-u4/story-1.webp"
+      "picture": "lessons/beehive1-u4/art/story-1.webp"
     }
   ]
 },readingStory:reading7 as IllustratedReading},
@@ -1345,7 +1345,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a coconut.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/coconuts.webp"
+      "picture": "lessons/beehive1-u4/art/coconuts.webp"
     },
     {
       "id": "beehive1-u4-l8-team",
@@ -1354,7 +1354,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a team.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/story-8.webp"
+      "picture": "lessons/beehive1-u4/art/story-8.webp"
     }
   ],
   "readings": [
@@ -1401,24 +1401,24 @@ const pageLessons:Lesson[]=[
       "kind": "lesson",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-082.m4a",
-      "poster": "lessons/beehive1-u4/page-50.webp"
+      "poster": "lessons/beehive1-u4/art/story-1.webp"
     }
   ],
   "sentencePractice": [
     {
       "id": "beehive1-u4-l8-say-1",
       "text": "Jump, Frog, jump!",
-      "picture": "lessons/beehive1-u4/story-7.webp"
+      "picture": "lessons/beehive1-u4/art/story-7.webp"
     },
     {
       "id": "beehive1-u4-l8-say-2",
       "text": "Hurray! Coconuts for everyone!",
-      "picture": "lessons/beehive1-u4/story-8.webp"
+      "picture": "lessons/beehive1-u4/art/story-8.webp"
     },
     {
       "id": "beehive1-u4-l8-say-3",
       "text": "We’re a great team!",
-      "picture": "lessons/beehive1-u4/story-8.webp"
+      "picture": "lessons/beehive1-u4/art/story-8.webp"
     }
   ]
 },readingStory:reading8},
@@ -1440,7 +1440,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "I can see the sea.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/sea.webp"
+      "picture": "lessons/beehive1-u4/art/sea.webp"
     },
     {
       "id": "beehive1-u4-l9-sun",
@@ -1449,7 +1449,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "I can see the sun.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/sun.webp"
+      "picture": "lessons/beehive1-u4/art/sun.webp"
     },
     {
       "id": "beehive1-u4-l9-sand",
@@ -1458,7 +1458,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "I can see the sand.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/sand.webp"
+      "picture": "lessons/beehive1-u4/art/sand.webp"
     },
     {
       "id": "beehive1-u4-l9-sandcastle",
@@ -1467,7 +1467,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a sandcastle.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/sandcastle.webp"
+      "picture": "lessons/beehive1-u4/art/sandcastle.webp"
     }
   ],
   "readings": [
@@ -1553,70 +1553,70 @@ const pageLessons:Lesson[]=[
       "kind": "lesson",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-083.m4a",
-      "poster": "lessons/beehive1-u4/page-52.webp"
+      "poster": "lessons/beehive1-u4/art/coast-board.webp"
     },
     {
       "title": "Tilly in Australia · Listen and say the number",
       "kind": "lesson",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-084.m4a",
-      "poster": "lessons/beehive1-u4/page-52.webp"
+      "poster": "lessons/beehive1-u4/art/coast-board.webp"
     },
     {
       "title": "At the beach · Listen and number",
       "kind": "lesson",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-085.m4a",
-      "poster": "lessons/beehive1-u4/page-52.webp"
+      "poster": "lessons/beehive1-u4/art/beach-activities-board.webp"
     },
     {
       "title": "I can see the sea · Listen and follow",
       "kind": "lesson",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-086.m4a",
-      "poster": "lessons/beehive1-u4/page-52.webp"
+      "poster": "lessons/beehive1-u4/art/there-is-dialogue.webp"
     }
   ],
   "sentencePractice": [
     {
       "id": "beehive1-u4-l9-say-1",
       "text": "I can see the sea.",
-      "picture": "lessons/beehive1-u4/page-52.webp"
+      "picture": "lessons/beehive1-u4/art/there-is-dialogue.webp"
     },
     {
       "id": "beehive1-u4-l9-say-2",
       "text": "I can’t see the sea, but I can see some trees.",
-      "picture": "lessons/beehive1-u4/page-52.webp"
+      "picture": "lessons/beehive1-u4/art/some-trees.webp"
     },
     {
       "id": "beehive1-u4-l9-say-3",
       "text": "I can make a sandcastle.",
-      "picture": "lessons/beehive1-u4/tilly-2.webp"
+      "picture": "lessons/beehive1-u4/art/tilly-2.webp"
     },
     {
       "id": "beehive1-u4-l9-say-4",
       "text": "I can find shells.",
-      "picture": "lessons/beehive1-u4/tilly-3.webp"
+      "picture": "lessons/beehive1-u4/art/tilly-3.webp"
     },
     {
       "id": "beehive1-u4-l9-say-5",
       "text": "I can play football.",
-      "picture": "lessons/beehive1-u4/tilly-4.webp"
+      "picture": "lessons/beehive1-u4/art/tilly-4.webp"
     },
     {
       "id": "beehive1-u4-l9-say-6",
       "text": "I can swim in the sea.",
-      "picture": "lessons/beehive1-u4/tilly-5.webp"
+      "picture": "lessons/beehive1-u4/art/tilly-5.webp"
     },
     {
       "id": "beehive1-u4-l9-say-7",
       "text": "I can run.",
-      "picture": "lessons/beehive1-u4/tilly-6.webp"
+      "picture": "lessons/beehive1-u4/art/tilly-6.webp"
     },
     {
       "id": "beehive1-u4-l9-say-8",
       "text": "I can read in the sun.",
-      "picture": "lessons/beehive1-u4/tilly-7.webp"
+      "picture": "lessons/beehive1-u4/art/tilly-7.webp"
     }
   ]
 },readingStory:reading9},
@@ -1638,7 +1638,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a beach.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/beach.webp"
+      "picture": "lessons/beehive1-u4/art/beach.webp"
     },
     {
       "id": "beehive1-u4-l10-sand",
@@ -1647,7 +1647,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "I can see the sand.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/sand.webp"
+      "picture": "lessons/beehive1-u4/art/sand.webp"
     },
     {
       "id": "beehive1-u4-l10-shell",
@@ -1656,7 +1656,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a shell.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/shell.webp"
+      "picture": "lessons/beehive1-u4/art/shell.webp"
     },
     {
       "id": "beehive1-u4-l10-tree",
@@ -1665,7 +1665,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a tree.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/tree.webp"
+      "picture": "lessons/beehive1-u4/art/tree.webp"
     },
     {
       "id": "beehive1-u4-l10-sea",
@@ -1674,7 +1674,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "I can see the sea.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/sea.webp"
+      "picture": "lessons/beehive1-u4/art/sea.webp"
     },
     {
       "id": "beehive1-u4-l10-clown-fish",
@@ -1683,7 +1683,7 @@ const pageLessons:Lesson[]=[
       "icon": "",
       "sentence": "This is a clown fish.",
       "category": "Outdoors",
-      "picture": "lessons/beehive1-u4/clown-fish.webp"
+      "picture": "lessons/beehive1-u4/art/clown-fish.webp"
     }
   ],
   "readings": [
@@ -1732,7 +1732,7 @@ const pageLessons:Lesson[]=[
       "kind": "lesson",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-087.m4a",
-      "poster": "lessons/beehive1-u4/page-53.webp"
+      "poster": "lessons/beehive1-u4/art/bahamas-beach.webp"
     },
     {
       "title": "Make a postcard · Project video",
@@ -1745,36 +1745,36 @@ const pageLessons:Lesson[]=[
       "kind": "lesson",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-088.m4a",
-      "poster": "lessons/beehive1-u4/page-53.webp"
+      "poster": "lessons/beehive1-u4/art/bahamas-beach.webp"
     },
     {
       "title": "Dear Teacher · Postcard example",
       "kind": "lesson",
       "audioOnly": true,
       "src": "lessons/beehive1-u4/track-089.m4a",
-      "poster": "lessons/beehive1-u4/page-53.webp"
+      "poster": "lessons/beehive1-u4/art/bahamas-beach.webp"
     }
   ],
   "sentencePractice": [
     {
       "id": "beehive1-u4-l10-say-1",
       "text": "This is a beach in The Bahamas.",
-      "picture": "lessons/beehive1-u4/bahamas-postcard.webp"
+      "picture": "lessons/beehive1-u4/art/bahamas-beach.webp"
     },
     {
       "id": "beehive1-u4-l10-say-2",
       "text": "The sand is pink.",
-      "picture": "lessons/beehive1-u4/sand.webp"
+      "picture": "lessons/beehive1-u4/art/bahamas-beach.webp"
     },
     {
       "id": "beehive1-u4-l10-say-3",
       "text": "There are some shells on the beach.",
-      "picture": "lessons/beehive1-u4/shell.webp"
+      "picture": "lessons/beehive1-u4/art/bahamas-beach.webp"
     },
     {
       "id": "beehive1-u4-l10-say-4",
       "text": "I can swim in the sea, too.",
-      "picture": "lessons/beehive1-u4/sea.webp"
+      "picture": "lessons/beehive1-u4/art/alvin-beach.webp"
     }
   ]
 },readingStory:reading10}

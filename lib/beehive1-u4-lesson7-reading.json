@@ -4,7 +4,7 @@
     {
       "id": "beehive1-u4-l7-scene-1",
       "label": "Coconuts for everyone! · 1",
-      "image": "lessons/beehive1-u4/story-1.webp",
+      "image": "lessons/beehive1-u4/art/story-1.webp",
       "full": [
         "A dog is on a beach.",
         "There’s a tree. There are some coconuts."
@@ -17,7 +17,7 @@
     {
       "id": "beehive1-u4-l7-scene-2",
       "label": "Coconuts for everyone! · 2",
-      "image": "lessons/beehive1-u4/story-2.webp",
+      "image": "lessons/beehive1-u4/art/story-2.webp",
       "full": [
         "Here’s a cat.",
         "Look, Cat! Coconuts! Jump on me!"
@@ -30,7 +30,7 @@
     {
       "id": "beehive1-u4-l7-scene-3",
       "label": "Coconuts for everyone! · 3",
-      "image": "lessons/beehive1-u4/story-3.webp",
+      "image": "lessons/beehive1-u4/art/story-3.webp",
       "full": [
         "I can’t get the coconuts!"
       ],
@@ -41,7 +41,7 @@
     {
       "id": "beehive1-u4-l7-scene-4",
       "label": "Coconuts for everyone! · 4",
-      "image": "lessons/beehive1-u4/story-4.webp",
+      "image": "lessons/beehive1-u4/art/story-4.webp",
       "full": [
         "Here’s a snake.",
         "Is it a cat on a dog? Yes, it is!",
@@ -56,7 +56,7 @@
     {
       "id": "beehive1-u4-l7-scene-5",
       "label": "Coconuts for everyone! · 5",
-      "image": "lessons/beehive1-u4/story-5.webp",
+      "image": "lessons/beehive1-u4/art/story-5.webp",
       "full": [
         "I can’t get the coconuts!"
       ],
@@ -67,7 +67,7 @@
     {
       "id": "beehive1-u4-l7-scene-6",
       "label": "Coconuts for everyone! · 6",
-      "image": "lessons/beehive1-u4/story-6.webp",
+      "image": "lessons/beehive1-u4/art/story-6.webp",
       "full": [
         "Here’s a frog.",
         "Is it a snake on a cat on a dog? Yes, it is!",

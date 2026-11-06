@@ -1,3 +1,4 @@
+import {beehiveObjectPicture} from './beehive-art';
 import type {Word} from '../app/words';
 import type {IllustratedReading} from './illustrated-reading';
 import type {PictureStory} from './picture-story';
@@ -31,7 +32,7 @@ export function lessonMediaFiles(lesson:LessonMedia):MediaFile[]{
  for(const passage of lesson.readings||[]){const picture=illustrations.find(i=>i.text===passage.text);add(picture?.src,'image')}
  for(const q of lesson.readingStory?.questions||[]){
   const m=q.mission;if(!m)continue;
-  if(m.kind==='scene'&&m.object)add('lessons/beehive1-u4/'+m.object+'.webp','image');
+  if(m.kind==='scene'&&m.object)add(beehiveObjectPicture(m.object!),'image');
   if(m.kind==='tower')for(const animal of [...(m.stack||[]),...(m.choices||[])])add('lessons/beehive1-u4/mission-'+animal+'.webp','image');
   if(m.kind==='volcano'){
    const names=m.task==='bag'?['vinegar','baking-soda','coloring','sand']:m.task==='step'?['volcano-empty','volcano','volcano-powder','volcano-liquid','bubbles']:m.task==='monster'?['monster-body','monster-eye','monster-hands','monster-1']:[];

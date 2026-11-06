@@ -4,7 +4,7 @@
     {
       "id": "beehive1-u4-l10-scene-1",
       "label": "Greetings from The Bahamas · 1",
-      "image": "lessons/beehive1-u4/bahamas-postcard.webp",
+      "image": "lessons/beehive1-u4/art/bahamas-beach.webp",
       "full": [
         "Dear Zach,",
         "This is a beach in The Bahamas. Can you see the sand? It’s pink! There are some shells on the beach. There are some trees, too."
@@ -17,7 +17,7 @@
     {
       "id": "beehive1-u4-l10-scene-2",
       "label": "Greetings from The Bahamas · 2",
-      "image": "lessons/beehive1-u4/bahamas-postcard.webp",
+      "image": "lessons/beehive1-u4/art/clown-fish.webp",
       "full": [
         "Look at the sea! It’s blue. There are some fish in the sea. This fish is a clown fish. It’s orange and white."
       ],
@@ -28,7 +28,7 @@
     {
       "id": "beehive1-u4-l10-scene-3",
       "label": "Greetings from The Bahamas · 3",
-      "image": "lessons/beehive1-u4/bahamas-postcard.webp",
+      "image": "lessons/beehive1-u4/art/alvin-beach.webp",
       "full": [
         "I can play baseball on the beach. I can swim in the sea, too.",
         "From,",

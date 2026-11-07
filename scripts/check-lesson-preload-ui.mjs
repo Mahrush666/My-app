@@ -10,9 +10,15 @@ async function flush(){for(let i=0;i<30;i++){const batch=pending.splice(0);batch
 try{
  w.document.body.innerHTML='<div id="root"></div>';w.eval(fs.readFileSync(dir+'ui.js','utf8'));await wait();assert.equal(w.events.at(-1),false);assert(w.document.querySelector('.lesson-assets'));assert.equal(w.document.querySelector('[role=tab]'),null,'Practice waits until media is downloaded');assert.equal(pending.length,4);
  pending.splice(0).forEach(fn=>fn());await wait();assert.equal(w.document.querySelector('[role=tab]'),null,'A few completed files do not open practice early');
- await flush();assert.match(w.document.body.textContent,/Some pictures or sounds could not load/);assert.equal(w.events.at(-1),false);assert(requests.some(src=>src.endsWith('dog.webp')),'Entire lesson downloads even when homework uses fewer words');assert(requests.some(src=>src.endsWith('original.mp3')));assert(!requests.some(src=>src.endsWith('.mp4')),'Videos never preloaded');
- const before=requests.length;fail=false;[...w.document.querySelectorAll('button')].find(b=>b.textContent==='Try again 重试').click();await wait();await flush();assert.equal(requests.length-before,1,'Retry reuses completed downloads');assert(w.document.querySelector('[role=tab]'));assert.equal(w.events.at(-1),true);
+ await flush();assert(w.document.querySelector('[role=tab]'),'An unavailable image does not keep the lesson closed');assert.equal(w.events.at(-1),true);
+ assert(requests.some(src=>src.endsWith('dog.webp')),'Background preload still includes the full lesson');assert(requests.some(src=>src.endsWith('original.mp3')));assert(!requests.some(src=>src.endsWith('.mp4')),'Videos never preloaded');
  const img=w.document.querySelector('.picture-prompt img');assert(img.src.startsWith('blob:'),'Exercise uses preloaded image');const count=requests.length;w.document.querySelector('.action-listen').click();await wait();assert(w.played.startsWith('blob:'),'Spoken audio uses preloaded bytes');assert.equal(requests.length,count,'No second download on audio click');
- w.show(true);await wait();assert(w.document.querySelector('[role=tab]'));assert.equal(requests.length,count,'Reopening prepared lesson is immediate');
- console.log('PASS: real Practice waits for complete lesson, shows progress/error/retry, excludes video, includes original audio/full vocabulary, uses local image and audio URLs, and reopens without downloading again');
+ const nativeTimeout=w.setTimeout.bind(w);
+ let openAfterBudget;
+ w.setTimeout=(callback,ms,...args)=>{if(ms===4000){openAfterBudget=callback;return nativeTimeout(()=>{},4000)}return nativeTimeout(callback,ms,...args)};
+ fail=false;w.show(true);await wait();assert(w.document.querySelector('.lesson-assets'));assert.equal(requests.length-count,1,'Reopening only downloads the file that failed');
+ assert(openAfterBudget,'The startup timer is independent of the download queue');openAfterBudget();await wait();
+ assert(w.document.querySelector('[role=tab]'),'Practice opens after the startup budget with a download still stalled');
+ assert.equal(w.events.at(-1),true);await flush();
+ console.log('PASS: bounded lesson startup, non-blocking failed images, background media, local audio playback, and cached files reused.');
 }finally{await w.happyDOM.close()}

@@ -41,5 +41,6 @@ export function lessonMediaFiles(lesson:LessonMedia):MediaFile[]{
  }
  for(const name of ['street.webp','archer.png','jiangshi.png','armored-jiangshi.png'])add('game-art/lantern-street/'+name,'image');
  add('answer-sounds/correct.wav','audio');add('answer-sounds/incorrect.wav','audio');add('sounds/celebration.mp3','audio');
- return [...files.values()].sort((a,b)=>a.src.localeCompare(b.src));
+ // Keep the first vocabulary cards near the front of the download queue.
+ return [...files.values()];
 }

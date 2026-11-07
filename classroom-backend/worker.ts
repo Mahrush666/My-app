@@ -297,9 +297,14 @@ export async function handle(request:Request,env:Env){
  if(path==='/homework'&&request.method==='GET'){
  const child=await childAccess(new URL(request.url).searchParams.get('child'));if(!child.approved)return respond({assignments:[],progress:{},completed:[],pending:true});
  const [assignments,reviews,completed]=await Promise.all([env.DB.prepare("SELECT * FROM assignments WHERE group_id=? AND id NOT IN (SELECT REPLACE(key,'assignment_archived:','') FROM config WHERE key LIKE 'assignment_archived:%' AND value='1') ORDER BY due_date,updated_at").bind(child.group_id).all(),env.DB.prepare('SELECT word_id,step,due FROM reviews WHERE child_id=?').bind(child.id).all(),env.DB.prepare('SELECT assignment_id,activity FROM completions WHERE child_id=?').bind(child.id).all()]);
- await syncHomeworkRewards(env.DB,child.id,assignments.results as {id:string;activities:string;title:string;updated_at:number}[],now);
- const rewards=await readRewards(env.DB,child.id);
- return respond({homeworkProgress:await readStudentProgress(env.DB,child.id,assignments.results,completed.results),lessonSettings:await publishedSettings(env.DB,lessons),dashboard:await studentDashboard(env.DB,child,now),rewards,assignments:assignments.results,progress:Object.fromEntries(reviews.results.map(r=>[r.word_id,{step:r.step,due:r.due}])),completed:completed.results,pending:false});
+ const rewardsReady=syncHomeworkRewards(env.DB,child.id,assignments.results as {id:string;activities:string;title:string;updated_at:number}[],now);
+ const [homeworkProgress,lessonSettings,dashboard,rewards]=await Promise.all([
+  readStudentProgress(env.DB,child.id,assignments.results,completed.results),
+  publishedSettings(env.DB,lessons),
+  rewardsReady.then(()=>studentDashboard(env.DB,child,now)),
+  rewardsReady.then(()=>readRewards(env.DB,child.id)),
+ ]);
+ return respond({homeworkProgress,lessonSettings,dashboard,rewards,assignments:assignments.results,progress:Object.fromEntries(reviews.results.map(r=>[r.word_id,{step:r.step,due:r.due}])),completed:completed.results,pending:false});
  }
  if(path==='/practice-progress'&&request.method==='POST'){
  const child=await childAccess(data.childId);requireValue(child.approved,'Your teacher needs to approve this profile.');

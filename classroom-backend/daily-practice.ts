@@ -12,27 +12,32 @@ import {studentHomeworkProgress,homeworkItems} from '../lib/student-homework-pro
 import {syncHomeworkRewards} from './rewards';
 import {preReaderAge} from '../lib/homework-order';
 type Child={id:string;group_id:string};
+type SavedRun={id:string;tasks:string;finished_at:number;created_at:number};
 export async function dailyEnabled(db:D1Database,group:string){return Number((await db.prepare('SELECT enabled FROM daily_practice_groups WHERE group_id=?').bind(group).first<{enabled:number}>())?.enabled)===1}
 export async function dailyPractice(db:D1Database,child:Child,now:number){
- const day=dailyDay(now);const archived=await archivedAssignments(db);if(!await dailyEnabled(db,child.group_id))return {enabled:false,day};
- let run=await db.prepare('SELECT * FROM daily_runs WHERE child_id=? AND group_id=? AND day=?').bind(child.id,child.group_id,day).first<{id:string;tasks:string;finished_at:number;created_at:number}>();
+ const day=dailyDay(now);
+ const findRun=()=>db.prepare('SELECT * FROM daily_runs WHERE child_id=? AND group_id=? AND day=?').bind(child.id,child.group_id,day).first<SavedRun>();
+ const [enabled,archived,savedRun]=await Promise.all([dailyEnabled(db,child.group_id),archivedAssignments(db),findRun()]);
+ if(!enabled)return {enabled:false,day};
+ let run=savedRun;
  if(run){
  const current=await db.prepare('SELECT id,updated_at FROM assignments WHERE group_id=?').bind(child.group_id).all<{id:string;updated_at:number}>();
  const stale=(JSON.parse(run.tasks) as DailyTask[]).some(t=>{const a=current.results.find(a=>a.id===t.assignmentId&&!archived.has(a.id));return !a||(t.assignmentVersion!==undefined?Number(t.assignmentVersion)!==Number(a.updated_at):Number(run!.created_at)<Number(a.updated_at))});
  if(stale){await db.batch([db.prepare('DELETE FROM daily_answers WHERE run_id=?').bind(run.id),db.prepare('DELETE FROM daily_runs WHERE id=?').bind(run.id)]);run=null;}
  }
  if(!run){
- const assignments=await db.prepare('SELECT * FROM assignments WHERE group_id=? ORDER BY updated_at DESC,id').bind(child.group_id).all<{id:string;unit_id:string;activities:string;word_ids:string;updated_at:number}>();
- assignments.results=assignments.results.filter(a=>!archived.has(a.id));
- const reviews=await db.prepare('SELECT word_id,due FROM reviews WHERE child_id=?').bind(child.id).all<{word_id:string;due:number}>();
- const missed=await db.prepare('SELECT word_id FROM attempts WHERE child_id=? AND correct=0 ORDER BY created_at DESC LIMIT 100').bind(child.id).all<{word_id:string}>();
- const settings=await publishedSettings(db,lessons);
- const past=await db.prepare('SELECT r.tasks,a.task_id FROM daily_answers a JOIN daily_runs r ON r.id=a.run_id WHERE r.child_id=? AND a.correct=0 ORDER BY a.created_at DESC LIMIT 100').bind(child.id).all<{tasks:string;task_id:string}>();
+ const [assignments,reviews,missed,settings,past,saved,completions]=await Promise.all([
+  db.prepare('SELECT * FROM assignments WHERE group_id=? ORDER BY updated_at DESC,id').bind(child.group_id).all<{id:string;unit_id:string;activities:string;word_ids:string;updated_at:number}>(),
+  db.prepare('SELECT word_id,due FROM reviews WHERE child_id=?').bind(child.id).all<{word_id:string;due:number}>(),
+  db.prepare('SELECT word_id FROM attempts WHERE child_id=? AND correct=0 ORDER BY created_at DESC LIMIT 100').bind(child.id).all<{word_id:string}>(),
+  publishedSettings(db,lessons),
+  db.prepare('SELECT r.tasks,a.task_id FROM daily_answers a JOIN daily_runs r ON r.id=a.run_id WHERE r.child_id=? AND a.correct=0 ORDER BY a.created_at DESC LIMIT 100').bind(child.id).all<{tasks:string;task_id:string}>(),
+  db.prepare('SELECT assignment_id,activity,word_id,correct,created_at FROM attempts WHERE child_id=? AND correct=1 AND assignment_id IN (SELECT id FROM assignments WHERE group_id=?)').bind(child.id,child.group_id).all<{assignment_id:string;activity:string;word_id:string;correct:number;created_at:number}>(),
+  db.prepare('SELECT assignment_id,activity FROM completions WHERE child_id=?').bind(child.id).all<{assignment_id:string;activity:string}>(),
+ ]);
  for(const row of past.results){const task=(JSON.parse(row.tasks) as DailyTask[]).find(t=>t.id===row.task_id);if(task)missed.results.push({word_id:task.wordId})}
- const saved=await db.prepare('SELECT assignment_id,activity,word_id,correct,created_at FROM attempts WHERE child_id=?').bind(child.id).all<any>();
- const completions=await db.prepare('SELECT assignment_id,activity FROM completions WHERE child_id=?').bind(child.id).all<any>();
  const pools:DailyTask[][]=[],seen=new Set<string>();
- for(const a of assignments.results){if(seen.has(a.unit_id))continue;seen.add(a.unit_id);const lesson=lessons.find(l=>l.id===a.unit_id);if(!lesson)continue;
+ for(const a of assignments.results){if(archived.has(a.id)||seen.has(a.unit_id))continue;seen.add(a.unit_id);const lesson=lessons.find(l=>l.id===a.unit_id);if(!lesson)continue;
  const ids=JSON.parse(a.word_ids) as string[],activities=JSON.parse(a.activities) as string[],words=lesson.words.filter(w=>ids.includes(w.id!)),pool:DailyTask[]=[];
  const young=preReaderAge(settings[lesson.id]?.age||lesson.defaultAge);
  for(const activity of activities){
@@ -64,15 +69,19 @@ export async function dailyPractice(db:D1Database,child:Child,now:number){
  const remaining=shuffle(pools.flat()).sort((a,b)=>score(b)-score(a));for(const t of remaining){if(selected.length>=12)break;if(selected.some(s=>s.id===t.id))continue;selected.push(t);if(selected.length===12)break}
  const originals=selected.slice();while(selected.length<12)selected.push({...originals[selected.length%originals.length],id:originals[selected.length%originals.length].id+':repeat'+selected.length});
  const tasks=shuffle(selected.slice(0,12));const id=crypto.randomUUID();await db.prepare('INSERT OR IGNORE INTO daily_runs VALUES(?,?,?,?,?,?,0)').bind(id,child.id,child.group_id,day,JSON.stringify(tasks),now).run();
- run=await db.prepare('SELECT * FROM daily_runs WHERE child_id=? AND group_id=? AND day=?').bind(child.id,child.group_id,day).first<{id:string;tasks:string;finished_at:number;created_at:number}>();
+ run=await findRun();
  }
  const answers=await db.prepare('SELECT DISTINCT task_id FROM daily_answers WHERE run_id=? AND correct=1').bind(run!.id).all<{task_id:string}>();return {enabled:true,day,id:run!.id,tasks:JSON.parse(run!.tasks) as DailyTask[],done:answers.results.map(a=>a.task_id),finished:Number(run!.finished_at)>0};
 }
 export async function answerDaily(db:D1Database,child:Child,now:number,data:{runId?:unknown;taskId?:unknown;answer?:unknown;eventId?:unknown}){
- if(!await dailyEnabled(db,child.group_id))throw Error('Daily practice is turned off for this class.');
- const run=await db.prepare('SELECT * FROM daily_runs WHERE id=? AND child_id=? AND group_id=? AND day=?').bind(String(data.runId),child.id,child.group_id,dailyDay(now)).first<{id:string;tasks:string;finished_at:number;created_at:number}>();
+ const [enabled,run,archived]=await Promise.all([
+  dailyEnabled(db,child.group_id),
+  db.prepare('SELECT * FROM daily_runs WHERE id=? AND child_id=? AND group_id=? AND day=?').bind(String(data.runId),child.id,child.group_id,dailyDay(now)).first<SavedRun>(),
+  archivedAssignments(db),
+ ]);
+ if(!enabled)throw Error('Daily practice is turned off for this class.');
  if(!run)throw Error('Reopen today’s adventure to continue.');const tasks=JSON.parse(run.tasks) as DailyTask[],task=tasks.find(t=>t.id===data.taskId);if(!task||typeof data.answer!=='string'||data.answer.length>1000||typeof data.eventId!=='string'||! /^[a-zA-Z0-9-]{16,80}$/.test(data.eventId))throw Error('Choose a valid daily answer.');
- if((await archivedAssignments(db)).has(task.assignmentId))throw Error('This homework is archived. Open a new daily practice.');
+ if(archived.has(task.assignmentId))throw Error('This homework is archived. Open a new daily practice.');
  const assignment=await db.prepare('SELECT * FROM assignments WHERE id=? AND group_id=?').bind(task.assignmentId,child.group_id).first<{id:string;unit_id:string;activities:string;word_ids:string;updated_at:number;title:string}>();
  const valid=assignment&&assignment.unit_id===task.unitId&&(task.assignmentVersion!==undefined?Number(task.assignmentVersion)===Number(assignment.updated_at):Number(run.created_at)>=Number(assignment.updated_at))&&(JSON.parse(assignment.activities) as string[]).includes(task.activity);
  if(!valid)throw Error('Your teacher updated this homework. Reopen Daily Practice for fresh questions.');
@@ -88,8 +97,8 @@ export async function answerDaily(db:D1Database,child:Child,now:number,data:{run
  const progress=studentHomeworkProgress([assignment!],lessons,attempts.results,[])[assignment!.id];
  const completed=progress.exercises.filter(e=>e.total>0&&e.done===e.total).map(e=>db.prepare('INSERT OR IGNORE INTO completions(child_id,assignment_id,activity,completed_at) VALUES(?,?,?,?)').bind(child.id,assignment!.id,e.activity,now));
  if(completed.length)await db.batch(completed);
- await syncHomeworkRewards(db,child.id,[assignment!],now);
- return {...await dailyPractice(db,child,now),correct};
+ const [updated]=await Promise.all([dailyPractice(db,child,now),syncHomeworkRewards(db,child.id,[assignment!],now)]);
+ return {...updated,correct};
 }
 export async function dailyReport(db:D1Database,group:string,now:number){
  const children=await db.prepare('SELECT id,name FROM children WHERE group_id=? AND approved=1 ORDER BY name').bind(group).all<{id:string;name:string}>();const rows=[];

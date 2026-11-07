@@ -20,14 +20,14 @@ w.Image=class{set src(value){this._src=value;if(value)w.setTimeout(()=>this.onlo
 const response=()=>({ok:true,blob:async()=>new w.Blob(['test artwork'],{type:'image/webp'}),clone:()=>response()});
 w.caches={open:async()=>({match:async key=>cache.get(key)?.clone(),put:async(key,value)=>{cache.set(key,value.clone())}})};
 const fetchArtwork=async src=>{loaded.push(src);if(src.endsWith('/pizza.webp'))await firstDownload;return response()};w.fetch=fetchArtwork;
-const nativeTimeout=w.setTimeout.bind(w);w.setTimeout=(cb,ms,...rest)=>nativeTimeout(cb,(ms>=650&&ms<6000)?2:ms,...rest);
+const nativeTimeout=w.setTimeout.bind(w);w.setTimeout=(cb,ms,...rest)=>nativeTimeout(cb,(ms>=650&&ms<6000&&ms!==4000&&ms!==1200)?2:ms,...rest);
 w.document.body.innerHTML='<div id="root"></div>';w.eval(fs.readFileSync(dir+'ui.js','utf8'));await wait();
 assert.ok(button('Feed Gogo!'));assert.ok(button('Archer Adventure'));assert.equal(w.document.querySelector('.daily-challenge'),null);
 assert.equal(answers,0,'Choosing a mode never earns progress');button('Feed Gogo!').click();await wait();
 assert.ok(w.document.querySelector('.gogo-loading'),'Loading screen is shown before gameplay');assert.equal(w.document.querySelector('.daily-challenge'),null);assert.equal(answers,0);assert.ok(w.document.querySelector('.gogo-loading progress').value<24,'Progress never claims completion while a file is still downloading');
-releaseFirst();for(let i=0;i<15&&!w.document.querySelector('.gogo-practice');i++)await wait();
+button('Start now').click();await wait();assert.ok(w.document.querySelector('.daily-challenge'),'Play can start while the first animation is stalled');releaseFirst();for(let i=0;i<15&&loaded.length<24;i++)await wait();
 assert.ok(w.document.querySelector('.gogo-practice'));assert.equal(w.document.querySelector('.daily-mode-picker'),null,'No mid-session mode switch');
-assert.equal(loaded.length,24,'All twelve stages, eleven meals and idle animation load before play');const initialDownloads=loaded.length;
+assert.equal(loaded.length,24,'All twelve stages, eleven meals and idle animation are preloaded in the background');const initialDownloads=loaded.length;
 button('dog').click();await wait();button('OK ✓').click();await wait();assert.equal(run.done.length,0);assert.equal(w.document.querySelector('.gogo-feeding'),null,'Mistakes never feed Gogo');assert.match(w.document.body.textContent,/try again/);
 // Save part of the day, then refresh into the same game with the same progress.
 async function answer(text){button(text).click();await wait();const ok=button('OK ✓');ok.click();ok.click();await wait()}
@@ -45,12 +45,18 @@ const picture=w.document.querySelector('.daily-pictures button');assert.equal(pi
 const sound=w.document.querySelector('.daily-options button');assert.match(sound.textContent,/🔊 1/);assert.ok(!sound.textContent.includes('cat'),'Audio choices do not show written answers');sound.click();await wait();button('OK ✓').click();await wait();await finishFeed();
 for(const expected of ['cat','She has short hair']){const parts=expected.includes(' ')?expected.split(' '):[...expected];for(const part of parts){const tile=[...w.document.querySelectorAll('.spelling-tiles button')].find(b=>b.textContent===part&&!b.disabled);assert.ok(tile);tile.click();await wait()}button('OK ✓').click();await wait();await finishFeed()}
 assert.ok(w.document.querySelector('.daily-finished'));
-// A failed save cannot feed the monster; failed artwork blocks play and can be retried.
+// A failed save cannot feed the monster, while unavailable artwork has a fallback.
 w.unmountDaily();await wait();run={...run,id:'offline-assets',tasks:allTasks,done:[],finished:false};
-const api=w.request;let failSave=true;w.request=async(path,data)=>{if(path.includes('answer')&&failSave){failSave=false;throw Error('Please try saving again')}return api(path,data)};cache.clear();w.fetch=async()=>{throw Error('Image unavailable')};
-w.mountDaily();await wait();button('Feed Gogo!').click();await wait();assert.ok(button('Try again'));assert.equal(w.document.querySelector('.daily-challenge'),null,'Gameplay waits until every file loads');assert.equal(run.done.length,0);w.fetch=fetchArtwork;button('Try again').click();for(let i=0;i<15&&!w.document.querySelector('.gogo-practice');i++)await wait();
+const api=w.request;let failSave=true,failedEventId;w.request=async(path,data)=>{if(path.includes('answer')){if(failSave){failSave=false;failedEventId=data.eventId;throw Error('Please try saving again')}if(failedEventId){assert.equal(data.eventId,failedEventId,'Retries keep the same answer ID');failedEventId=undefined}}return api(path,data)};cache.clear();w.fetch=async()=>{throw Error('Image unavailable')};
+w.mountDaily();await wait();button('Feed Gogo!').click();await wait();assert.ok(w.document.querySelector('.daily-challenge'),'Failed artwork cannot block play');assert.equal(run.done.length,0);
 await answer('cat');assert.equal(run.done.length,0);assert.match(w.document.body.textContent,/Please try saving again/);assert.equal(w.document.querySelector('.gogo-feeding'),null);
 await answer('cat');await finishFeed();assert.equal(run.done.length,1);assert.ok(w.document.querySelector('.daily-challenge'));
-w.document.querySelector('.gogo-exit').click();await wait();assert.equal(w.exitCount,1);await w.happyDOM.close();
+w.document.querySelector('.gogo-exit').click();await wait();assert.equal(w.exitCount,1);
+w.unmountDaily();await wait();run={...run,id:'stalled-frame',done:[],finished:false};w.fetch=fetchArtwork;
+w.mountDaily();await wait();button('Feed Gogo!').click();await wait();await wait();
+await answer('cat');assert.ok(w.document.querySelector('.gogo-animation'),'Animation is available in memory');
+await new Promise(resolve=>setTimeout(resolve,1450));
+assert.ok(w.document.querySelector('.daily-challenge'),'A frame that never loads still advances to the next question');
+await w.happyDOM.close();
 for(const name of [...Array.from({length:12},(_,i)=>`stage-${String(i+1).padStart(2,'0')}.webp`),'idle.webp',...Object.keys(JSON.parse(fs.readFileSync('public/mascots/gogo/manifest.json'))).filter(n=>n!=='idle').map(n=>n+'.webp')])assert.ok(fs.existsSync('public/mascots/gogo/'+name));
-console.log('PASS: full artwork preload before play, loading progress, persistent cache reuse, no artwork downloads during 12 feeds, failed-download retry, mode choice, save/resume, and all question formats.');
+console.log('PASS: bounded artwork preload, persistent cache reuse, all 12 feeds, failed and stalled artwork fallbacks, mode choice, save/resume, and all question formats.');

@@ -25,6 +25,11 @@ function Feeding({step,onFed}:{step:number;onFed:()=>void}){
   return()=>URL.revokeObjectURL(objectUrl);
  },[src,reduced,artwork]);
  useEffect(()=>{
+  if(!url||playing||fallback||reduced)return;
+  const timer=setTimeout(()=>setFallback(true),1200);
+  return()=>clearTimeout(timer);
+ },[url,playing,fallback,reduced]);
+ useEffect(()=>{
   if(!playing&&!fallback&&!reduced)return;
   const duration=reduced?650:fallback?1500:media[meal as keyof typeof media].durationMs;
   const timer=setTimeout(()=>callback.current(),duration);return()=>clearTimeout(timer);

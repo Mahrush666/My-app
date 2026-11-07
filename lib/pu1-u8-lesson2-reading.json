@@ -242,32 +242,6 @@
       ],
       "answer": 1,
       "explanation": "Can you ride a horse?"
-    },
-    {
-      "id": "pu1-u8-l2-q11",
-      "scene": "pu1-u8-l2-grammar",
-      "text": "Choose the negative sentence.",
-      "options": [
-        "She can swim.",
-        "Can she swim?",
-        "She can’t swim.",
-        "Yes, she can."
-      ],
-      "answer": 2,
-      "explanation": "She can’t swim."
-    },
-    {
-      "id": "pu1-u8-l2-q12",
-      "scene": "pu1-u8-l2-grammar",
-      "text": "Can Mike ride a horse? Choose a positive answer.",
-      "options": [
-        "No, he can’t.",
-        "Yes, she can.",
-        "No, she can’t.",
-        "Yes, he can."
-      ],
-      "answer": 3,
-      "explanation": "Yes, he can."
     }
   ],
   "orders": [

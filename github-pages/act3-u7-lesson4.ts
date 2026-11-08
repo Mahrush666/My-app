@@ -3,6 +3,7 @@ import type { Lesson } from './lessons';
 
 const asset = (name: string) => `lessons/act3-u7-lesson4/${name}.webp`;
 const panel = (number: number) => `act3-u7-l4-panel-${number}`;
+const panelArt = (number: number) => asset(`story-panel-${String(number).padStart(2, '0')}`);
 const buy = (item: string) => `Can I buy a ${item}?`;
 const which = 'Which one do you want?';
 const withAnimal = (animal: string) => `The one with the ${animal}.`;
@@ -65,7 +66,7 @@ const readingStory: IllustratedReading = {
   scenes: dialogue.map(([label, lines], index) => ({
     id: panel(index + 1),
     label,
-    image: asset(`panel-${String(index + 1).padStart(2, '0')}`),
+    image: panelArt(index + 1),
     full: lines,
     easy: lines,
   })),
@@ -97,7 +98,7 @@ export const act3Unit7Lesson4: Lesson = {
       id: `act3-u7-l4-say-${item.id}`, text: buy(item.en), picture: asset(item.picture),
       prompt: 'Ask to buy this.', starter: 'Can I buy a…?',
     })),
-    { id: 'act3-u7-l4-say-which', text: which, picture: asset('panel-05'), prompt: 'Ask the shopper which one they want.' },
+    { id: 'act3-u7-l4-say-which', text: which, picture: panelArt(5), prompt: 'Ask the shopper which one they want.' },
     ...animals.map(animal => ({
       id: `act3-u7-l4-say-${animal}`, text: withAnimal(animal), picture: asset(`shirt-${animal}`),
       prompt: which, starter: 'The one with the…',

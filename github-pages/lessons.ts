@@ -7,6 +7,7 @@ import {powerUp1Unit2Lesson3} from './pu1-u2-lesson3';
 import {starterUnit8Weather} from './pu-starter-u8-lesson6';
 import {smartPhonics2Unit3} from './smart-phonics2-u3';
 import {act3Unit7Lesson3} from './act3-u7-lesson3';
+import {act3Unit7Lesson4} from './act3-u7-lesson4';
 import {beehive1Unit4} from './beehive1-u4';
 import {powerUp1Unit2Lesson2} from './pu1-u2-lesson2';
 import {powerUp1Unit2Vocabulary} from './pu1-u2-vocabulary1';
@@ -49,6 +50,7 @@ export const lessons: Lesson[] = ([
  act2Unit8Lesson2,
  act2Unit8Lesson3,
  act3Unit7Lesson3,
+ act3Unit7Lesson4,
  play2Unit4Lesson1,
  play2Unit4Lesson2,
  play2Unit4Lesson21,

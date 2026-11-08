@@ -215,3 +215,11 @@
 .sing-along .lesson-audio-art{display:block;width:100%;max-height:55vh;object-fit:contain;border-radius:12px;margin:12px 0}.sing-along audio{display:block;width:100%;margin-top:12px}
 
 .picture-question{display:flex;align-items:center;justify-content:center;gap:10px;margin:12px auto;min-height:48px;max-width:100%;padding:10px 16px;border-radius:12px;background:var(--soft-purple,#f0ecff);color:var(--ink,#24213f);font-weight:700}
+
+.story-listening-pictures.story-order-pictures {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.story-listening-pictures.story-order-pictures img {
+  width: 100%;
+}

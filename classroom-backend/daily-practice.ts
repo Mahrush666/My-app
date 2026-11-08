@@ -41,9 +41,24 @@ export async function dailyPractice(db:D1Database,child:Child,now:number){
  const ids=JSON.parse(a.word_ids) as string[],activities=JSON.parse(a.activities) as string[],words=lesson.words.filter(w=>ids.includes(w.id!)),pool:DailyTask[]=[];
  const young=preReaderAge(settings[lesson.id]?.age||lesson.defaultAge);
  for(const activity of activities){
- if(young&&!['picture-listen','sound-picture','yes-no','reactor'].includes(activity))continue;
+ if(young&&!['picture-listen','sound-picture','yes-no','reactor','story-quiz'].includes(activity))continue;
  if(activity==='yes-no')for(const w of words){const truth=Math.random()>=.5;pool.push({id:a.id+':yes-no:'+w.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),creditActivity:activity,unitId:lesson.id,activity,wordId:w.id!,kind:'audio-options',prompt:'Listen and answer. 听一听，选答案。',image:w.picture,listen:yesNoQuestion(w,truth,words),expected:truth?'Yes':'No',options:[{id:'yes',text:'Yes'},{id:'no',text:'No'}]})}
- if(activity==='story-quiz')for(const q of lesson.readingStory?.questions||[]){pool.push({id:a.id+':'+q.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),unitId:lesson.id,activity,wordId:q.id,kind:q.mission?.kind==='volcano'?(q.mission.choices?'pictures':'audio-options'):'written',prompt:q.mission?.kind==='volcano'?'Listen and choose. 听一听，选一选。':q.text,listen:q.mission?.kind==='volcano'?q.text:undefined,image:q.mission?.kind==='volcano'?(q.mission.object||lesson.readingStory!.scenes.find(s=>s.id===q.scene)?.image):lesson.readingStory!.scenes.find(s=>s.id===q.scene)?.image,expected:q.options[q.answer],options:shuffle(q.options.map((text,i)=>({id:String(i),text,image:q.mission?.kind==='volcano'?q.mission.choices?.[i]:undefined})))});}
+ if(activity==='story-quiz')for(const q of lesson.readingStory?.questions||[]){
+  if(young&&!q.listenOnly)continue;
+  const volcano=q.mission?.kind==='volcano'?q.mission:undefined;
+  const listening=Boolean(q.listenOnly||volcano);
+  const pictures=q.optionImages||volcano?.choices;
+  const scene=lesson.readingStory!.scenes.find(s=>s.id===q.scene);
+  pool.push({
+   id:a.id+':'+q.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),unitId:lesson.id,
+   activity,wordId:q.id,kind:pictures?'pictures':listening?'audio-options':'written',
+   prompt:listening?'Listen and choose. 听一听，选一选。':q.text,
+   listen:listening?q.text:undefined,
+   image:q.listenOnly?q.picture:volcano?.object||scene?.image,
+   expected:q.options[q.answer],
+   options:shuffle(q.options.map((text,i)=>({id:String(i),text,image:pictures?.[i]}))),
+  });
+ }
  if(activity==='sentence-build'&&isListeningSentenceLesson(lesson.id)){for(const s of lesson.sentencePractice||[])pool.push({id:a.id+':sentence-build:'+s.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),creditActivity:activity,unitId:lesson.id,activity,wordId:s.id,kind:'sentence',prompt:'Listen and build the sentence.',listen:s.text,expected:s.text});continue;}
  if(!['word-choice','sound-picture','picture-listen','word-sound','sound-word','spell','sentence-build','reactor'].includes(activity))continue;
  for(const w of words){const others=shuffle(words.filter(x=>x.id!==w.id&&(!isSentenceLesson(lesson.id)||x.category===w.category))).slice(0,3),options=(activity==='word-sound'||activity==='sound-word'?wordAudioChoices(w,words):shuffle([w,...others])).map(dailyWord);if(options.length<4)continue;

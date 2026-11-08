@@ -886,16 +886,56 @@ test('weekly reports combine partial normal and daily answers, rank students, an
  }finally{await DB.sqlite.close()}
 });
 
-test('daily spelling credits individual rounds across sessions until all five rounds are complete',async()=>{
+test('daily spelling advances one earned step per word per day and credits homework',async(t)=>{
  const {api,DB}=await setup();try{
+ const start=Date.now();
+ let now=start;
+ t.mock.method(Date,'now',()=>now);
  const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
  const group=(await api('/groups',{name:'Daily spelling'},teacher)).body;
  const childId=(await api('/teacher-students',{groupId:group.id,names:['Speller']},teacher)).body.students[0].id;
  const access=(await api('/student-link',{childId,reuse:true},teacher)).body.access,student=(await api('/student-login',{access})).body.token;
- const assignmentId=(await api('/assignments',{groupId:group.id,unitId:'pu1-u9-vocabulary1',activities:['spell'],wordIds:['boots','cap','dress','glasses'].map(w=>'pu1-u9-clothes-'+w),dailyPractice:true},teacher)).body.id;
- const play=async()=>{const run=(await api('/daily-practice',{childId},student)).body;assert.equal(run.tasks.length,12);for(const t of run.tasks){const saved=await api('/daily-practice-answer',{childId,runId:run.id,taskId:t.id,answer:t.expected,eventId:crypto.randomUUID()},student);assert.equal(saved.status,200)}return run};
- const first=await play();let hw=(await api('/homework?child='+childId,undefined,student)).body;assert.equal(hw.homeworkProgress[assignmentId].done,12);assert.equal(hw.homeworkProgress[assignmentId].total,20);assert.equal(hw.completed.length,0);
- await DB.prepare('UPDATE daily_runs SET day=? WHERE id=?').bind('2000-01-01',first.id).run();await play();hw=(await api('/homework?child='+childId,undefined,student)).body;assert.equal(hw.homeworkProgress[assignmentId].percent,100);assert.equal(hw.completed.length,1);
+ const wordIds=['boots','cap','dress','glasses'].map(w=>'pu1-u9-clothes-'+w);
+ const assignmentId=(await api('/assignments',{groupId:group.id,unitId:'pu1-u9-vocabulary1',activities:['spell'],wordIds,dailyPractice:true},teacher)).body.id;
+ const direct=await api('/progress',{childId,assignmentId,activity:'spell',stage:'step1',wordId:wordIds[0],correct:true,eventId:crypto.randomUUID()},student);
+ assert.equal(direct.status,200,'A step done in ordinary homework counts toward the daily ladder');
+ const getRun=async()=>{
+  const response=await api('/daily-practice',{childId},student);
+  assert.equal(response.status,200,JSON.stringify(response.body));
+  return response.body;
+ };
+ for(let day=0;day<5;day++){
+  now=start+day*86400000;
+  const run=await getRun();
+  assert.equal(run.tasks.length,12);
+  const answer=(task,value)=>api('/daily-practice-answer',{childId,runId:run.id,taskId:task.id,answer:value,eventId:crypto.randomUUID()},student);
+  const credits=new Set();
+  for(const task of run.tasks){
+   const stage=Math.min(day+Number(task.wordId===wordIds[0]),4);
+   assert.equal(task.spelling.stage,stage);
+   assert.equal(task.creditActivity,stage===4?'spell':'spell:step'+(stage+1));
+   const n=task.expected.length;
+   const gaps=[n,Math.min(2,n),Math.min(n,Math.max(3,Math.ceil(n*.5))),Math.min(n,Math.max(4,Math.ceil(n*.75))),n];
+   assert.equal(task.spelling.gaps.length,gaps[stage]);
+   credits.add(task.wordId+':'+task.spelling.stage);
+  }
+  assert.equal(credits.size,day===4?3:4,'A completed word waits while other words still need practice');
+  if(day===0){
+   const wrong=await answer(run.tasks[0],'wrong');
+   assert.equal(wrong.body.correct,false);
+   assert.equal(wrong.body.done.length,0);
+  }
+  for(const task of run.tasks){
+   const saved=await answer(task,task.expected);
+   assert.equal(saved.status,200);
+   assert.equal(saved.body.correct,true);
+  }
+  assert.deepEqual((await getRun()).tasks,run.tasks,'Reopening the same day keeps the same steps');
+  const hw=(await api('/homework?child='+childId,undefined,student)).body;
+  assert.equal(hw.homeworkProgress[assignmentId].total,20);
+  assert.equal(hw.homeworkProgress[assignmentId].done,Math.min(1+4*(day+1),20));
+  assert.equal(hw.completed.length,day===4?1:0);
+ }
  assert.equal(Number((await DB.prepare("SELECT COUNT(*) AS n FROM reward_events WHERE child_id=? AND kind='homework'").bind(childId).first()).n),1);
  }finally{await DB.sqlite.close()}
 });

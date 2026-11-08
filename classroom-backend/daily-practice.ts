@@ -11,6 +11,8 @@ import {isSentenceLesson} from '../lib/sentence-lesson';
 import {studentHomeworkProgress,homeworkItems} from '../lib/student-homework-progress';
 import {syncHomeworkRewards} from './rewards';
 import {preReaderAge} from '../lib/homework-order';
+import {spellingGaps,spellingOrder} from '../lib/spelling-steps';
+const spellingCredits=['spell:step1','spell:step2','spell:step3','spell:step4','spell'];
 type Child={id:string;group_id:string};
 type SavedRun={id:string;tasks:string;finished_at:number;created_at:number};
 export async function dailyEnabled(db:D1Database,group:string){return Number((await db.prepare('SELECT enabled FROM daily_practice_groups WHERE group_id=?').bind(group).first<{enabled:number}>())?.enabled)===1}
@@ -40,7 +42,25 @@ export async function dailyPractice(db:D1Database,child:Child,now:number){
  for(const a of assignments.results){if(archived.has(a.id)||seen.has(a.unit_id))continue;seen.add(a.unit_id);const lesson=lessons.find(l=>l.id===a.unit_id);if(!lesson)continue;
  const ids=JSON.parse(a.word_ids) as string[],activities=JSON.parse(a.activities) as string[],words=lesson.words.filter(w=>ids.includes(w.id!)),pool:DailyTask[]=[];
  const young=preReaderAge(settings[lesson.id]?.age||lesson.defaultAge);
+ const answered=new Set(saved.results.filter(t=>t.assignment_id===a.id&&Number(t.correct)===1&&Number(t.created_at)>=Number(a.updated_at)).map(t=>(t.activity.startsWith('reactor:')?'reactor':t.activity)+':'+t.word_id));
+ const complete=new Set(completions.results.filter(c=>c.assignment_id===a.id).map(c=>c.activity));
  for(const activity of activities){
+ if(activity==='spell'){
+  for(const word of words){
+   const order=spellingOrder(word.en);
+   if(!order.length)continue;
+   const wordId=word.id!;
+   // Freeze one step per word for the day. Both homework and earlier daily answers count.
+   const next=spellingCredits.findIndex(credit=>!answered.has(credit+':'+wordId));
+   const stage=complete.has(activity)||next<0?4:next;
+   const creditActivity=spellingCredits[stage];
+   const prompt=stage===0?'Look and build the word. 看词拼写':stage===4?'Listen and spell the word. 听音拼写':'Fill in the missing letters. 补全单词';
+   pool.push({id:a.id+':'+creditActivity+':'+wordId,assignmentId:a.id,assignmentVersion:Number(a.updated_at),
+    unitId:lesson.id,activity,creditActivity,wordId,kind:'letters',prompt,image:word.picture,
+    listen:word.en,expected:word.en,spelling:{stage,gaps:spellingGaps(word.en,stage,order)}});
+  }
+  continue;
+ }
  if(young&&!['picture-listen','sound-picture','yes-no','reactor','story-quiz'].includes(activity))continue;
  if(activity==='yes-no')for(const w of words){const truth=Math.random()>=.5;pool.push({id:a.id+':yes-no:'+w.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),creditActivity:activity,unitId:lesson.id,activity,wordId:w.id!,kind:'audio-options',prompt:'Listen and answer. 听一听，选答案。',image:w.picture,listen:yesNoQuestion(w,truth,words),expected:truth?'Yes':'No',options:[{id:'yes',text:'Yes'},{id:'no',text:'No'}]})}
  if(activity==='story-quiz')for(const q of lesson.readingStory?.questions||[]){
@@ -60,27 +80,36 @@ export async function dailyPractice(db:D1Database,child:Child,now:number){
   });
  }
  if(activity==='sentence-build'&&isListeningSentenceLesson(lesson.id)){for(const s of lesson.sentencePractice||[])pool.push({id:a.id+':sentence-build:'+s.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),creditActivity:activity,unitId:lesson.id,activity,wordId:s.id,kind:'sentence',prompt:'Listen and build the sentence.',listen:s.text,expected:s.text});continue;}
- if(!['word-choice','sound-picture','picture-listen','word-sound','sound-word','spell','sentence-build','reactor'].includes(activity))continue;
+ if(!['word-choice','sound-picture','picture-listen','word-sound','sound-word','sentence-build','reactor'].includes(activity))continue;
  for(const w of words){const others=shuffle(words.filter(x=>x.id!==w.id&&(!isSentenceLesson(lesson.id)||x.category===w.category))).slice(0,3),options=(activity==='word-sound'||activity==='sound-word'?wordAudioChoices(w,words):shuffle([w,...others])).map(dailyWord);if(options.length<4)continue;
  let kind:DailyTask['kind']='written',listen:string|undefined,prompt=w.zh||'Choose the correct answer.',image=w.picture;
- if(activity==='spell'){kind='letters';listen=w.en;prompt='Build the word.'}
- else if(activity==='sentence-build'){kind='sentence';listen=w.en;prompt='Build the sentence.'}
+ if(activity==='sentence-build'){kind='sentence';listen=w.en;prompt='Build the sentence.'}
  else if(activity==='sound-picture'||activity==='reactor'&&(young||lesson.id.startsWith('play2-u4-lesson3'))){kind='pictures';listen=w.en;image=undefined;prompt='Listen and choose a picture.';if(options.some(o=>!o.image))continue}
  else if(activity==='picture-listen'||activity==='word-sound'){kind='audio-options';prompt=activity==='word-sound'?w.en:'Choose the sound.'}
  else if(activity==='sound-word'){listen=w.en;image=undefined;prompt='Listen and choose.'}
  const expected=activity==='picture-listen'&&w.pictureListening?w.pictureListening.answer:w.en;
  if(activity==='picture-listen'&&w.pictureListening){listen=w.pictureListening.question;prompt='Listen and choose the answer.';image=w.pictureListening.image||w.picture;for(const option of options){const source=words.find(x=>x.id===option.id);option.text=source?.pictureListening?.answer||option.text}}
- for(const creditActivity of activity==='spell'?['spell:step1','spell:step2','spell:step3','spell:step4','spell']:[activity])pool.push({id:a.id+':'+creditActivity+':'+w.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),creditActivity,unitId:lesson.id,activity,wordId:w.id!,kind,prompt,image,listen,expected,options});
+ pool.push({id:a.id+':'+activity+':'+w.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),creditActivity:activity,unitId:lesson.id,activity,wordId:w.id!,kind,prompt,image,listen,expected,options});
  }}
- const answered=new Set(saved.results.filter(t=>t.assignment_id===a.id&&Number(t.correct)===1&&Number(t.created_at)>=Number(a.updated_at)).map(t=>(t.activity.startsWith('reactor:')?'reactor':t.activity)+':'+t.word_id));
- const complete=new Set(completions.results.filter(c=>c.assignment_id===a.id).map(c=>c.activity));
  const unfinished=pool.filter(t=>!complete.has(t.activity)&&!answered.has((t.creditActivity||t.activity)+':'+t.wordId));
  if(pool.length)pools.push(unfinished.length?unfinished:pool);if(pools.length===2)break;
  }
  if(!pools.length)return {enabled:true,day,message:'No review questions yet. Your teacher can assign a lesson with answer exercises. 暂无每日练习题，请等待老师布置。'};
  const score=(t:DailyTask)=>(missed.results.some(r=>r.word_id===t.wordId)?10:0)+(reviews.results.some(r=>r.word_id===t.wordId&&Number(r.due)<=now)?6:0);
  const selected:DailyTask[]=[],used=new Set<string>();
- for(const pool of pools){const ranked=shuffle(pool).sort((a,b)=>score(b)-score(a));let n=0;for(const t of ranked){if(used.has(t.wordId))continue;selected.push(t);used.add(t.wordId);if(++n>=Math.floor(12/pools.length))break}}
+ const perLesson=Math.floor(12/pools.length);
+ for(const pool of pools){
+  const ranked=shuffle(pool).sort((a,b)=>score(b)-score(a));
+  // Keep an eligible spelling step in the mix when other exercises share the same words.
+  const spelling=ranked.filter(t=>t.spelling).sort((a,b)=>a.spelling!.stage-b.spelling!.stage);
+  let count=0;
+  for(const task of [...spelling.slice(0,1),...ranked]){
+   if(used.has(task.wordId))continue;
+   selected.push(task);
+   used.add(task.wordId);
+   if(++count>=perLesson)break;
+  }
+ }
  const remaining=shuffle(pools.flat()).sort((a,b)=>score(b)-score(a));for(const t of remaining){if(selected.length>=12)break;if(selected.some(s=>s.id===t.id))continue;selected.push(t);if(selected.length===12)break}
  const originals=selected.slice();while(selected.length<12)selected.push({...originals[selected.length%originals.length],id:originals[selected.length%originals.length].id+':repeat'+selected.length});
  const tasks=shuffle(selected.slice(0,12));const id=crypto.randomUUID();await db.prepare('INSERT OR IGNORE INTO daily_runs VALUES(?,?,?,?,?,?,0)').bind(id,child.id,child.group_id,day,JSON.stringify(tasks),now).run();

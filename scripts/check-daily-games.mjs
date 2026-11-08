@@ -39,11 +39,24 @@ assert.equal(answers,13,'Only one saved answer per OK tap, including the incorre
 assert.deepEqual(Array.from({length:13},(_,i)=>w.gogoStage(i)),[1,2,3,4,5,6,6,7,8,9,10,11,12]);
 for(const food of w.gogoMeals.filter(m=>m!=='cookie'))assert.ok(loaded.some(s=>s.endsWith('/'+food+'.webp')),food+' animation is used');
 button('Practise again').click();await wait();assert.ok(button('Archer Adventure'));assert.ok(button('Feed Gogo!'));button('Feed Gogo!').click();await wait();await wait();await answer('cat');await finishFeed();assert.equal(answers,13,'Replay never writes extra homework attempts or rewards');
-w.unmountDaily();await wait();run={...run,id:'formats',done:[],finished:false,tasks:[{...allTasks[0],id:'picture',kind:'pictures',expected:'cat',listen:'cat',options:allTasks[0].options.map(o=>({...o,image:'test/'+o.text+'.webp'}))},{...allTasks[1],id:'audio',kind:'audio-options',image:'test/cat.webp'},{...allTasks[2],id:'letters',kind:'letters',expected:'cat'},{...allTasks[3],id:'sentence',kind:'sentence',expected:'She has short hair'}]};
+w.unmountDaily();await wait();run={...run,id:'formats',done:[],finished:false,tasks:[{...allTasks[0],id:'picture',kind:'pictures',expected:'cat',listen:'cat',options:allTasks[0].options.map(o=>({...o,image:'test/'+o.text+'.webp'}))},{...allTasks[1],id:'audio',kind:'audio-options',image:'test/cat.webp'},{...allTasks[2],id:'letters',kind:'letters',expected:'cat'},{...allTasks[3],id:'sentence',kind:'sentence',expected:'She has short hair'},{...allTasks[4],id:'copy',kind:'letters',expected:'cap',spelling:{stage:0,gaps:[0,1,2]}},{...allTasks[5],id:'gaps',kind:'letters',expected:'T-shirt',spelling:{stage:1,gaps:[2,4]}},{...allTasks[6],id:'spell',kind:'letters',expected:'boot',spelling:{stage:4,gaps:[0,1,2,3]}}]};
 w.mountDaily();await wait();button('Feed Gogo!').click();await wait();await wait();assert.ok(loaded.some(src=>src.endsWith('test/cat.webp')),'Question pictures are also preloaded');
 const picture=w.document.querySelector('.daily-pictures button');assert.equal(picture.querySelector('img').getAttribute('alt'),'','Pictures never reveal the written answer');picture.click();await wait();button('OK ✓').click();await wait();await finishFeed();
 const sound=w.document.querySelector('.daily-options button');assert.match(sound.textContent,/🔊 1/);assert.ok(!sound.textContent.includes('cat'),'Audio choices do not show written answers');sound.click();await wait();button('OK ✓').click();await wait();await finishFeed();
 for(const expected of ['cat','She has short hair']){const parts=expected.includes(' ')?expected.split(' '):[...expected];for(const part of parts){const tile=[...w.document.querySelectorAll('.spelling-tiles button')].find(b=>b.textContent===part&&!b.disabled);assert.ok(tile);tile.click();await wait()}button('OK ✓').click();await wait();await finishFeed()}
+for(const [model,fixed,letters] of [['cap','',['c','a','p']],[null,'T-hrt',['s','i']],[null,'',['b','o','o','t']]]){
+ assert.equal(w.document.querySelector('.spelling-model')?.textContent||null,model);
+ assert.equal([...w.document.querySelectorAll('.spelling-fixed')].map(x=>x.textContent).join(''),fixed);
+ for(const letter of letters){
+  const tile=[...w.document.querySelectorAll('.spelling-tiles button')].find(b=>b.textContent===letter&&!b.disabled);
+  assert.ok(tile);
+  tile.click();
+  await wait();
+ }
+ button('OK ✓').click();
+ await wait();
+ await finishFeed();
+}
 assert.ok(w.document.querySelector('.daily-finished'));
 // A failed save cannot feed the monster, while unavailable artwork has a fallback.
 w.unmountDaily();await wait();run={...run,id:'offline-assets',tasks:allTasks,done:[],finished:false};

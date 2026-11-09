@@ -100,6 +100,17 @@ for(const asset of weatherMedia.assets){const data=Buffer.concat(asset.parts.map
 const u2NewDir=root+'/lesson-media/pu1-u2-new';
 const u2NewMedia=JSON.parse(readFileSync(u2NewDir+'/manifest.json','utf8')) as {assets:{directory:string;file:string;sha256:string;parts:string[]}[]};
 for(const asset of u2NewMedia.assets){const data=Buffer.concat(asset.parts.map(part=>readFileSync(u2NewDir+'/'+part)));if(createHash('sha256').update(data).digest('hex')!==asset.sha256)throw Error('Unit 2 lesson media is incomplete');mkdirSync(root+'/public/lessons/'+asset.directory,{recursive:true});writeFileSync(root+'/public/lessons/'+asset.directory+'/'+asset.file,data)}
+// Reassemble the compressed Starter Unit 9 clips for normal browser playback.
+const starterU9Path='pu-starter-u9-lesson1';
+const starterU9Dir=root+'/lesson-media/'+starterU9Path;
+const starterU9Media=JSON.parse(readFileSync(starterU9Dir+'/manifest.json','utf8')) as {assets:{file:string;sha256:string;parts:string[]}[]};
+const starterU9Public=root+'/public/lessons/'+starterU9Path;
+mkdirSync(starterU9Public,{recursive:true});
+for(const asset of starterU9Media.assets){
+ const data=Buffer.concat(asset.parts.map(part=>readFileSync(starterU9Dir+'/'+part)));
+ if(createHash('sha256').update(data).digest('hex')!==asset.sha256)throw Error('Starter Unit 9 media is incomplete');
+ writeFileSync(starterU9Public+'/'+asset.file,data);
+}
 export default defineConfig({
   root: root + '/github-pages',
   base: process.env.PAGES_BASE || './',

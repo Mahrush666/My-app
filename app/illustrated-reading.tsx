@@ -53,7 +53,7 @@ function ListeningStoryQuestion({question,choice,disabled,onSelect}:{
  const pictures=question.optionImages;
  return <>
   <h3>{pictures?'Listen and pick the item. 听一听，选物品。':'Look and choose what to say. 看图片，选句子。'}</h3>
-  {question.picture&&<img className="reading-scene" style={{maxWidth:240,marginInline:'auto'}} src={publicAsset(question.picture)} alt="Item to buy"/>}
+  {question.picture&&<img className="reading-scene" style={{maxWidth:240,marginInline:'auto'}} src={publicAsset(question.picture)} alt="Picture for the question"/>}
   <button className="secondary" onClick={()=>speak(question.text)}><Volume2 size={20}/> Listen 听一听</button>
   <div className={pictures?'story-order-pictures story-listening-pictures':'story-choices'}>
    {question.options.map((option,i)=><div key={option}>

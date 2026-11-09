@@ -1,0 +1,43 @@
+{
+  "assets": [
+    {
+      "file": "clothes-chant.mp4",
+      "sha256": "0f16560645fe34877fbc5652cf2c87e5f676fd9897c7df954731e2b81bae51a7",
+      "parts": [
+        "clothes-chant.mp4.000.part",
+        "clothes-chant.mp4.001.part",
+        "clothes-chant.mp4.002.part",
+        "clothes-chant.mp4.003.part"
+      ]
+    },
+    {
+      "file": "listen-point-say.m4a",
+      "sha256": "82a924e44c5dd1be4b2494632546ac8208056ed0ca8d248cf415f70498a003ab",
+      "parts": [
+        "listen-point-say.m4a.000.part",
+        "listen-point-say.m4a.001.part",
+        "listen-point-say.m4a.002.part",
+        "listen-point-say.m4a.003.part",
+        "listen-point-say.m4a.004.part"
+      ]
+    },
+    {
+      "file": "moving-to-the-farm-review.mp4",
+      "sha256": "9e814ecf07e63bbbfdedab64729a9137c27c4fbbd77d1440794a76822eacbb81",
+      "parts": [
+        "moving-to-the-farm-review.mp4.000.part",
+        "moving-to-the-farm-review.mp4.001.part",
+        "moving-to-the-farm-review.mp4.002.part",
+        "moving-to-the-farm-review.mp4.003.part",
+        "moving-to-the-farm-review.mp4.004.part",
+        "moving-to-the-farm-review.mp4.005.part",
+        "moving-to-the-farm-review.mp4.006.part",
+        "moving-to-the-farm-review.mp4.007.part",
+        "moving-to-the-farm-review.mp4.008.part",
+        "moving-to-the-farm-review.mp4.009.part",
+        "moving-to-the-farm-review.mp4.010.part",
+        "moving-to-the-farm-review.mp4.011.part"
+      ]
+    }
+  ]
+}

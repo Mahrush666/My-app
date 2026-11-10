@@ -9,7 +9,7 @@ import {shuffle} from '../lib/random';
 import {dailyDay,dailyWord,type DailyTask} from '../lib/daily-practice';
 import {isSentenceLesson} from '../lib/sentence-lesson';
 import {studentHomeworkProgress,homeworkItems} from '../lib/student-homework-progress';
-import {syncHomeworkRewards} from './rewards';
+import {homeworkRewardStatement} from './rewards';
 import {preReaderAge} from '../lib/homework-order';
 import {spellingGaps,spellingOrder} from '../lib/spelling-steps';
 const spellingCredits=['spell:step1','spell:step2','spell:step3','spell:step4','spell'];
@@ -140,8 +140,9 @@ export async function answerDaily(db:D1Database,child:Child,now:number,data:{run
  const attempts=await db.prepare('SELECT assignment_id,activity,word_id,correct,created_at FROM attempts WHERE child_id=? AND assignment_id=?').bind(child.id,assignment!.id).all<any>();
  const progress=studentHomeworkProgress([assignment!],lessons,attempts.results,[])[assignment!.id];
  const completed=progress.exercises.filter(e=>e.total>0&&e.done===e.total).map(e=>db.prepare('INSERT OR IGNORE INTO completions(child_id,assignment_id,activity,completed_at) VALUES(?,?,?,?)').bind(child.id,assignment!.id,e.activity,now));
- if(completed.length)await db.batch(completed);
- const [updated]=await Promise.all([dailyPractice(db,child,now),syncHomeworkRewards(db,child.id,[assignment!],now)]);
+ const statements=[...completed,...homeworkRewardStatement(db,child.id,assignment!)];
+ if(statements.length)await db.batch(statements);
+ const updated=await dailyPractice(db,child,now);
  return {...updated,correct};
 }
 export async function dailyReport(db:D1Database,group:string,now:number){

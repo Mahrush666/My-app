@@ -1,4 +1,5 @@
 export const homeworkXP=10;
+export const attendanceXP=10;
 export const rewardTiers=[{name:'Explorer',min:0,icon:'🌱'},{name:'Bronze',min:200,icon:'🛡️'},{name:'Silver',min:450,icon:'🥈'},{name:'Gold',min:750,icon:'🏆'},{name:'Diamond',min:1100,icon:'💎'}];
 export const rewardBadges=[
  {id:'alphabet',name:'Alphabet Master',icon:'🔤',xp:50,description:'Recognize all English letters.'},

@@ -1,3 +1,4 @@
+import {classRewardTotals} from './rewards';
 import {classReviewDays} from './review-days';
 import type {D1Database} from '@cloudflare/workers-types';
 import {ensureMeetings} from './meeting-series';
@@ -8,7 +9,7 @@ export async function studentDashboard(db:D1Database,child:{id:string;group_id:s
  const week=chinaWeek(now),local=new Date(now+8*3600000).toISOString(),day=local.slice(0,10),time=local.slice(11,16);
  const [nextClass,rows,reviewDays,enabled]=await Promise.all([
   ensureMeetings(db,day,addDays(day,14),child.group_id).then(()=>db.prepare('SELECT day,time,duration FROM class_meetings WHERE group_id=? AND (day>? OR (day=? AND time>=?)) ORDER BY day,time LIMIT 1').bind(child.group_id,day,day,time).first()),
-  db.prepare('SELECT c.id,c.name,COALESCE(SUM(r.xp),0) AS xp,COALESCE(SUM(CASE WHEN r.created_at>=? AND r.created_at<? THEN r.xp ELSE 0 END),0) AS weekly_xp FROM children c LEFT JOIN reward_events r ON r.child_id=c.id AND r.revoked=0 WHERE c.group_id=? AND c.approved=1 GROUP BY c.id,c.name ORDER BY c.name,c.id').bind(week.start,week.end,child.group_id).all<{id:string;name:string;xp:number;weekly_xp:number}>(),
+  classRewardTotals(db,child.group_id,now),
   classReviewDays(db,child.group_id,now),
   dailyEnabled(db,child.group_id),
  ]);

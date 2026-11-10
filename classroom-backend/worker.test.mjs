@@ -228,7 +228,10 @@ test('rewards are private, homework pays once across rescans and revisions, teac
  assert.equal((await api('/homework?child='+kid,undefined,parent)).body.rewards.xp,0,'Passive homework gives no XP');
  for(const wordId of words)assert.equal((await api('/progress',{...event,wordId,eventId:crypto.randomUUID()},parent)).status,200);
  assert.equal((await points()).xp,0,'One of two activities is incomplete');
- for(const wordId of words)await api('/progress',{...event,activity:'sound-picture',wordId,eventId:crypto.randomUUID()},parent);
+ let last;
+ for(const wordId of words)last=await api('/progress',{...event,activity:'sound-picture',wordId,eventId:crypto.randomUUID()},parent);
+ assert.equal(last.body.rewards.xp,10,'The last correct answer immediately returns the homework XP');
+ assert.equal(last.body.rewards.history[0].label,'Reward homework');
  assert.equal((await points()).xp,10);
  const dashboard=(await api('/homework?child='+kid,undefined,parent)).body.dashboard;assert.equal(dashboard.classmates.find(c=>c.me).xp,10);assert.equal(dashboard.classmates.find(c=>c.me).weeklyXP,10);
  await Promise.all(Array.from({length:3},()=>api('/homework?child='+kid,undefined,parent)));
@@ -1284,6 +1287,28 @@ test('teacher class practice matches student review days and XP, includes inacti
  assert.deepEqual(row.reviewDays,me.reviewDays);assert.equal(row.xp,me.xp);assert.equal(row.weeklyXP,me.weeklyXP);assert.equal(row.xp-row.weeklyXP,20);
  assert.equal(row.name,'Amy Wang');assert.equal(result.body.students[0].id,id);assert(!result.body.students.some(s=>s.id===other));
  assert.deepEqual(result.body.students.find(s=>s.id===kids[1].id).reviewDays,[]);
+ const meetingId=crypto.randomUUID(),pastMeeting=crypto.randomUUID(),futureMeeting=crypto.randomUUID();
+ for(const [meeting,day] of [[meetingId,initial.today],[pastMeeting,date(monday-1)],[futureMeeting,date(monday+7*86400000)]]){
+  await DB.prepare('INSERT INTO class_meetings(id,group_id,day,time,duration) VALUES(?,?,?,?,?)').bind(meeting,a.id,day,'16:00',45).run();
+ }
+ await DB.prepare('INSERT INTO attendance VALUES(?,?,?)').bind(pastMeeting,id,'present').run();
+ await DB.prepare('INSERT INTO attendance VALUES(?,?,?)').bind(futureMeeting,id,'present').run();
+ for(const status of ['present','present','late']){
+  assert.equal((await api('/attendance',{meetingId,marks:[{childId:id,status},{childId:kids[1].id,status:'excused'}]},token)).status,200);
+ }
+ const rewards=(await api('/rewards?child='+id,undefined,student)).body;
+ assert.equal(rewards.xp,55,'Each attended meeting earns 10 XP, including existing marks, excluding future meetings');
+ const attendance=rewards.history.filter(h=>h.kind==='attendance');
+ assert.equal(attendance.length,2);
+ assert.equal(attendance.find(h=>h.source==='attendance:'+pastMeeting).created_at,Date.parse(date(monday-1)+'T00:00:00+08:00'));
+ const classXP=(await api(path,undefined,token)).body.students;
+ assert.equal(classXP.find(s=>s.id===id).weeklyXP,25,'Past attendance counts in the week of the class');
+ assert.equal(classXP.find(s=>s.id===kids[1].id).xp,0,'Excused students do not earn attendance XP');
+ const studentXP=(await api('/homework?child='+id,undefined,student)).body.dashboard.classmates.find(s=>s.me);
+ assert.equal(studentXP.xp,55);assert.equal(studentXP.weeklyXP,25);
+ assert.equal((await api('/reward-undo',{childId:id,id:attendance[0].id},owner)).status,400);
+ await api('/attendance',{meetingId,childId:id,status:'absent'},token);
+ assert.equal((await api('/rewards?child='+id,undefined,student)).body.xp,45,'Correcting attendance removes that meeting’s XP');
  await api('/approve',{childId:id,approved:false},owner);assert.deepEqual((await api(path,undefined,token)).body.students.map(s=>s.id),[kids[1].id]);
  await api('/staff-save',{id:staff,name:'Scoped',username:'reviewteacher',role:'assistant',permissions:['attendance'],groups:[],active:true},owner);
  assert.equal((await api(path,undefined,token)).status,403,'Access changes take effect immediately');

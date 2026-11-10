@@ -16,7 +16,7 @@ import {studentDashboard} from './student-dashboard';
 import {staffAccess,authorizeStaff,filterCalendar,StaffError} from './staff';
 import {staffPermissions} from '../lib/staff';
 import {teacherTools} from './teacher-tools';
-import {readRewards,syncHomeworkRewards} from './rewards';
+import {homeworkRewardStatement,readRewards,syncHomeworkRewards} from './rewards';
 import {rewardBadges} from '../lib/rewards';
 import {checkStoryAnswer} from '../lib/illustrated-reading';
 import {requiresAnswers,homeworkFinished} from '../lib/homework-completion';
@@ -158,8 +158,8 @@ export async function handle(request:Request,env:Env){
  const id=text(new URL(request.url).searchParams.get('child'),80);
  if(session.role==='teacher'){requireValue(await env.DB.prepare('SELECT id FROM children WHERE id=?').bind(id).first(),'Student not found.');}else{const child=await childAccess(id);requireValue(child.approved,'Your teacher needs to approve this profile.');}
  const rewardChild=await env.DB.prepare('SELECT group_id,approved FROM children WHERE id=?').bind(id).first<{group_id:string;approved:number}>();
- if(rewardChild?.approved){const tasks=await env.DB.prepare('SELECT id,activities,title,updated_at FROM assignments WHERE group_id=?').bind(rewardChild.group_id).all<{id:string;activities:string;title:string;updated_at:number}>();await syncHomeworkRewards(env.DB,id,tasks.results,now);}
- return respond(await readRewards(env.DB,id));
+ if(rewardChild?.approved){const tasks=await env.DB.prepare('SELECT id,activities,title,updated_at FROM assignments WHERE group_id=?').bind(rewardChild.group_id).all<{id:string;activities:string;title:string;updated_at:number}>();await syncHomeworkRewards(env.DB,id,tasks.results);}
+ return respond(await readRewards(env.DB,id,now));
  }
  if(path==='/reward-award'&&request.method==='POST'){
  teacher();const childId=text(data.childId,80);requireValue(await env.DB.prepare('SELECT id FROM children WHERE id=?').bind(childId).first(),'Student not found.');
@@ -170,10 +170,10 @@ export async function handle(request:Request,env:Env){
  else if(kind==='manual'){xp=Number(data.xp);requireValue(Number.isInteger(xp)&&xp!==0&&xp>=-100&&xp<=100,'Use whole points from -100 to 100, excluding zero.');requireValue(label,'Enter the reason for this award.');}
  else throw new Failure('Choose a valid reward.');
  await env.DB.prepare(`INSERT INTO reward_events(id,child_id,source,kind,label,xp,created_at,revoked) VALUES(?,?,?,?,?,?,?,0) ON CONFLICT(child_id,source) DO UPDATE SET label=excluded.label,xp=excluded.xp,created_at=excluded.created_at,revoked=0 WHERE reward_events.revoked=1 AND reward_events.kind IN ('badge','diamond')`).bind(crypto.randomUUID(),childId,source,kind,label,xp,now).run();
- return respond(await readRewards(env.DB,childId));
+ return respond(await readRewards(env.DB,childId,now));
  }
  if(path==='/reward-undo'&&request.method==='POST'){
- teacher();const childId=text(data.childId,80),id=text(data.id,80);const entry=await env.DB.prepare('SELECT kind FROM reward_events WHERE id=? AND child_id=?').bind(id,childId).first<{kind:string}>();requireValue(entry&&entry.kind!=='homework','Only teacher awards can be undone.');await env.DB.prepare('UPDATE reward_events SET revoked=1 WHERE id=? AND child_id=?').bind(id,childId).run();return respond(await readRewards(env.DB,childId));
+ teacher();const childId=text(data.childId,80),id=text(data.id,80);const entry=await env.DB.prepare('SELECT kind FROM reward_events WHERE id=? AND child_id=?').bind(id,childId).first<{kind:string}>();requireValue(entry&&['manual','badge','diamond'].includes(entry.kind),'Only teacher awards can be undone.');await env.DB.prepare('UPDATE reward_events SET revoked=1 WHERE id=? AND child_id=?').bind(id,childId).run();return respond(await readRewards(env.DB,childId,now));
  }
  if(path==='/lesson-settings'&&request.method==='POST'){
  teacher();const settings=validateSettings(data.settings,lessons.map(l=>l.id));
@@ -297,12 +297,12 @@ export async function handle(request:Request,env:Env){
  if(path==='/homework'&&request.method==='GET'){
  const child=await childAccess(new URL(request.url).searchParams.get('child'));if(!child.approved)return respond({assignments:[],progress:{},completed:[],pending:true});
  const [assignments,reviews,completed]=await Promise.all([env.DB.prepare("SELECT * FROM assignments WHERE group_id=? AND id NOT IN (SELECT REPLACE(key,'assignment_archived:','') FROM config WHERE key LIKE 'assignment_archived:%' AND value='1') ORDER BY due_date,updated_at").bind(child.group_id).all(),env.DB.prepare('SELECT word_id,step,due FROM reviews WHERE child_id=?').bind(child.id).all(),env.DB.prepare('SELECT assignment_id,activity FROM completions WHERE child_id=?').bind(child.id).all()]);
- const rewardsReady=syncHomeworkRewards(env.DB,child.id,assignments.results as {id:string;activities:string;title:string;updated_at:number}[],now);
+ const rewardsReady=syncHomeworkRewards(env.DB,child.id,assignments.results as {id:string;activities:string;title:string;updated_at:number}[]);
  const [homeworkProgress,lessonSettings,dashboard,rewards]=await Promise.all([
   readStudentProgress(env.DB,child.id,assignments.results,completed.results),
   publishedSettings(env.DB,lessons),
   rewardsReady.then(()=>studentDashboard(env.DB,child,now)),
-  rewardsReady.then(()=>readRewards(env.DB,child.id)),
+  rewardsReady.then(()=>readRewards(env.DB,child.id,now)),
  ]);
  return respond({homeworkProgress,lessonSettings,dashboard,rewards,assignments:assignments.results,progress:Object.fromEntries(reviews.results.map(r=>[r.word_id,{step:r.step,due:r.due}])),completed:completed.results,pending:false});
  }
@@ -336,7 +336,7 @@ export async function handle(request:Request,env:Env){
  }
  if(path==='/progress'&&request.method==='POST'){
  const child=await childAccess(data.childId);requireValue(child.approved,'Your teacher needs to approve this profile.');
- const assignment=await env.DB.prepare('SELECT * FROM assignments WHERE id=? AND group_id=?').bind(text(data.assignmentId,80),child.group_id).first<{id:string;unit_id:string;activities:string;word_ids:string;updated_at:number}>();requireValue(assignment,'This assignment is no longer available. Refresh your homework.');requireValue(!(await archivedAssignments(env.DB)).has(assignment!.id),'This homework is archived. Refresh your homework.');
+ const assignment=await env.DB.prepare('SELECT * FROM assignments WHERE id=? AND group_id=?').bind(text(data.assignmentId,80),child.group_id).first<{id:string;unit_id:string;title:string;activities:string;word_ids:string;updated_at:number}>();requireValue(assignment,'This assignment is no longer available. Refresh your homework.');requireValue(!(await archivedAssignments(env.DB)).has(assignment!.id),'This homework is archived. Refresh your homework.');
  const activities=JSON.parse(assignment!.activities) as string[];const activity=text(data.activity,40);requireValue(activities.includes(activity),'This activity is not assigned.');
  requireValue(data.complete!==true,'Homework finishes automatically after the required answers.');
  if(activity==='sentence-speak'||activity==='sentence-build'&&isListeningSentenceLesson(assignment!.unit_id)||activity==='story-quiz'||activity==='story-order'){
@@ -354,10 +354,10 @@ export async function handle(request:Request,env:Env){
  // Story comprehension has its own completion requirements and never changes word SRS.
  const inserted=await env.DB.batch([
  env.DB.prepare('INSERT OR IGNORE INTO attempts VALUES(?,?,?,?,?,?,?)').bind(id,child.id,assignment!.id,activity,itemId,Number(correct),answerTime),
- env.DB.prepare(`INSERT OR IGNORE INTO completions(child_id,assignment_id,activity,completed_at) SELECT ?,?,?,? WHERE (SELECT COUNT(DISTINCT word_id) FROM attempts WHERE child_id=? AND assignment_id=? AND correct=1 AND created_at>=? AND activity=? AND word_id IN (${requiredIds.map(()=>'?').join(',')}))>=?`).bind(child.id,assignment!.id,activity,answerTime,child.id,assignment!.id,assignment!.updated_at,activity,...requiredIds,required)
+ env.DB.prepare(`INSERT OR IGNORE INTO completions(child_id,assignment_id,activity,completed_at) SELECT ?,?,?,? WHERE (SELECT COUNT(DISTINCT word_id) FROM attempts WHERE child_id=? AND assignment_id=? AND correct=1 AND created_at>=? AND activity=? AND word_id IN (${requiredIds.map(()=>'?').join(',')}))>=?`).bind(child.id,assignment!.id,activity,answerTime,child.id,assignment!.id,assignment!.updated_at,activity,...requiredIds,required),
+ ...homeworkRewardStatement(env.DB,child.id,assignment!)
  ]);
- await syncHomeworkRewards(env.DB,child.id,[assignment!],now);
- const rewards=await readRewards(env.DB,child.id);
+ const rewards=await readRewards(env.DB,child.id,now);
  const completed=await env.DB.prepare('SELECT assignment_id,activity FROM completions WHERE child_id=?').bind(child.id).all();
  return respond({homeworkProgress:await readStudentProgress(env.DB,child.id,[assignment!],completed.results),saved:true,rewards,correct,duplicate:inserted[0].meta.changes===0,completed:completed.results});
  }
@@ -375,10 +375,10 @@ export async function handle(request:Request,env:Env){
  const inserted=await env.DB.batch([
  env.DB.prepare('INSERT OR IGNORE INTO attempts VALUES(?,?,?,?,?,?,?)').bind(id,child.id,assignment!.id,attemptActivity,wordId,Number(data.correct),answerTime),
  ...(data.correction===true||scaffold?[]:[env.DB.prepare(`INSERT INTO reviews(child_id,word_id,step,due) SELECT ?,?, ?,? WHERE changes()=1 ON CONFLICT(child_id,word_id) DO UPDATE SET step=CASE WHEN ?=0 THEN 0 WHEN reviews.due>? THEN reviews.step ELSE MIN(reviews.step+1,4) END,due=CASE WHEN ?=0 THEN ? WHEN reviews.due>? THEN reviews.due ELSE ?+CASE MIN(reviews.step+1,4) WHEN 1 THEN 86400000 WHEN 2 THEN 259200000 WHEN 3 THEN 604800000 ELSE 1209600000 END END`).bind(child.id,wordId,data.correct?1:0,now+(data.correct?86400000:600000),Number(data.correct),now,Number(data.correct),now+600000,now,now)]),
- ...(requiresAnswers(activity)?[env.DB.prepare(`INSERT OR IGNORE INTO completions(child_id,assignment_id,activity,completed_at) SELECT ?,?,?,? WHERE (SELECT COUNT(DISTINCT ${activity==='reactor'?'word_id':'activity || word_id'}) FROM attempts WHERE child_id=? AND assignment_id=? AND correct=1 AND created_at>=? AND ${activity==='spell'?"activity IN ('spell','spell:step1','spell:step2','spell:step3','spell:step4')":activity==='lesson'?"activity IN ('lesson:listen','lesson:spell','lesson:sentence')":activity==='reactor'?"activity IN ('reactor','reactor:build','reactor:spelling','reactor:meaning')":'activity=?'} )>=?`).bind(child.id,assignment!.id,activity,answerTime,child.id,assignment!.id,assignment!.updated_at,...(['spell','lesson','reactor'].includes(activity)?[]:[activity]),activity==='spell'?JSON.parse(assignment!.word_ids).length*5:activity==='lesson'?JSON.parse(assignment!.word_ids).length*2+Math.min(4,lessons.find(l=>l.id===assignment!.unit_id)!.words.filter(w=>JSON.parse(assignment!.word_ids).includes(w.id)&&w.sentence.trim().split(/\s+/).length>1).length):JSON.parse(assignment!.word_ids).length)]:[])
+ ...(requiresAnswers(activity)?[env.DB.prepare(`INSERT OR IGNORE INTO completions(child_id,assignment_id,activity,completed_at) SELECT ?,?,?,? WHERE (SELECT COUNT(DISTINCT ${activity==='reactor'?'word_id':'activity || word_id'}) FROM attempts WHERE child_id=? AND assignment_id=? AND correct=1 AND created_at>=? AND ${activity==='spell'?"activity IN ('spell','spell:step1','spell:step2','spell:step3','spell:step4')":activity==='lesson'?"activity IN ('lesson:listen','lesson:spell','lesson:sentence')":activity==='reactor'?"activity IN ('reactor','reactor:build','reactor:spelling','reactor:meaning')":'activity=?'} )>=?`).bind(child.id,assignment!.id,activity,answerTime,child.id,assignment!.id,assignment!.updated_at,...(['spell','lesson','reactor'].includes(activity)?[]:[activity]),activity==='spell'?JSON.parse(assignment!.word_ids).length*5:activity==='lesson'?JSON.parse(assignment!.word_ids).length*2+Math.min(4,lessons.find(l=>l.id===assignment!.unit_id)!.words.filter(w=>JSON.parse(assignment!.word_ids).includes(w.id)&&w.sentence.trim().split(/\s+/).length>1).length):JSON.parse(assignment!.word_ids).length)]:[]),
+ ...homeworkRewardStatement(env.DB,child.id,assignment!)
  ]);
- await syncHomeworkRewards(env.DB,child.id,[assignment!],now);
- const rewards=await readRewards(env.DB,child.id);
+ const rewards=await readRewards(env.DB,child.id,now);
  const completed=await env.DB.prepare('SELECT assignment_id,activity FROM completions WHERE child_id=?').bind(child.id).all();
  return respond({homeworkProgress:await readStudentProgress(env.DB,child.id,[assignment!],completed.results),saved:true,rewards,duplicate:inserted[0].meta.changes===0,completed:completed.results});
  }

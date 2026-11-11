@@ -1,5 +1,5 @@
 import type {D1Database} from '@cloudflare/workers-types';
-import {campusAttendanceStatuses,campusLessonsLimit,isHtCampus,type CampusAttendanceMark} from '../lib/campus-attendance';
+import {campusAttendanceStatuses,campusClassNameLimit,campusLessonsLimit,isHtCampus,type CampusAttendanceMark} from '../lib/campus-attendance';
 import type {StaffAccess} from '../lib/staff';
 import {chinaDay,validDay} from '../lib/teacher-dashboard';
 import {StaffError} from './staff';
@@ -20,6 +20,23 @@ export async function campusAttendance(db:D1Database,access:StaffAccess,url:URL,
  if(!validDay(day)||day<'2020-01-01'||day>chinaDay(now))throw new StaffError('Choose today or an earlier date.',400);
  if(method!=='GET'&&method!=='POST')throw new StaffError('Method not allowed.',405);
  if(method==='POST'&&!access.owner&&!access.permissions.includes('attendance'))throw new StaffError('You do not have permission to mark attendance.');
+ const classPrefix=namespace+campusId+':classes';
+ const listClasses=async()=>(await db.prepare('SELECT value FROM config WHERE key>=? AND key<? ORDER BY key')
+  .bind(classPrefix+':',classPrefix+';').all<{value:string}>()).results.map(row=>row.value);
+ if(method==='POST'&&(data.action==='add-class'||data.action==='remove-class')){
+  const name=typeof data.name==='string'?data.name.trim():'';
+  if(!name||name.length>campusClassNameLimit||/[,，\u0000-\u001f]/.test(name)){
+   throw new StaffError('Enter one class name without commas (up to 60 characters).',400);
+  }
+  // The trailing colon keeps catalog entries separate from student-record cleanup.
+  const key=classPrefix+':'+name.toLowerCase()+':';
+  if(data.action==='add-class'){
+   await db.prepare('INSERT INTO config(key,value) VALUES(?,?) ON CONFLICT(key) DO NOTHING').bind(key,name).run();
+  }else{
+   await db.prepare('DELETE FROM config WHERE key=?').bind(key).run();
+  }
+  return {classes:await listClasses()};
+ }
  const prefix=namespace+campusId+':'+day+':';
  const roster=await db.prepare(`SELECT c.id,c.name,c.approved,c.group_id,g.name AS group_name,r.value
   FROM children c JOIN groups g ON g.id=c.group_id
@@ -28,7 +45,7 @@ export async function campusAttendance(db:D1Database,access:StaffAccess,url:URL,
   WHERE (COALESCE(gc.campus_id,'main')=? AND c.approved=1) OR r.key IS NOT NULL
   ORDER BY c.name,c.id`).bind(prefix,campusId).all<{id:string;name:string;approved:number;group_id:string;group_name:string;value:string|null}>();
  const visible=roster.results.filter(row=>access.owner||access.groups.includes(row.group_id));
- if(method==='GET')return {day,students:visible.map(row=>{
+ if(method==='GET')return {day,classes:await listClasses(),students:visible.map(row=>{
   const mark=row.value?JSON.parse(row.value) as Omit<CampusAttendanceMark,'childId'>:null;
   return {childId:row.id,name:row.name,groupName:row.group_name,status:mark?.status??'unmarked',lessons:mark?.lessons??''};
  })};

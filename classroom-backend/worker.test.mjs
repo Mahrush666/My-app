@@ -305,6 +305,15 @@ test('HT daily attendance uses the existing roster without scheduling and protec
   for(let i=0;i<2;i++)assert.equal((await api(path,{marks},marker)).status,200);
   const records=(await api(path,undefined,viewer)).body.students;
   assert.deepEqual(records.map(r=>[r.name,r.status,r.lessons]),[['Amy','present','English, Art'],['Ben','late','Music']]);
+  const addClass=name=>({action:'add-class',name});
+  assert.equal((await api(path,addClass('English'),viewer)).status,403);
+  assert.equal((await api(path,addClass('English, Art'),marker)).status,400);
+  for(const name of ['English','Art','Music',' english ']){
+   assert.equal((await api(path,addClass(name),marker)).status,200);
+  }
+  assert.deepEqual((await api(past,undefined,viewer)).body.classes,['Art','English','Music']);
+  assert.deepEqual((await api(path,{action:'remove-class',name:'Art'},marker)).body.classes,['English','Music']);
+  assert.equal((await api(path,undefined,viewer)).body.students[0].lessons,'English, Art');
   assert.equal((await api(past,undefined,marker)).body.students[0].status,'unmarked');
   assert.equal((await api(past,{marks:[{...marks[0],lessons:'Drama'}]},marker)).status,200);
   assert.equal((await api(path,{marks:[{childId:amy.id,status:'unmarked',lessons:''}]},marker)).status,200);

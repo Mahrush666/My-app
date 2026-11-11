@@ -9,12 +9,19 @@
 .campus-attendance-row{padding:10px 0;border-top:1px solid #eae5f0}
 .campus-attendance-student{display:grid;gap:3px;overflow-wrap:anywhere}
 .campus-attendance-student small{color:#6f657e}
-.campus-attendance-row select,.campus-attendance-row input{width:100%;min-width:0;margin:0}
+.campus-attendance-row select{width:100%;min-width:0;margin:0}
 .campus-attendance-lessons{min-width:0;margin:0}
-.campus-attendance-lessons span{display:none}
+.campus-attendance-lessons summary,.campus-class-manager summary{cursor:pointer;padding:9px 12px;border:1px solid #ded7ed;border-radius:10px;overflow-wrap:anywhere}
+.campus-class-options{display:grid;gap:2px;margin-top:6px}
+.campus-class-options label{display:flex;align-items:center;gap:8px;margin:0;padding:6px 8px;min-height:36px;cursor:pointer;overflow-wrap:anywhere}
+.campus-class-options input[type=checkbox]{width:17px;min-width:17px;height:17px;margin:0;accent-color:#6846ed}
+.campus-class-manager{margin-bottom:16px}
+.campus-class-manager form,.campus-class-manager li{display:flex;flex-wrap:wrap;align-items:end;gap:8px;margin-top:8px}
+.campus-class-manager form label{display:grid;gap:4px;margin:0;max-width:100%}
+.campus-class-manager ul{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0}
+.campus-class-manager li{align-items:center;margin:0;padding:4px 4px 4px 10px;border:1px solid #ded7ed;border-radius:10px;overflow-wrap:anywhere;max-width:100%}
 @media(max-width:540px){
  .campus-attendance-columns{display:none}
  .campus-attendance-row{grid-template-columns:minmax(0,1fr) minmax(100px,.8fr);gap:8px}
  .campus-attendance-lessons{display:grid;gap:4px;grid-column:1/-1}
- .campus-attendance-lessons span{display:block;font-size:12px;color:#625976}
 }

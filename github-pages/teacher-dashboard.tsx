@@ -20,7 +20,8 @@ export function AssignmentProgress({groups,children,assignments,reports}:{groups
 }
 type AttendanceProps={groups:SchoolGroup[];children:SchoolChild[];request:Request;initialMeeting?:ClassMeeting;onDirtyChange?:(dirty:boolean)=>void;canMark?:boolean;canSchedule?:boolean};
 export function Attendance({htCampusId,...props}:AttendanceProps&{htCampusId?:string}){
- const [mode,setMode]=useState<'daily'|'calendar'>(props.initialMeeting?'calendar':'daily');
+ const [mode,setMode]=useState<'daily'|'calendar'>(()=>
+  props.groups.some(group=>group.id===props.initialMeeting?.group_id)?'calendar':'daily');
  const dirty=useRef(false);
  function onDirtyChange(value:boolean){
   dirty.current=value;

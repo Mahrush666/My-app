@@ -1309,6 +1309,12 @@ test('teacher class practice matches student review days and XP, includes inacti
  assert.equal((await api('/reward-undo',{childId:id,id:attendance[0].id},owner)).status,400);
  await api('/attendance',{meetingId,childId:id,status:'absent'},token);
  assert.equal((await api('/rewards?child='+id,undefined,student)).body.xp,45,'Correcting attendance removes that meeting’s XP');
+ await DB.prepare('INSERT INTO reward_events VALUES(?,?,?,?,?,?,?,?)').bind('pyramid-test',id,'pyramid-test','manual','Threshold fixture',1100,now,0).run();
+ assert.equal((await api(path,undefined,token)).body.students.find(s=>s.id===id).diamond,false,'XP alone does not grant Diamond');
+ const diamond=(await api('/reward-award',{childId:id,kind:'diamond',reason:'Read independently',eventId:crypto.randomUUID()},owner)).body.history.find(h=>h.kind==='diamond');
+ assert.equal((await api(path,undefined,token)).body.students.find(s=>s.id===id).diamond,true,'Teacher class view includes outstanding-work approval');
+ await api('/reward-undo',{childId:id,id:diamond.id},owner);
+ assert.equal((await api(path,undefined,token)).body.students.find(s=>s.id===id).diamond,false,'Revoked approval returns the student to Gold');
  await api('/approve',{childId:id,approved:false},owner);assert.deepEqual((await api(path,undefined,token)).body.students.map(s=>s.id),[kids[1].id]);
  await api('/staff-save',{id:staff,name:'Scoped',username:'reviewteacher',role:'assistant',permissions:['attendance'],groups:[],active:true},owner);
  assert.equal((await api(path,undefined,token)).status,403,'Access changes take effect immediately');

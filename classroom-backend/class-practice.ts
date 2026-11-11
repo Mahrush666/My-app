@@ -9,5 +9,5 @@ export async function classPractice(db:D1Database,groupId:string,now:number):Pro
   classRewardTotals(db,groupId,now),
   classReviewDays(db,groupId,now)
  ]);
- return {groupId,today:date(now),weekStart:date(week.start),students:rows.results.map(r=>({id:r.id,name:r.name,reviewDays:[...(days.get(r.id)||[])].sort(),xp:Number(r.xp),weeklyXP:Number(r.weekly_xp)})).sort((a,b)=>b.reviewDays.length-a.reviewDays.length||b.weeklyXP-a.weeklyXP||a.name.localeCompare(b.name)||a.id.localeCompare(b.id))};
+ return {groupId,today:date(now),weekStart:date(week.start),students:rows.results.map(r=>({id:r.id,name:r.name,reviewDays:[...(days.get(r.id)||[])].sort(),xp:Number(r.xp),weeklyXP:Number(r.weekly_xp),diamond:Boolean(Number(r.diamond))})).sort((a,b)=>b.reviewDays.length-a.reviewDays.length||b.weeklyXP-a.weeklyXP||a.name.localeCompare(b.name)||a.id.localeCompare(b.id))};
 }

@@ -19,13 +19,13 @@ export async function readRewards(db:D1Database,childId:string,now:number){
 
 export function classRewardTotals(db:D1Database,groupId:string,now:number){
  const week=chinaWeek(now);
- return db.prepare(`SELECT c.id,c.name,COALESCE(SUM(r.xp),0) AS xp,
+ return db.prepare(`SELECT c.id,c.name,COALESCE(SUM(r.xp),0) AS xp,COALESCE(MAX(CASE WHEN r.kind='diamond' THEN 1 ELSE 0 END),0) AS diamond,
  COALESCE(SUM(CASE WHEN (r.created_at>=? AND r.created_at<?) OR (r.class_day>=? AND r.class_day<?) THEN r.xp ELSE 0 END),0) AS weekly_xp
  FROM children c LEFT JOIN (
- SELECT child_id,xp,created_at,NULL AS class_day FROM reward_events WHERE revoked=0
- UNION ALL SELECT a.child_id,${attendanceXP},NULL,m.day ${attendedMeetings}
+ SELECT child_id,xp,created_at,NULL AS class_day,kind FROM reward_events WHERE revoked=0
+ UNION ALL SELECT a.child_id,${attendanceXP},NULL,m.day,'attendance' ${attendedMeetings}
  ) r ON r.child_id=c.id WHERE c.group_id=? AND c.approved=1 GROUP BY c.id,c.name ORDER BY c.name,c.id`)
- .bind(week.start,week.end,chinaDate(week.start),chinaDate(week.end),chinaDate(now),groupId).all<{id:string;name:string;xp:number;weekly_xp:number}>();
+ .bind(week.start,week.end,chinaDate(week.start),chinaDate(week.end),chinaDate(now),groupId).all<{id:string;name:string;xp:number;weekly_xp:number;diamond:number}>();
 }
 // The unique child/source pair makes rescans, retries and concurrent requests safe.
 // Assignment edits and deletion never erase previously earned points.

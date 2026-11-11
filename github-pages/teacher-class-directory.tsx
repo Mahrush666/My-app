@@ -30,6 +30,7 @@ export default function TeacherClassDirectory({groups,children,assignments,repor
  selectedId:string;onSelect:(id:string)=>void;newClass:ReactNode;roster:ReactNode;
  hasInvitation:boolean;canReward:boolean;request:Request;onRefresh:()=>Promise<void>;
 }){
+ const [rewardRevision,setRewardRevision]=useState(0);
  const selected=groups.find(g=>g.id===selectedId);
  const heading=useRef<HTMLHeadingElement>(null);
  const previous=useRef(selected?.id);
@@ -69,8 +70,8 @@ export default function TeacherClassDirectory({groups,children,assignments,repor
      canAssign={false} canDelete={false} request={request} onSaved={onRefresh}/>
    </ClassSection>
    <ClassSection label="XP 经验值" icon={Star}>
-    <TeacherClassPractice embedded view="xp" groupId={selected.id} request={request}/>
-    {canReward&&<TeacherRewards students={students} request={(path,data)=>request<RewardState>(path,data)}/>}
+    <TeacherClassPractice embedded view="xp" refreshKey={rewardRevision} groupId={selected.id} request={request}/>
+    {canReward&&<TeacherRewards students={students} onChanged={()=>setRewardRevision(n=>n+1)} request={(path,data)=>request<RewardState>(path,data)}/>}
    </ClassSection>
   </div>
  </section>;

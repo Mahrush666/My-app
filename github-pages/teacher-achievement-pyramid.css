@@ -1,0 +1,19 @@
+.teacher-achievement-pyramid{margin:18px 0 24px;padding:20px 12px;border:1px solid #e7e1ec;border-radius:16px;background:#fff;min-width:0}
+.teacher-achievement-pyramid header{text-align:center;margin-bottom:20px}
+.teacher-achievement-pyramid h3{font-size:18px;margin:0 0 6px}
+.teacher-achievement-pyramid header p,.tap-caption{font-size:12px;line-height:1.5;color:#796f86;margin:0}
+.tap-levels{display:flex;flex-direction:column;align-items:center;gap:6px;max-width:850px;margin:auto}
+.tap-level{position:relative;isolation:isolate;width:var(--tier-width);text-align:center;padding:16px 8% 20px;box-sizing:border-box;min-width:0}
+.tap-level:before{content:'';position:absolute;inset:0;z-index:-1;background:var(--tier-background);clip-path:polygon(8% 0,92% 0,100% 100%,0 100%)}
+.tap-level h4{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:5px;font-size:14px;color:var(--tier-color);margin:0 0 5px}
+.tap-count{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 4px;border-radius:20px;background:#ffffffb3;font-size:11px}
+.tap-range{font-size:11px;line-height:1.5;color:var(--tier-color);margin:0 0 14px}
+.tap-level ul{display:flex;justify-content:center;flex-wrap:wrap;gap:14px 10px;list-style:none;padding:0;margin:0}
+.tap-level li{display:grid;align-content:start;justify-items:center;gap:4px;flex:0 1 88px;min-width:0;max-width:100%}
+.tap-avatar{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:#ffffffb3;color:var(--tier-color);font-size:17px;font-weight:750}
+.tap-level li strong{font-size:12px;line-height:1.4;overflow-wrap:anywhere;max-width:100%}
+.tap-level li small{font-size:11px;color:var(--tier-color);line-height:1.4}
+.tap-approval{font-style:italic}
+.tap-empty{font-size:12px;color:var(--tier-color);margin:0}
+.tap-caption{text-align:center;margin:18px 0 0}
+@media(max-width:500px){.teacher-achievement-pyramid{padding:16px 0}.teacher-achievement-pyramid header,.tap-caption{padding:0 12px}.tap-level{width:var(--tier-mobile-width);padding:14px 6% 18px}.tap-level li{flex-basis:70px}.teacher-achievement-pyramid h3{font-size:16px}}

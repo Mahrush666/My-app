@@ -2,16 +2,17 @@ import {useEffect,useRef,useState} from 'react';
 import {RefreshCw} from 'lucide-react';
 import {UiText} from './teacher-language';
 import WeekReviewTrack from './week-review-track';
+import TeacherAchievementPyramid from './teacher-achievement-pyramid';
 import {addDays} from '../lib/teacher-dashboard';
 import type {ClassPractice} from '../lib/class-practice';
 import './student-dashboard.css';
 import './teacher-class-practice.css';
 type Request=<T>(path:string,data?:unknown)=>Promise<T>;
-export default function TeacherClassPractice({groupId,name,request,embedded=false,view='week',showXP=true}:{groupId:string;name?:string;request:Request;embedded?:boolean;view?:'week'|'xp';showXP?:boolean}){
+export default function TeacherClassPractice({groupId,name,request,embedded=false,view='week',showXP=true,refreshKey=0}:{groupId:string;name?:string;request:Request;embedded?:boolean;view?:'week'|'xp';showXP?:boolean;refreshKey?:number}){
  const requestRef=useRef(request);requestRef.current=request;
  const sequence=useRef(0),[data,setData]=useState<ClassPractice|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState('');
  async function load(){const id=++sequence.current;setLoading(true);setError('');try{const next=await requestRef.current<ClassPractice>('/class-practice?group='+encodeURIComponent(groupId));if(id===sequence.current)setData(next)}catch(e){if(id===sequence.current)setError(e instanceof Error?e.message:'Could not load practice.')}finally{if(id===sequence.current)setLoading(false)}}
- useEffect(()=>{setData(null);void load();const refresh=()=>{if(document.visibilityState!=='hidden')void load()};window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',refresh);const timer=setInterval(refresh,60000);return()=>{sequence.current++;clearInterval(timer);window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh)}},[groupId]);
+ useEffect(()=>{setData(null);void load();const refresh=()=>{if(document.visibilityState!=='hidden')void load()};window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',refresh);const timer=setInterval(refresh,60000);return()=>{sequence.current++;clearInterval(timer);window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh)}},[groupId,refreshKey]);
  const current=data?.groupId===groupId?data:null;
  const xpView=view==='xp';
  const students=current?.students||[];
@@ -24,6 +25,7 @@ export default function TeacherClassPractice({groupId,name,request,embedded=fals
   {error&&<p role="alert">{error} <button type="button" disabled={loading} onClick={()=>void load()}><UiText text="Retry 重试"/></button></p>}
   {loading&&!current&&<p role="status"><UiText text={xpView?'Loading XP… 正在加载经验值…':'Loading practice… 正在加载练习…'}/></p>}
   {current&&!current.students.length&&<p><UiText text="No approved students in this class yet. 此班级暂无已加入学生。"/></p>}
+  {current&&xpView&&<TeacherAchievementPyramid students={students}/>}
   {current&&xpView&&ranked.length>0&&<ul className="class-xp-list">{ranked.map(student=><li key={student.id}>
    <strong>{student.name}</strong><span>{student.weeklyXP} <UiText text="XP this week 本周经验"/></span><span><b>{student.xp} XP</b> <UiText text="total 总计"/></span>
   </li>)}</ul>}

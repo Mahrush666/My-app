@@ -1,3 +1,4 @@
+import {hasTransferredHomework,homeworkBelongsToStudent,keepTransferredHomework} from './transferred-homework';
 import {classPractice} from './class-practice';
 import {campusAttendance,deleteCampusAttendanceForCampus} from './campus-attendance';
 import {markReviewDay} from './review-days';
@@ -163,7 +164,7 @@ export async function handle(request:Request,env:Env){
  const id=text(new URL(request.url).searchParams.get('child'),80);
  if(session.role==='teacher'){requireValue(await env.DB.prepare('SELECT id FROM children WHERE id=?').bind(id).first(),'Student not found.');}else{const child=await childAccess(id);requireValue(child.approved,'Your teacher needs to approve this profile.');}
  const rewardChild=await env.DB.prepare('SELECT group_id,approved FROM children WHERE id=?').bind(id).first<{group_id:string;approved:number}>();
- if(rewardChild?.approved){const tasks=await env.DB.prepare('SELECT id,activities,title,updated_at FROM assignments WHERE group_id=?').bind(rewardChild.group_id).all<{id:string;activities:string;title:string;updated_at:number}>();await syncHomeworkRewards(env.DB,id,tasks.results);}
+ if(rewardChild?.approved){const tasks=await env.DB.prepare(`SELECT a.id,a.activities,a.title,a.updated_at FROM assignments a JOIN children c ON ${homeworkBelongsToStudent} WHERE c.id=?`).bind(id).all<{id:string;activities:string;title:string;updated_at:number}>();await syncHomeworkRewards(env.DB,id,tasks.results);}
  return respond(await readRewards(env.DB,id,now));
  }
  if(path==='/reward-award'&&request.method==='POST'){
@@ -202,8 +203,8 @@ export async function handle(request:Request,env:Env){
  if(path==='/homework-report'&&request.method==='GET'){
  teacher();const url=new URL(request.url),childId=text(url.searchParams.get('child'),80),assignmentId=text(url.searchParams.get('assignment'),80);
  const child=await env.DB.prepare('SELECT id,name,group_id FROM children WHERE id=?').bind(childId).first<{id:string;name:string;group_id:string}>();
- const assignment=await env.DB.prepare('SELECT * FROM assignments WHERE id=?').bind(assignmentId).first<{id:string;group_id:string;unit_id:string;title:string;activities:string;word_ids:string;updated_at:number}>();
- requireValue(child&&assignment&&child.group_id===assignment.group_id,'Homework report not found.');
+ const assignment=await env.DB.prepare(`SELECT a.* FROM assignments a JOIN children c ON ${homeworkBelongsToStudent} WHERE a.id=? AND c.id=?`).bind(assignmentId,childId).first<{id:string;group_id:string;unit_id:string;title:string;activities:string;word_ids:string;updated_at:number}>();
+ requireValue(child&&assignment,'Homework report not found.');
  const lesson=lessons.find(l=>l.id===assignment!.unit_id);requireValue(lesson,'Lesson unavailable.');
  const attempts=await env.DB.prepare('SELECT id,activity,word_id,correct,created_at FROM attempts WHERE child_id=? AND assignment_id=? ORDER BY created_at,id').bind(childId,assignmentId).all<ReportAttempt>();
  const completed=await env.DB.prepare('SELECT activity FROM completions WHERE child_id=? AND assignment_id=?').bind(childId,assignmentId).all<{activity:string}>();
@@ -213,9 +214,9 @@ export async function handle(request:Request,env:Env){
  if(path==='/teacher'&&request.method==='GET'){
  teacher();const [groups,children,assignments,reports]=await Promise.all([
  env.DB.prepare("SELECT g.id,g.name,COALESCE(gc.campus_id,'main') AS campus_id FROM groups g LEFT JOIN group_campuses gc ON gc.group_id=g.id ORDER BY g.created_at").all(),env.DB.prepare("SELECT c.*,CASE WHEN a.id='teacher-managed-roster' THEN NULL ELSE a.username END AS username FROM children c JOIN accounts a ON a.id=c.parent_id ORDER BY c.created_at").all(),env.DB.prepare('SELECT * FROM assignments ORDER BY updated_at DESC').all(),
- env.DB.prepare('SELECT c.id AS child_id,a.id AS assignment_id,a.title,(SELECT COUNT(*) FROM attempts t WHERE t.child_id=c.id AND t.assignment_id=a.id) AS attempts,(SELECT COUNT(*) FROM attempts t WHERE t.child_id=c.id AND t.assignment_id=a.id AND t.correct=1) AS correct,(SELECT MAX(created_at) FROM attempts t WHERE t.child_id=c.id AND t.assignment_id=a.id) AS last_seen,(SELECT json_group_array(activity) FROM completions x WHERE x.child_id=c.id AND x.assignment_id=a.id) AS completed FROM children c JOIN assignments a ON a.group_id=c.group_id WHERE c.approved=1').all()]);
- const selectedCampus=new URL(request.url).searchParams.get('campus');const campuses=access!.owner?(await env.DB.prepare('SELECT id,name FROM campuses ORDER BY name').all()).results:(await env.DB.prepare('SELECT id,name FROM campuses WHERE id=?').bind(access!.campusId!).all()).results;const visibleGroups=groups.results.filter((g:any)=>access!.owner?(!selectedCampus||selectedCampus==='all'||g.campus_id===selectedCampus):access!.groups.includes(g.id));const ids=visibleGroups.map((g:any)=>g.id);const visibleChildren=children.results.filter((c:any)=>ids.includes(c.group_id));const childIds=visibleChildren.map((c:any)=>c.id);const archived=await archivedAssignments(env.DB);const visibleAssignments=assignments.results.filter((a:any)=>ids.includes(a.group_id)).map((a:any)=>({...a,archived:archived.has(a.id)}));const assignmentIds=visibleAssignments.map((a:any)=>a.id);
- return respond({dailyGroups:(await env.DB.prepare('SELECT group_id FROM daily_practice_groups WHERE enabled=1').all<{group_id:string}>()).results.filter(r=>ids.includes(r.group_id)).map(r=>r.group_id),access,campuses,...(access!.owner?{allGroups:groups.results}:{}),groups:visibleGroups,children:visibleChildren,assignments:visibleAssignments,reports:reports.results.filter((r:any)=>childIds.includes(r.child_id)&&assignmentIds.includes(r.assignment_id))});
+ env.DB.prepare(`SELECT c.id AS child_id,a.id AS assignment_id,a.title,a.activities,a.group_id AS assignment_group_id,(SELECT COUNT(*) FROM attempts t WHERE t.child_id=c.id AND t.assignment_id=a.id) AS attempts,(SELECT COUNT(*) FROM attempts t WHERE t.child_id=c.id AND t.assignment_id=a.id AND t.correct=1) AS correct,(SELECT MAX(created_at) FROM attempts t WHERE t.child_id=c.id AND t.assignment_id=a.id) AS last_seen,(SELECT json_group_array(activity) FROM completions x WHERE x.child_id=c.id AND x.assignment_id=a.id) AS completed FROM children c JOIN assignments a ON ${homeworkBelongsToStudent} WHERE c.approved=1`).all()]);
+ const selectedCampus=new URL(request.url).searchParams.get('campus');const campuses=access!.owner?(await env.DB.prepare('SELECT id,name FROM campuses ORDER BY name').all()).results:(await env.DB.prepare('SELECT id,name FROM campuses WHERE id=?').bind(access!.campusId!).all()).results;const visibleGroups=groups.results.filter((g:any)=>access!.owner?(!selectedCampus||selectedCampus==='all'||g.campus_id===selectedCampus):access!.groups.includes(g.id));const ids=visibleGroups.map((g:any)=>g.id);const visibleChildren=children.results.filter((c:any)=>ids.includes(c.group_id));const childIds=visibleChildren.map((c:any)=>c.id);const archived=await archivedAssignments(env.DB);const visibleAssignments=assignments.results.filter((a:any)=>ids.includes(a.group_id)).map((a:any)=>({...a,archived:archived.has(a.id)}));
+ return respond({dailyGroups:(await env.DB.prepare('SELECT group_id FROM daily_practice_groups WHERE enabled=1').all<{group_id:string}>()).results.filter(r=>ids.includes(r.group_id)).map(r=>r.group_id),access,campuses,...(access!.owner?{allGroups:groups.results}:{}),groups:visibleGroups,children:visibleChildren,assignments:visibleAssignments,reports:reports.results.filter((r:any)=>childIds.includes(r.child_id))});
  }
  if(path==='/groups'&&request.method==='POST'){
  teacher();const name=text(data.name,80);requireValue(name,'Enter a class name.');const campusId=access!.owner?(text(data.campusId,80)||'main'):access!.campusId!;requireValue(await env.DB.prepare('SELECT id FROM campuses WHERE id=?').bind(campusId).first(),'Choose a campus.');const invite=random(),id=crypto.randomUUID();await env.DB.batch([env.DB.prepare('INSERT INTO groups VALUES(?,?,?,?)').bind(id,name,await hash(invite),now),env.DB.prepare('INSERT INTO group_campuses(group_id,campus_id) VALUES(?,?)').bind(id,campusId),...(!access!.owner?[env.DB.prepare("UPDATE staff_accounts SET groups_json=substr(groups_json,1,length(groups_json)-1) || CASE WHEN length(groups_json)>2 THEN ',' ELSE '' END || ? || ']' WHERE id=?").bind(JSON.stringify(id),session.account_id)]:[])]);return respond({id,invite});
@@ -233,9 +234,15 @@ export async function handle(request:Request,env:Env){
  await env.DB.batch(statements);return respond({students:students.map(({id,name,claim})=>({id,name,claim}))});
  }
  if(path==='/move-student'&&request.method==='POST'){
- teacher();const id=text(data.childId,80),groupId=text(data.groupId,80);requireValue(await env.DB.prepare('SELECT id FROM children WHERE id=?').bind(id).first(),'Student not found.');requireValue(await env.DB.prepare('SELECT id FROM groups WHERE id=?').bind(groupId).first(),'Choose an existing class.');
+ teacher();const id=text(data.childId,80),groupId=text(data.groupId,80);const student=await env.DB.prepare('SELECT group_id FROM children WHERE id=?').bind(id).first<{group_id:string}>();requireValue(student,'Student not found.');requireValue(await env.DB.prepare('SELECT id FROM groups WHERE id=?').bind(groupId).first(),'Choose an existing class.');
  const name=data.name===undefined?null:text(data.name,60);requireValue(name===null||name,'Enter a student name.');
- await env.DB.prepare('UPDATE children SET group_id=?,name=COALESCE(?,name) WHERE id=?').bind(groupId,name,id).run();return respond({saved:true});
+ const oldGroup=student!.group_id;
+ if(!access!.owner&&!access!.groups.includes(oldGroup))throw new Failure('You do not have permission for this class.',403);
+ const update=env.DB.prepare('UPDATE children SET group_id=?,name=COALESCE(?,name) WHERE id=? AND group_id=?').bind(groupId,name,id,oldGroup);
+ const statements=oldGroup===groupId?[update]:[keepTransferredHomework(env.DB,id,oldGroup),update];
+ const results=await env.DB.batch(statements);
+ if(!results.at(-1)?.meta.changes)throw new Failure('This student changed classes. Refresh the roster and try again.',409);
+ return respond({saved:true});
  }
  if(path==='/student-link'&&request.method==='POST'){
  teacher();const id=text(data.childId,80);requireValue(await env.DB.prepare('SELECT id FROM children WHERE id=?').bind(id).first(),'Student not found.');
@@ -286,7 +293,7 @@ export async function handle(request:Request,env:Env){
  const checklist=preserve?await preservedChecklist(env.DB,previous!,next,now):[env.DB.prepare('DELETE FROM completions WHERE assignment_id=?').bind(id)];
  await env.DB.batch([...checklist,env.DB.prepare('INSERT INTO assignments VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET unit_id=excluded.unit_id,title=excluded.title,activities=excluded.activities,word_ids=excluded.word_ids,due_date=excluded.due_date,updated_at=excluded.updated_at').bind(id,groupId,unit.id,next.title,next.activities,next.word_ids,due,version)]);if(previous&&(previous.unit_id!==unit.id||previous.activities!==next.activities||previous.word_ids!==next.word_ids))await retireAssignmentRuns(env.DB,id);return respond({id});
  }
- if(path==='/delete-assignment'&&request.method==='POST'){teacher();const id=text(data.id,80);await env.DB.batch([env.DB.prepare('DELETE FROM completions WHERE assignment_id=?').bind(id),env.DB.prepare('DELETE FROM attempts WHERE assignment_id=?').bind(id),env.DB.prepare('DELETE FROM assignments WHERE id=?').bind(id)]);return respond({saved:true})}
+ if(path==='/delete-assignment'&&request.method==='POST'){teacher();const id=text(data.id,80);requireValue(!await hasTransferredHomework(env.DB,'a.id=?',id),'A transferred student still has this homework. Archive it to keep their record.');await env.DB.batch([env.DB.prepare('DELETE FROM completions WHERE assignment_id=?').bind(id),env.DB.prepare('DELETE FROM attempts WHERE assignment_id=?').bind(id),env.DB.prepare('DELETE FROM assignments WHERE id=?').bind(id)]);return respond({saved:true})}
  if(path==='/family'&&request.method==='GET'){
  if(scopedChild){const children=await env.DB.prepare('SELECT c.id,c.name,c.approved,c.group_id,g.name AS group_name FROM children c JOIN groups g ON g.id=c.group_id WHERE c.id=?').bind(scopedChild).all();return respond({children:children.results});}
  if(session.role!=='parent')throw new Failure('Parent account required.',403);
@@ -301,7 +308,7 @@ export async function handle(request:Request,env:Env){
  if(path==='/reactor-leaderboard'&&request.method==='POST'){const child=await childAccess(data.childId);requireValue(child.approved,'Your teacher needs to approve this profile.');return respond(await reactorLeaderboard(env.DB,child,now));}
  if(path==='/homework'&&request.method==='GET'){
  const child=await childAccess(new URL(request.url).searchParams.get('child'));if(!child.approved)return respond({assignments:[],progress:{},completed:[],pending:true});
- const [assignments,reviews,completed]=await Promise.all([env.DB.prepare("SELECT * FROM assignments WHERE group_id=? AND id NOT IN (SELECT REPLACE(key,'assignment_archived:','') FROM config WHERE key LIKE 'assignment_archived:%' AND value='1') ORDER BY due_date,updated_at").bind(child.group_id).all(),env.DB.prepare('SELECT word_id,step,due FROM reviews WHERE child_id=?').bind(child.id).all(),env.DB.prepare('SELECT assignment_id,activity FROM completions WHERE child_id=?').bind(child.id).all()]);
+ const [assignments,reviews,completed]=await Promise.all([env.DB.prepare(`SELECT a.* FROM assignments a JOIN children c ON ${homeworkBelongsToStudent} WHERE c.id=? AND NOT EXISTS(SELECT 1 FROM config f WHERE f.key=('assignment_archived:' || a.id) AND f.value='1') ORDER BY CASE WHEN a.group_id=c.group_id THEN 0 ELSE 1 END,a.due_date,a.updated_at`).bind(child.id).all(),env.DB.prepare('SELECT word_id,step,due FROM reviews WHERE child_id=?').bind(child.id).all(),env.DB.prepare('SELECT assignment_id,activity FROM completions WHERE child_id=?').bind(child.id).all()]);
  const rewardsReady=syncHomeworkRewards(env.DB,child.id,assignments.results as {id:string;activities:string;title:string;updated_at:number}[]);
  const [homeworkProgress,lessonSettings,dashboard,rewards]=await Promise.all([
   readStudentProgress(env.DB,child.id,assignments.results,completed.results),
@@ -323,7 +330,7 @@ export async function handle(request:Request,env:Env){
  }
  if(path==='/homework-time'&&request.method==='POST'){
  const child=await childAccess(data.childId);requireValue(child.approved,'Profile is not approved.');
- const assignment=await env.DB.prepare('SELECT * FROM assignments WHERE id=? AND group_id=?').bind(text(data.assignmentId,80),child.group_id).first<{id:string;updated_at:number;activities:string}>();
+ const assignment=await env.DB.prepare(`SELECT a.* FROM assignments a JOIN children c ON ${homeworkBelongsToStudent} WHERE a.id=? AND c.id=?`).bind(text(data.assignmentId,80),child.id).first<{id:string;updated_at:number;activities:string}>();
  requireValue(assignment,'This homework is not assigned.');
  if(Number(data.version)!==Number(assignment!.updated_at))return respond({saved:true,stale:true});
  requireValue(Array.isArray(data.intervals)&&data.intervals.length<=60,'Invalid timing batch.');
@@ -341,7 +348,7 @@ export async function handle(request:Request,env:Env){
  }
  if(path==='/progress'&&request.method==='POST'){
  const child=await childAccess(data.childId);requireValue(child.approved,'Your teacher needs to approve this profile.');
- const assignment=await env.DB.prepare('SELECT * FROM assignments WHERE id=? AND group_id=?').bind(text(data.assignmentId,80),child.group_id).first<{id:string;unit_id:string;title:string;activities:string;word_ids:string;updated_at:number}>();requireValue(assignment,'This assignment is no longer available. Refresh your homework.');requireValue(!(await archivedAssignments(env.DB)).has(assignment!.id),'This homework is archived. Refresh your homework.');
+ const assignment=await env.DB.prepare(`SELECT a.* FROM assignments a JOIN children c ON ${homeworkBelongsToStudent} WHERE a.id=? AND c.id=?`).bind(text(data.assignmentId,80),child.id).first<{id:string;unit_id:string;title:string;activities:string;word_ids:string;updated_at:number}>();requireValue(assignment,'This assignment is no longer available. Refresh your homework.');requireValue(!(await archivedAssignments(env.DB)).has(assignment!.id),'This homework is archived. Refresh your homework.');
  const activities=JSON.parse(assignment!.activities) as string[];const activity=text(data.activity,40);requireValue(activities.includes(activity),'This activity is not assigned.');
  requireValue(data.complete!==true,'Homework finishes automatically after the required answers.');
  if(activity==='sentence-speak'||activity==='sentence-build'&&isListeningSentenceLesson(assignment!.unit_id)||activity==='story-quiz'||activity==='story-order'){

@@ -1,6 +1,7 @@
 import type {D1Database} from '@cloudflare/workers-types';
 import {ensureMeetings} from './meeting-series';
 import {deleteCampusAttendanceForStudent} from './campus-attendance';
+import {clearTransferredHomework,hasTransferredHomework} from './transferred-homework';
 import {validDay,addDays} from '../lib/teacher-dashboard';
 // Called only after the existing teacher authorization check.
 export async function teacherTools(db:D1Database,path:string,method:string,data:Record<string,unknown>,url:URL){
@@ -76,12 +77,14 @@ export async function teacherTools(db:D1Database,path:string,method:string,data:
  if(path==='/delete-student'&&method==='POST'){
  const id=str(data.id);check(data.confirm===true,'Confirm student deletion.');
  // All private QR access and dependent records are removed in one transaction.
- const statements=[db.prepare('DELETE FROM student_sessions WHERE child_id=?').bind(id),deleteCampusAttendanceForStudent(db,id)];
+ const statements=[db.prepare('DELETE FROM student_sessions WHERE child_id=?').bind(id),deleteCampusAttendanceForStudent(db,id),clearTransferredHomework(db,id)];
  for(const table of ['student_links','student_claims','attendance','reward_events','reviews','attempts','completions'])statements.push(db.prepare('DELETE FROM '+table+' WHERE child_id=?').bind(id));
  statements.push(db.prepare('DELETE FROM children WHERE id=?').bind(id));await db.batch(statements);return {saved:true};
  }
  if(path==='/delete-group'&&method==='POST'){
  const id=str(data.id);check(data.confirm===true,'Confirm class deletion.');check(!await db.prepare('SELECT id FROM children WHERE group_id=? LIMIT 1').bind(id).first(),'Move or delete the students before deleting this class.');
+ check(!await hasTransferredHomework(db,'a.group_id=?',id),'Keep this class to preserve homework for students who transferred.');
+ check(!await db.prepare("SELECT a.child_id FROM attendance a JOIN class_meetings m ON m.id=a.meeting_id WHERE m.group_id=? AND a.status<>'unmarked' LIMIT 1").bind(id).first(),'Keep this class to preserve attendance and XP for students who transferred.');
  await db.batch([
  db.prepare('DELETE FROM attendance WHERE meeting_id IN (SELECT id FROM class_meetings WHERE group_id=?)').bind(id),db.prepare('DELETE FROM class_meetings WHERE group_id=?').bind(id),
  db.prepare('DELETE FROM attempts WHERE assignment_id IN (SELECT id FROM assignments WHERE group_id=?)').bind(id),db.prepare('DELETE FROM completions WHERE assignment_id IN (SELECT id FROM assignments WHERE group_id=?)').bind(id),db.prepare('DELETE FROM assignments WHERE group_id=?').bind(id),db.prepare('DELETE FROM groups WHERE id=?').bind(id)]);return {saved:true};

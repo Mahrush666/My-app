@@ -3,6 +3,7 @@ import {ArrowLeft,ChevronDown,ChevronRight,ClipboardList,Star,Users,CalendarDays
 import {UiText} from './teacher-language';
 import TeacherClassPractice from './teacher-class-practice';
 import HomeworkManager from './homework-manager';
+import HomeworkReports from './homework-reports';
 import {TeacherRewards} from './rewards';
 import type {RewardState} from '../lib/rewards';
 import './teacher-class-directory.css';
@@ -56,6 +57,12 @@ export default function TeacherClassDirectory({groups,children,assignments,repor
  const students=children.filter(child=>child.group_id===selected.id);
  const history=assignments.filter(assignment=>assignment.group_id===selected.id);
  const ids=new Set(history.map(assignment=>assignment.id));
+ const studentIds=new Set(students.map(student=>student.id));
+ const transferredReports=reports.filter(report=>report.attempts>0&&studentIds.has(report.child_id)&&
+  report.assignment_group_id&&report.assignment_group_id!==selected.id);
+ const transferredAssignments=[...new Map(transferredReports.map(report=>[report.assignment_id,{
+  id:report.assignment_id,group_id:report.assignment_group_id!,title:report.title||'',activities:report.activities||'[]',
+ }])).values()];
  return <section className="class-directory">
   <button type="button" className="class-directory-back" onClick={()=>onSelect('')}><ArrowLeft size={17} aria-hidden="true"/><UiText text="All classes 所有班级"/></button>
   <header className="class-directory-heading"><h2 ref={heading} tabIndex={-1}>{selected.name}</h2><span className="small-note">{students.length} <UiText text="students 名学生"/></span></header>
@@ -68,6 +75,8 @@ export default function TeacherClassDirectory({groups,children,assignments,repor
     <HomeworkManager historyOnly groups={[selected]} campuses={campuses} children={students}
      assignments={history} reports={reports.filter(report=>ids.has(report.assignment_id))} dailyGroups={[]}
      canAssign={false} canDelete={false} request={request} onSaved={onRefresh}/>
+    {!!transferredReports.length&&<HomeworkReports heading="Homework from previous classes 转班前的作业"
+     children={students} assignments={transferredAssignments} reports={transferredReports} request={request}/>}
    </ClassSection>
    <ClassSection label="XP 经验值" icon={Star}>
     <TeacherClassPractice embedded view="xp" refreshKey={rewardRevision} groupId={selected.id} request={request}/>

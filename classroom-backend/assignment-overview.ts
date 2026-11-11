@@ -2,6 +2,7 @@ import type {D1Database} from '@cloudflare/workers-types';
 import {lessons} from '../github-pages/lessons';
 import {studentHomeworkProgress,homeworkItems} from '../lib/student-homework-progress';
 import type {TeacherAssignment,AssignmentOverview} from '../lib/teacher-homework';
+import {homeworkBelongsToStudent} from './transferred-homework';
 export async function archivedAssignments(db:D1Database){const r=await db.prepare("SELECT key FROM config WHERE key LIKE 'assignment_archived:%' AND value='1'").all<{key:string}>();return new Set(r.results.map(r=>r.key.slice('assignment_archived:'.length)))}
 export async function assignmentOverview(db:D1Database,group:string):Promise<{assignments:AssignmentOverview[]}>{
  const [children,assignments,attempts,completed]=await Promise.all([
@@ -14,7 +15,7 @@ export async function assignmentOverview(db:D1Database,group:string):Promise<{as
 }
 // Keep this assignment version so matching saved answers and active practice time survive edits.
 export async function preservedChecklist(db:D1Database,old:TeacherAssignment,next:TeacherAssignment,now:number){
- const [attempts,completed,children]=await Promise.all([db.prepare('SELECT * FROM attempts WHERE assignment_id=?').bind(old.id).all<any>(),db.prepare('SELECT * FROM completions WHERE assignment_id=?').bind(old.id).all<any>(),db.prepare('SELECT id FROM children WHERE group_id=?').bind(old.group_id).all<{id:string}>()]);
+ const [attempts,completed,children]=await Promise.all([db.prepare('SELECT * FROM attempts WHERE assignment_id=?').bind(old.id).all<any>(),db.prepare('SELECT * FROM completions WHERE assignment_id=?').bind(old.id).all<any>(),db.prepare(`SELECT c.id FROM children c JOIN assignments a ON ${homeworkBelongsToStudent} WHERE a.id=?`).bind(old.id).all<{id:string}>()]);
  const lesson=lessons.find(l=>l.id===next.unit_id),statements=[db.prepare('DELETE FROM completions WHERE assignment_id=?').bind(old.id)];
  for(const c of children.results){const prior=completed.results.filter(x=>x.child_id===c.id);const unchanged=prior.filter(x=>(JSON.parse(old.activities) as string[]).includes(x.activity)&&JSON.stringify(homeworkItems(old,lesson,x.activity).sort())===JSON.stringify(homeworkItems(next,lesson,x.activity).sort()));const progress=studentHomeworkProgress([next],lessons,attempts.results.filter(x=>x.child_id===c.id),unchanged.map(x=>({...x,assignment_id:next.id})))[next.id];
  for(const e of progress.exercises)if(e.total>0&&e.done===e.total)statements.push(db.prepare('INSERT OR IGNORE INTO completions VALUES(?,?,?,?)').bind(c.id,next.id,e.activity,Number(prior.find(x=>x.activity===e.activity)?.completed_at)||now));}

@@ -1,5 +1,6 @@
 import type {D1Database} from '@cloudflare/workers-types';
 import {ensureMeetings} from './meeting-series';
+import {deleteCampusAttendanceForStudent} from './campus-attendance';
 import {validDay,addDays} from '../lib/teacher-dashboard';
 // Called only after the existing teacher authorization check.
 export async function teacherTools(db:D1Database,path:string,method:string,data:Record<string,unknown>,url:URL){
@@ -75,7 +76,7 @@ export async function teacherTools(db:D1Database,path:string,method:string,data:
  if(path==='/delete-student'&&method==='POST'){
  const id=str(data.id);check(data.confirm===true,'Confirm student deletion.');
  // All private QR access and dependent records are removed in one transaction.
- const statements=[db.prepare('DELETE FROM student_sessions WHERE child_id=?').bind(id)];
+ const statements=[db.prepare('DELETE FROM student_sessions WHERE child_id=?').bind(id),deleteCampusAttendanceForStudent(db,id)];
  for(const table of ['student_links','student_claims','attendance','reward_events','reviews','attempts','completions'])statements.push(db.prepare('DELETE FROM '+table+' WHERE child_id=?').bind(id));
  statements.push(db.prepare('DELETE FROM children WHERE id=?').bind(id));await db.batch(statements);return {saved:true};
  }

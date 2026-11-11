@@ -1,3 +1,4 @@
+import {isHtCampus} from '../lib/campus-attendance';
 import TeacherClassDirectory from './teacher-class-directory';
 import QRDownload from './qr-download';
 import HomeworkManager from './homework-manager';
@@ -81,6 +82,8 @@ export default function Classroom({onExit}:{onExit:()=>void}){
   setGroupId(id);setInviteLink('');setQr('');setStudentNames('');setParentUsername('');
  }
  const owner=teacher.access?.owner===true;
+ const activeCampus=teacher.campuses?.find(item=>item.id===(owner?campus:teacher.access?.campusId));
+ const htCampusId=activeCampus&&isHtCampus(activeCampus.name)?activeCampus.id:undefined;
  const can=(permission:StaffPermission)=>owner||Boolean(teacher.access?.permissions.includes(permission));
  async function api<T>(path:string,data?:unknown){return classroomRequest<T>(session?.endpoint||endpoint,path,data,session)}
  async function run(action:()=>Promise<void>){if(busy)return;setBusy(true);setError('');setNotice('');try{await action()}catch(e){setError(e instanceof Error?e.message:'Please try again.')}finally{setBusy(false)}}
@@ -126,7 +129,7 @@ export default function Classroom({onExit}:{onExit:()=>void}){
  {teacherTab==='teachers'&&owner&&<StaffManager key={campus} groups={teacher.allGroups||teacher.groups} campuses={teacher.campuses} campus={campus} request={api}/>}
  {teacherTab==='home'&&<TeacherHome key={campus} groups={teacher.groups} children={teacher.children} assignments={teacher.assignments} reports={teacher.reports} request={path=>api(path+'&campus='+encodeURIComponent(campus))} onNavigate={tab=>{setDashboardMeeting(undefined);if(tab==='students')selectClass('');setTeacherTab(tab)}} onMeeting={meeting=>{setDashboardMeeting(meeting);setTeacherTab('attendance')}} canAssign={can('assignments')} teacherName={teacher.access?.name} canMaterials={can('materials')}/>}
  {teacherTab==='reports'&&<><button onClick={()=>setTeacherTab('home')}><UiText text={"← Overview 返回主页"}/></button><WeeklyHomeworkReports key={campus} groups={teacher.groups} children={teacher.children} assignments={teacher.assignments} reports={teacher.reports} request={api}/></>}
- {teacherTab==='attendance'&&<Attendance key={campus} onDirtyChange={setAttendanceDirty} initialMeeting={dashboardMeeting} groups={teacher.groups} children={teacher.children} request={(path,data)=>api(path+(path.startsWith('/calendar?')?'&campus='+encodeURIComponent(campus):''),data)} canMark={can('attendance')} canSchedule={can('schedule')}/>}
+ {teacherTab==='attendance'&&<Attendance key={htCampusId||campus} htCampusId={htCampusId} onDirtyChange={setAttendanceDirty} initialMeeting={dashboardMeeting} groups={teacher.groups} children={teacher.children} request={(path,data)=>api(path+(path.startsWith('/calendar?')?'&campus='+encodeURIComponent(campus):''),data)} canMark={can('attendance')} canSchedule={can('schedule')}/>}
  {teacherTab==='students'&&<TeacherClassDirectory groups={teacher.groups} children={teacher.children}
   assignments={teacher.assignments} reports={teacher.reports} campuses={teacher.campuses} showCampus={owner&&campus==='all'}
   selectedId={groupId} onSelect={selectClass} hasInvitation={Boolean(inviteLink)} canReward={can('rewards')} request={api} onRefresh={()=>load()}

@@ -1,4 +1,5 @@
 import TeacherClassPractice from './teacher-class-practice';
+import CampusAttendance from './campus-attendance';
 import {UiText} from './teacher-language';
 import {useEffect,useRef,useState} from 'react';
 import {addDays,chinaDay,weekStart,weeklyProgress,type SchoolGroup,type SchoolChild,type ClassMeeting,type AttendanceMark} from '../lib/teacher-dashboard';
@@ -17,7 +18,30 @@ export function AssignmentProgress({groups,children,assignments,reports}:{groups
  const rows=weeklyProgress(groups,children,assignments,reports,week);
  return <section className="panel"><h2><UiText text={"Weekly homework 每周作业"}/></h2><WeekPicker week={week} onChange={setWeek}/><p className="small-note"><UiText text={"Answer exercises completed · due this week, or saved this week without a due date. 按截止日期统计，本周无截止日期作业按保存日期统计。"}/></p>{!rows.length&&<p>Add a class in Student management first.</p>}{rows.map(g=><details key={g.id} className="progress-class"><summary><strong>{g.name}</strong><Bar done={g.done} total={g.total}/></summary><div className="progress-students">{g.students.length?g.students.map(c=><div key={c.id}><span>{c.name}</span><Bar done={c.done} total={c.total}/></div>):<p><UiText text={"No active students 暂无学生"}/></p>}</div></details>)}</section>
 }
-export function Attendance({groups,children,request,canMark=true,canSchedule=true,initialMeeting,onDirtyChange}:{groups:SchoolGroup[];children:SchoolChild[];request:Request;initialMeeting?:ClassMeeting;onDirtyChange?:(dirty:boolean)=>void;canMark?:boolean;canSchedule?:boolean}){
+type AttendanceProps={groups:SchoolGroup[];children:SchoolChild[];request:Request;initialMeeting?:ClassMeeting;onDirtyChange?:(dirty:boolean)=>void;canMark?:boolean;canSchedule?:boolean};
+export function Attendance({htCampusId,...props}:AttendanceProps&{htCampusId?:string}){
+ const [mode,setMode]=useState<'daily'|'calendar'>(props.initialMeeting?'calendar':'daily');
+ const dirty=useRef(false);
+ function onDirtyChange(value:boolean){
+  dirty.current=value;
+  props.onDirtyChange?.(value);
+ }
+ function changeMode(next:typeof mode){
+  if(next===mode)return;
+  if(dirty.current&&!confirm('Discard unsaved attendance? 放弃未保存的出勤记录？'))return;
+  setMode(next);
+ }
+ if(!htCampusId)return <ScheduledAttendance {...props}/>;
+ return <>
+  <div className="campus-attendance-mode">
+   <button type="button" aria-pressed={mode==='daily'} onClick={()=>changeMode('daily')}><UiText text="Daily attendance 每日出勤"/></button>
+   <button type="button" aria-pressed={mode==='calendar'} onClick={()=>changeMode('calendar')}><UiText text="Class calendar 课程日历"/></button>
+  </div>
+  {mode==='daily'?<CampusAttendance campusId={htCampusId} request={props.request} canMark={props.canMark!==false} onDirtyChange={onDirtyChange}/>:
+   <ScheduledAttendance {...props} onDirtyChange={onDirtyChange}/>}
+ </>;
+}
+function ScheduledAttendance({groups,children,request,canMark=true,canSchedule=true,initialMeeting,onDirtyChange}:AttendanceProps){
  const [day,setDay]=useState(initialMeeting?.day||chinaDay()),[week,setWeek]=useState(weekStart(initialMeeting?.day||chinaDay())),[meeting,setMeeting]=useState(initialMeeting?.id||''),[meetings,setMeetings]=useState<ClassMeeting[]>([]),[marks,setMarks]=useState<AttendanceMark[]>([]),[loading,setLoading]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState('');
  const [group,setGroup]=useState(groups[0]?.id||''),[time,setTime]=useState('16:00'),[duration,setDuration]=useState(60),[weeks,setWeeks]=useState(1),[formOpen,setFormOpen]=useState(false),[repeatForever,setRepeatForever]=useState(false),[deleting,setDeleting]=useState(false);
  const [editingTime,setEditingTime]=useState<{id:string;time:string}|null>(null),[timeNotice,setTimeNotice]=useState('');

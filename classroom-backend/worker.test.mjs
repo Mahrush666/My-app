@@ -267,6 +267,54 @@ test('rewards are private, homework pays once across rescans and revisions, teac
  assert.equal((await points()).xp,70,'Removing homework preserves earned points');
  await DB.sqlite.close();
 });
+test('HT daily attendance uses the existing roster without scheduling and protects campus and student access',async()=>{
+ const {api,DB}=await setup();
+ try{
+  const owner=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
+  const ht=(await api('/campuses',{name:'HT campus'},owner)).body.id;
+  const group=(await api('/groups',{name:'HT learners',campusId:ht},owner)).body.id;
+  const otherHT=(await api('/groups',{name:'Other HT learners',campusId:ht},owner)).body.id;
+  const main=(await api('/groups',{name:'Main learners'},owner)).body.id;
+  const [amy,ben]=(await api('/teacher-students',{groupId:group,names:['Amy','Ben']},owner)).body.students;
+  const hidden=(await api('/teacher-students',{groupId:otherHT,names:['Hidden']},owner)).body.students[0];
+  const outsider=(await api('/teacher-students',{groupId:main,names:['Outsider']},owner)).body.students[0];
+  const createStaff=async(username,permissions)=>{
+   const id=(await api('/staff-save',{name:username,username,role:'assistant',active:true,groups:[group],campusId:ht,permissions},owner)).body.id;
+   const invite=(await api('/staff-invite',{id},owner)).body.invite;
+   await api('/staff-accept',{invite,password:'test-staff-password'});
+   return (await api('/teacher-login',{username,password:'test-staff-password'})).body.token;
+  };
+  const marker=await createStaff('ht_marker',['attendance']);
+  const viewer=await createStaff('ht_viewer',[]);
+  const studentAccess=(await api('/student-link',{childId:amy.id},owner)).body.access;
+  const student=(await api('/student-login',{access:studentAccess})).body.token;
+  const day=new Date(Date.now()+8*3600000).toISOString().slice(0,10);
+  const yesterday=new Date(Date.now()-16*3600000).toISOString().slice(0,10);
+  const path='/campus-attendance?campus='+ht+'&day='+day;
+  const past='/campus-attendance?campus='+ht+'&day='+yesterday;
+  const marks=[{childId:amy.id,status:'present',lessons:' English, Art '},{childId:ben.id,status:'late',lessons:'Music'}];
+  assert.equal((await api(path)).status,401);
+  assert.equal((await api(path,undefined,student)).status,403);
+  assert.equal((await api(path,{marks},viewer)).status,403);
+  assert.equal((await api(path.replace(ht,'main'),undefined,owner)).status,404);
+  assert.deepEqual((await api(path,undefined,marker)).body.students.map(r=>r.childId),[amy.id,ben.id]);
+  for(const childId of [hidden.id,outsider.id]){
+   assert.equal((await api(path,{marks:[marks[0],{...marks[1],childId}]},marker)).status,403);
+  }
+  assert((await api(path,undefined,marker)).body.students.every(r=>r.status==='unmarked'),'Rejected batch saves no marks');
+  for(let i=0;i<2;i++)assert.equal((await api(path,{marks},marker)).status,200);
+  const records=(await api(path,undefined,viewer)).body.students;
+  assert.deepEqual(records.map(r=>[r.name,r.status,r.lessons]),[['Amy','present','English, Art'],['Ben','late','Music']]);
+  assert.equal((await api(past,undefined,marker)).body.students[0].status,'unmarked');
+  assert.equal((await api(past,{marks:[{...marks[0],lessons:'Drama'}]},marker)).status,200);
+  assert.equal((await api(path,{marks:[{childId:amy.id,status:'unmarked',lessons:''}]},marker)).status,200);
+  assert.deepEqual((await api(path,undefined,marker)).body.students.map(r=>r.status),['unmarked','late']);
+  assert.equal((await api(past,undefined,marker)).body.students[0].lessons,'Drama');
+  assert.equal((await api('/calendar?from='+day+'&to='+day,undefined,owner)).body.meetings.length,0);
+  assert.equal((await api('/delete-student',{id:amy.id,confirm:true},owner)).status,200);
+  assert.equal((await DB.prepare("SELECT value FROM config WHERE key LIKE 'campus_attendance:%' AND substr(key,length(key)-length(?)+1)=?").bind(amy.id,amy.id).all()).results.length,0);
+ }finally{await DB.sqlite.close()}
+});
 test('teacher calendar, recurring sessions, attendance history and protected roster deletion',async()=>{
  const {api,DB}=await setup();const teacher=(await api('/teacher-login',{password:'test-teacher-password'})).body.token;
  const g=(await api('/groups',{name:'Monday'},teacher)).body.id,g2=(await api('/groups',{name:'Other'},teacher)).body.id;

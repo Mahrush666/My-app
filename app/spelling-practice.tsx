@@ -5,7 +5,7 @@ import {speak,stopSpeaking,type Word} from './words';
 import {publicAsset} from '../lib/public-runtime';
 import {spellingGaps,spellingOrder,spellingTiles} from '../lib/spelling-steps';
 type Saved=Record<string,number>;
-export default function SpellingPractice({persist=true,vocabulary,scope,onAnswer}:{persist?:boolean;vocabulary:Word[];scope?:string;onAnswer:(w:Word,correct:boolean,correction:boolean,stage:number)=>Promise<void>}){
+export default function SpellingPractice({persist=true,hideFinalStepNumber=false,vocabulary,scope,onAnswer}:{persist?:boolean;hideFinalStepNumber?:boolean;vocabulary:Word[];scope?:string;onAnswer:(w:Word,correct:boolean,correction:boolean,stage:number)=>Promise<void>}){
  const key='wordquest-spelling-v1:'+ (scope||'guest')+':'+vocabulary.map(w=>(w.id||w.en)+'='+w.en).join('|');
  const [saved,setSaved]=useState<Saved>(()=>{if(!persist)return {};try{const v=JSON.parse(localStorage.getItem(key)||'{}');return v&&typeof v==='object'?v:{}}catch{return {}}});
  const rounds=useMemo(()=>Array.from({length:Math.ceil(vocabulary.length/3)},(_,i)=>vocabulary.slice(i*3,i*3+3)),[vocabulary]);
@@ -35,7 +35,7 @@ export default function SpellingPractice({persist=true,vocabulary,scope,onAnswer
  if(round===null)return <section className="spelling-practice"><h3>Build the word 拼单词</h3><p>Three words at a time · 每轮三个词</p><div className="spelling-rounds">{rounds.map((words,i)=><button key={i} onClick={()=>open(i)}><strong>Round {i+1} 第{i+1}轮</strong>{(saved[i]||0)>=words.length*5&&<DoneSticker/>}<span>{words.length} words · {Math.min(saved[i]||0,words.length*5)}/{words.length*5} ✓</span></button>)}</div></section>;
  if(!word||stage>=5)return <section className="spelling-practice">{step>0&&<FinishCelebration kind="round" title="Round complete! 本轮完成！"/>}<h3>⭐ Round finished! 本轮完成！</h3><button className="primary" onClick={()=>setRound(null)}>Choose a round 选择一轮</button></section>;
  return <section className="spelling-practice"><div className="quiz-top"><button disabled={saving} onClick={()=>{stopSpeaking();setRound(null)}}>← Rounds 返回</button><span>Round {round+1} · {step+1}/{group.length*5}</span></div>
- <p>Step {stage+1}/5 · {stage===0?'Look and build 看词拼写':'Fill the gaps 补全单词'}</p>
+ {hideFinalStepNumber&&stage===4?<p>Listen and spell 听音拼写</p>:<p>Step {stage+1}/5 · {stage===0?'Look and build 看词拼写':'Fill the gaps 补全单词'}</p>}
  {word.picture?<img className="spelling-picture" src={publicAsset(word.picture)} alt=""/>:<div className="word-emoji" aria-hidden="true">{word.icon}</div>}
  <button className="action-listen" onClick={()=>speak(word.en)} aria-label="Listen to the word"><Volume2/> Listen 听一听</button>
  {stage===0&&<h2 className="spelling-model">{word.en}</h2>}

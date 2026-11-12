@@ -50,7 +50,7 @@ function PracticeContent({preview=false,completedActivities=[],completedQuestion
  const supported=enabledActivities(requestedActivities).filter(a=>supportsActivity(a,lessonData));
  const activities=onlyDue?supported:orderHomeworkActivities(supported,orderedHomework&&!preview&&supportsActivity('look-listen',lessonData),hasLessonSong(videos));
  const sentenceMode=isSentenceLesson(unitId);
- const progressiveSpelling=Boolean(unitId?.startsWith('beehive1-')||unitId?.startsWith('play2-')||(unitId?.startsWith('pu1-')&&unitId.includes('-vocabulary')));
+ const progressiveSpelling=Boolean(unitId==='my-pals-basic-numbers-0-10'||unitId?.startsWith('beehive1-')||unitId?.startsWith('play2-')||(unitId?.startsWith('pu1-')&&unitId.includes('-vocabulary')));
  const gameIds=progressiveSpelling?['reactor','match','ward','sprint']:['reactor','match','spell','ward','sprint'];
  const games=activities.filter(a=>gameIds.includes(a));
  const tabs=onlyDue?["cards"]:orderedHomework?homeworkTabs(activities):[...activities.filter(a=>(a!=='story'||Boolean(story))&&(a!=='video'||Boolean(videos?.length))&&![...gameIds,'story-quiz','story-order'].includes(a)),...(activities.some(a=>a==='story-quiz'||a==='story-order')?["story-practice"]:[]),...(games.length?["games"]:[])];

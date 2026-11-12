@@ -1,6 +1,7 @@
 import recordings from './lesson-audio.json';
+import numberRecordings from './number-audio.json';
 import { publicAsset } from './public-runtime';
-const clips: Record<string,string> = recordings;
+const clips: Record<string,string> = {...recordings,...numberRecordings};
 let player: HTMLAudioElement | undefined;
 let utterance: SpeechSynthesisUtterance | undefined;
 let generation = 0;

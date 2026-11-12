@@ -9,12 +9,17 @@ import {playAnswerSound} from '@/lib/audio';
 import {reviewCards} from '@/lib/review-schedule';
 import {shuffle} from '@/lib/random';
 type Mode='look-listen'|'sound-picture'|'yes-no';
-export default function ActionPractice({mode,vocabulary,progress,allCards=false,showWrittenWord=false,onAnswer}:{mode:Mode;vocabulary:Word[];progress:Progress;allCards?:boolean;showWrittenWord?:boolean;onAnswer:(word:Word,correct:boolean,mode:string,correction?:boolean)=>Promise<void>}){
+export default function ActionPractice({mode,vocabulary,progress,allCards=false,showWrittenWord=false,matchWithinCategory=false,onAnswer}:{mode:Mode;vocabulary:Word[];progress:Progress;allCards?:boolean;showWrittenWord?:boolean;matchWithinCategory?:boolean;onAnswer:(word:Word,correct:boolean,mode:string,correction?:boolean)=>Promise<void>}){
  const [queue,setQueue]=useState(()=>mode==='look-listen'||allCards?vocabulary:reviewCards(vocabulary,progress,Date.now()));
  const [round,setRound]=useState(0),[selected,setSelected]=useState(-1),[result,setResult]=useState<boolean|null>(null),[message,setMessage]=useState(''),[saving,setSaving]=useState(false);
  const marked=useRef(false),busy=useRef(false),alive=useRef(true),truths=useRef(shuffle(vocabulary.map((_,i)=>i%2===0)));
  const word=queue[round];
- const choices=useMemo(()=>word?shuffle([word,...shuffle(vocabulary.filter(w=>(w.id||w.en)!==(word.id||word.en))).slice(0,3)]):[],[word,vocabulary]);
+ const choices=useMemo(()=>{
+  if(!word)return [];
+  const others=shuffle(vocabulary.filter(w=>(w.id||w.en)!==(word.id||word.en)));
+  const matching=others.filter(w=>w.category===word.category);
+  return shuffle([word,...(matchWithinCategory&&matching.length>=2?matching:others).slice(0,3)]);
+ },[word,vocabulary,matchWithinCategory]);
  const truth=truths.current[round%truths.current.length]??true;
  const question=word?yesNoQuestion(word,truth,vocabulary):'';
  useEffect(()=>{marked.current=false;setSelected(-1);setResult(null);setMessage('');stopSpeaking()},[word]);

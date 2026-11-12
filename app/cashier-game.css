@@ -1,0 +1,22 @@
+.cashier-game { max-width: 38rem; margin-inline: auto; display: grid; gap: .7rem; }
+.cashier-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .5rem; text-align: left; }
+.cashier-heading > div { flex: 1 1 16rem; }
+.cashier-heading h3 { display: flex; gap: .4rem; align-items: center; margin: 0; color: #12564e; }
+.cashier-heading p { margin: .25rem 0 0; font-size: .83rem; line-height: 1.35; }
+.cashier-game .cashier-customer { position: relative; display: block; width: 100%; height: clamp(9rem, 32svh, 17rem); padding: 0; overflow: hidden; border: 3px solid #b5dcd3; border-radius: 1rem; background: #eef8f4; }
+.cashier-customer > img:first-child { display: block; width: 100%; height: 100%; object-fit: contain; }
+.cashier-game .cashier-customer:disabled { opacity: 1; }
+.cashier-customer[data-ready="true"] { border-color: #278c76; }
+.cashier-customer[data-over="true"] { border-color: #198467; box-shadow: 0 0 0 3px #9adfc5; }
+.cashier-target-label { position: absolute; bottom: .4rem; left: 50%; transform: translateX(-50%); white-space: nowrap; background: #fff; color: #12564e; padding: .25rem .65rem; border-radius: 2rem; font-size: .8rem; font-weight: 700; pointer-events: none; }
+.cashier-shelf { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: clamp(.25rem, 1.5vw, .65rem); padding: .4rem; border-radius: .75rem; background: #f3e4d5; }
+.cashier-shelf > button { display: grid; place-items: center; padding: .2rem; min-width: 0; min-height: 3.3rem; border: 2px solid transparent; border-radius: .6rem; background: #fff; touch-action: none; user-select: none; cursor: grab; }
+.cashier-shelf > button[aria-pressed="true"] { border-color: #198467; background: #e1f9ef; }
+.cashier-shelf img { width: 100%; height: clamp(2.8rem, 10svh, 5.3rem); object-fit: contain; pointer-events: none; }
+.cashier-held, .cashier-delivered { display: block; width: clamp(3.4rem, 15vw, 5rem); aspect-ratio: 1; object-fit: contain; border-radius: .8rem; padding: .2rem; background: #fff; box-shadow: 0 .18rem .7rem #2b4a4a44; pointer-events: none; }
+.cashier-held { position: fixed; z-index: 50; transform: translate(-50%,-50%); }
+.cashier-delivered { position: absolute; bottom: .55rem; left: 50%; transform: translateX(-50%); }
+.cashier-dialogue { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
+.cashier-dialogue p { flex: 1 1 auto; margin: 0; border-radius: .75rem; padding: .4rem .65rem; background: #e2f5ee; color: #174b41; font-weight: 700; }
+.cashier-dialogue p:nth-child(2) { background: #fff0cf; color: #694212; }
+.cashier-dialogue small { display: block; font-weight: 500; }

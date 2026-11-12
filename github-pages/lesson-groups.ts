@@ -1,4 +1,9 @@
 import type {Lesson} from './lessons';
+const catalogBooks=['English Math — My Pals Are Here'];
+export const emptyBookMessage='No lessons have been added yet. 暂无课程。';
+export function bookNames(lessons:Lesson[],includeEmpty=false){
+ return [...new Set([...lessons.map(lesson=>lesson.book),...(includeEmpty?catalogBooks:[])])];
+}
 export function bookUnits(lessons:Lesson[],book:string){
  const units=new Map<string,NonNullable<Lesson['unit']>>();
  for(const lesson of lessons)if(lesson.book===book&&lesson.unit)units.set(lesson.unit.id,lesson.unit);

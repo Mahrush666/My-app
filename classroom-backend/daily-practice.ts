@@ -17,6 +17,9 @@ const spellingCredits=['spell:step1','spell:step2','spell:step3','spell:step4','
 type Child={id:string;group_id:string};
 type SavedRun={id:string;tasks:string;finished_at:number;created_at:number};
 export async function dailyEnabled(db:D1Database,group:string){return Number((await db.prepare('SELECT enabled FROM daily_practice_groups WHERE group_id=?').bind(group).first<{enabled:number}>())?.enabled)===1}
+export function dailyPracticeSetting(db:D1Database,groupId:string,enabled:boolean){
+ return db.prepare('INSERT INTO daily_practice_groups(group_id,enabled) VALUES(?,?) ON CONFLICT(group_id) DO UPDATE SET enabled=excluded.enabled').bind(groupId,Number(enabled));
+}
 export async function dailyPractice(db:D1Database,child:Child,now:number){
  const day=dailyDay(now);
  const findRun=()=>db.prepare('SELECT * FROM daily_runs WHERE child_id=? AND group_id=? AND day=?').bind(child.id,child.group_id,day).first<SavedRun>();

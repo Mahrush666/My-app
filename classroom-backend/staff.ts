@@ -26,7 +26,7 @@ export async function authorizeStaff(db:D1Database,access:StaffAccess,path:strin
  else if(path==='/attendance')need('attendance');
  else if(path==='/schedule'||path==='/update-meeting'||path==='/delete-meeting')need('schedule');
  else if(path==='/lesson-settings')need('materials');
- else if(path==='/assignments'||path==='/archive-assignment')need('assignments');
+ else if(path==='/assignments'||path==='/archive-assignment'||path==='/group-daily-practice')need('assignments');
  else if(path==='/delete-assignment'){need('delete');need('assignments');}
  else if(path==='/delete-student'){need('delete');need('students');}
  else if(path==='/reward-award'||path==='/reward-undo')need('rewards');

@@ -17,7 +17,7 @@ import {homeworkReport,type ReportAttempt} from '../lib/homework-report';
 import {sentencePracticeWords} from '../lib/sentence-practice';
 import {speechMatches} from '../lib/local-speech';
 import {weeklyHomeworkReport} from './weekly-homework-report';
-import {dailyPractice,answerDaily,dailyReport} from './daily-practice';
+import {dailyPractice,answerDaily,dailyReport,dailyPracticeSetting} from './daily-practice';
 import {studentDashboard} from './student-dashboard';
 import {staffAccess,authorizeStaff,filterCalendar,StaffError} from './staff';
 import {staffPermissions} from '../lib/staff';
@@ -122,7 +122,7 @@ export async function handle(request:Request,env:Env){
  if(path==='/campuses'&&request.method==='GET')return respond({campuses:(await env.DB.prepare('SELECT id,name FROM campuses ORDER BY name').all()).results});
  if(path==='/move-class-campus'&&request.method==='POST'){const id=text(data.groupId,80),campusId=text(data.campusId,80);requireValue(await env.DB.prepare('SELECT id FROM groups WHERE id=?').bind(id).first(),'Class not found.');requireValue(await env.DB.prepare('SELECT id FROM campuses WHERE id=?').bind(campusId).first(),'Campus not found.');await env.DB.prepare('INSERT INTO group_campuses(group_id,campus_id) VALUES(?,?) ON CONFLICT(group_id) DO UPDATE SET campus_id=excluded.campus_id').bind(id,campusId).run();return respond({saved:true});}
  }
- const teacherPaths=['/class-practice','/qr-download','/assignment-overview','/archive-assignment','/weekly-homework-report','/daily-practice-report','/lesson-settings','/homework-report','/teacher','/calendar','/schedule','/update-meeting','/attendance','/delete-meeting','/rename-group','/delete-student','/delete-group','/rewards','/reward-award','/reward-undo','/groups','/invite','/teacher-students','/move-student','/student-link','/student-invite','/approve','/assignments','/delete-assignment'];
+ const teacherPaths=['/class-practice','/qr-download','/assignment-overview','/archive-assignment','/weekly-homework-report','/daily-practice-report','/group-daily-practice','/lesson-settings','/homework-report','/teacher','/calendar','/schedule','/update-meeting','/attendance','/delete-meeting','/rename-group','/delete-student','/delete-group','/rewards','/reward-award','/reward-undo','/groups','/invite','/teacher-students','/move-student','/student-link','/student-invite','/approve','/assignments','/delete-assignment'];
  if(access&&(teacherPaths.includes(path)||path.startsWith('/staff')))await authorizeStaff(env.DB,access,path,data,new URL(request.url));
  if(path==='/attendance'&&Array.isArray(data.marks)&&data.marks.some(row=>row?.reward!==undefined)
   &&access&&!access.owner&&!access.permissions.includes('rewards'))throw new Failure('Reward permission is required to save lesson points.',403);
@@ -347,6 +347,14 @@ export async function handle(request:Request,env:Env){
  requireValue(result[0].meta.changes===1,'This student link has expired or has already been used. Ask your teacher for a new link.');return respond({saved:true});
  }
  if(path==='/approve'&&request.method==='POST'){teacher();requireValue(typeof data.approved==='boolean','Choose approval status.');await env.DB.prepare('UPDATE children SET approved=? WHERE id=?').bind(Number(data.approved),text(data.childId,80)).run();return respond({saved:true})}
+ if(path==='/group-daily-practice'&&request.method==='POST'){
+ teacher();
+ const groupId=text(data.groupId,80),enabled=data.enabled;
+ if(typeof enabled!=='boolean')throw new Failure('Choose whether Daily Practice is on or off.');
+ requireValue(await env.DB.prepare('SELECT id FROM groups WHERE id=?').bind(groupId).first(),'Choose a class.');
+ await dailyPracticeSetting(env.DB,groupId,enabled).run();
+ return respond({enabled});
+ }
  if(path==='/assignments'&&request.method==='POST'){
  teacher();const groupId=text(data.groupId,80);requireValue(await env.DB.prepare('SELECT id FROM groups WHERE id=?').bind(groupId).first(),'Choose a class.');
  const unit=lessons.find(u=>u.id===data.unitId);requireValue(unit,'Choose a lesson.');if(!unit)throw new Failure('Unknown lesson.');
@@ -358,12 +366,11 @@ export async function handle(request:Request,env:Env){
  if(activities.includes('sentence-speak'))requireValue(Boolean(unit.sentencePractice?.length)||unit.words.some(w=>wordIds.includes(w.id)&&w.sentence.trim().split(/\s+/).length>1),'Choose at least one sentence.');
  const due=text(data.dueDate,10);requireValue(!due||/^\d{4}-\d{2}-\d{2}$/.test(due),'Choose a valid due date.');
  const id=text(data.id,80)||crypto.randomUUID();const previous=data.id?await env.DB.prepare('SELECT * FROM assignments WHERE id=? AND group_id=?').bind(id,groupId).first<import('../lib/teacher-homework').TeacherAssignment>():null;if(data.id)requireValue(previous,'Assignment not found.');
- if(typeof data.dailyPractice==='boolean')await env.DB.prepare('INSERT INTO daily_practice_groups VALUES(?,?) ON CONFLICT(group_id) DO UPDATE SET enabled=excluded.enabled').bind(groupId,Number(data.dailyPractice)).run();
  const preserve=Boolean(data.preserveProgress===true&&previous?.unit_id===unit.id);
  const version=preserve?Number(previous!.updated_at):Math.max(now,Number((await env.DB.prepare('SELECT MAX(created_at) AS latest FROM attempts WHERE assignment_id=?').bind(id).first<{latest:number|null}>())?.latest||0)+1);
  const next={id,group_id:groupId,unit_id:unit.id,title:text(data.title,120)||unit.title,activities:JSON.stringify(activities),word_ids:JSON.stringify(wordIds),due_date:due,updated_at:version};
  const checklist=preserve?await preservedChecklist(env.DB,previous!,next,now):[env.DB.prepare('DELETE FROM completions WHERE assignment_id=?').bind(id)];
- await env.DB.batch([...checklist,env.DB.prepare('INSERT INTO assignments VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET unit_id=excluded.unit_id,title=excluded.title,activities=excluded.activities,word_ids=excluded.word_ids,due_date=excluded.due_date,updated_at=excluded.updated_at').bind(id,groupId,unit.id,next.title,next.activities,next.word_ids,due,version)]);if(previous&&(previous.unit_id!==unit.id||previous.activities!==next.activities||previous.word_ids!==next.word_ids))await retireAssignmentRuns(env.DB,id);return respond({id});
+ await env.DB.batch([...checklist,...(typeof data.dailyPractice==='boolean'?[dailyPracticeSetting(env.DB,groupId,data.dailyPractice)]:[]),env.DB.prepare('INSERT INTO assignments VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET unit_id=excluded.unit_id,title=excluded.title,activities=excluded.activities,word_ids=excluded.word_ids,due_date=excluded.due_date,updated_at=excluded.updated_at').bind(id,groupId,unit.id,next.title,next.activities,next.word_ids,due,version)]);if(previous&&(previous.unit_id!==unit.id||previous.activities!==next.activities||previous.word_ids!==next.word_ids))await retireAssignmentRuns(env.DB,id);return respond({id});
  }
  if(path==='/delete-assignment'&&request.method==='POST'){teacher();const id=text(data.id,80);requireValue(!await hasTransferredHomework(env.DB,'a.id=?',id),'A transferred student still has this homework. Archive it to keep their record.');await env.DB.batch([env.DB.prepare('DELETE FROM completions WHERE assignment_id=?').bind(id),env.DB.prepare('DELETE FROM attempts WHERE assignment_id=?').bind(id),env.DB.prepare('DELETE FROM assignments WHERE id=?').bind(id)]);return respond({saved:true})}
  if(path==='/family'&&request.method==='GET'){

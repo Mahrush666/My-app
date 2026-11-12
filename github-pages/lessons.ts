@@ -1,4 +1,4 @@
-import {myPalsBasicNumbers} from './my-pals-basic-numbers';
+import {myPalsBasicNumbers,myPalsTeenNumbers} from './my-pals-basic-numbers';
 import {starterUnit9Lesson1} from './pu-starter-u9-lesson1';
 import {starterUnit9Lesson2} from './pu-starter-u9-lesson2';
 import {play2Unit4Lesson3,play2Unit4MonsterWorkshop} from './play2-u4-lesson3';
@@ -64,6 +64,7 @@ export const lessons: Lesson[] = ([
  smartPhonics2Unit2,
  smartPhonics2Unit3,
  myPalsBasicNumbers,
+ myPalsTeenNumbers,
  powerUp1Unit2Vocabulary,
  powerUp1Unit2Lesson2,
  powerUp1Unit2Lesson3,

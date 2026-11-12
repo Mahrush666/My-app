@@ -1,9 +1,10 @@
+import type {LessonRates,LessonReward} from './reward-program';
 import {requiresAnswers} from './homework-completion';
 import {countsForHomework} from './teacher-homework';
 export type SchoolGroup={id:string;name:string};
 export type SchoolChild={id:string;name:string;group_id:string;approved:number};
-export type ClassMeeting={id:string;group_id:string;day:string;time:string;duration:number};
-export type AttendanceMark={meeting_id:string;child_id:string;status:string;name:string};
+export type ClassMeeting={id:string;group_id:string;day:string;time:string;duration:number;rates?:LessonRates};
+export type AttendanceMark={meeting_id:string;child_id:string;status:string;name:string;reward?:LessonReward};
 export const chinaDay=(value:number=Date.now())=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(value);
 export function addDays(day:string,count:number){return new Date(Date.parse(day+'T00:00:00Z')+count*86400000).toISOString().slice(0,10)}
 export function weekStart(day:string){return addDays(day,-((new Date(day+'T00:00:00Z').getUTCDay()+6)%7))}

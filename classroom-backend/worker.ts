@@ -1,3 +1,6 @@
+import {exportRewardsBackup,restoreRewardsBackup} from './rewards-backup';
+import {childRewardContext,challengeKey,currentSemester,rewardProgram,saveSetting,updateRewardProgram} from './reward-program';
+import {chinaDay,validDay} from '../lib/teacher-dashboard';
 import {countsForHomework} from '../lib/teacher-homework';
 import {hasTransferredHomework,homeworkBelongsToStudent,keepTransferredHomework} from './transferred-homework';
 import {classPractice} from './class-practice';
@@ -19,8 +22,8 @@ import {studentDashboard} from './student-dashboard';
 import {staffAccess,authorizeStaff,filterCalendar,StaffError} from './staff';
 import {staffPermissions} from '../lib/staff';
 import {teacherTools} from './teacher-tools';
-import {homeworkRewardStatement,readRewards,syncHomeworkRewards} from './rewards';
-import {rewardBadges} from '../lib/rewards';
+import {campusRewardActivity,homeworkRewardStatement,readRewards,rewardRosterTotals,syncHomeworkRewards} from './rewards';
+import {badgesForTrack} from '../lib/rewards';
 import {checkStoryAnswer} from '../lib/illustrated-reading';
 import {requiresAnswers,homeworkFinished} from '../lib/homework-completion';
 import {supportsActivity} from '../lib/activity-availability';
@@ -54,7 +57,7 @@ export async function handle(request:Request,env:Env){
  let data:Record<string,unknown>={};
  if(request.method==='POST'){
  if(!origin)throw new Failure('Open this through the classroom app.',403);
- const body=await request.text();if(body.length>(path==='/qr-download'?400000:30000))throw new Failure('This request is too large.',413);
+ const body=await request.text();if(body.length>(path==='/rewards-backup'?2000000:path==='/qr-download'?400000:30000))throw new Failure('This request is too large.',413);
  try{data=JSON.parse(body)}catch{throw new Failure('Invalid request.')}
  if(!data||typeof data!=='object'||Array.isArray(data))throw new Failure('Invalid request.');
  }
@@ -121,6 +124,8 @@ export async function handle(request:Request,env:Env){
  }
  const teacherPaths=['/class-practice','/qr-download','/assignment-overview','/archive-assignment','/weekly-homework-report','/daily-practice-report','/lesson-settings','/homework-report','/teacher','/calendar','/schedule','/update-meeting','/attendance','/delete-meeting','/rename-group','/delete-student','/delete-group','/rewards','/reward-award','/reward-undo','/groups','/invite','/teacher-students','/move-student','/student-link','/student-invite','/approve','/assignments','/delete-assignment'];
  if(access&&(teacherPaths.includes(path)||path.startsWith('/staff')))await authorizeStaff(env.DB,access,path,data,new URL(request.url));
+ if(path==='/attendance'&&Array.isArray(data.marks)&&data.marks.some(row=>row?.reward!==undefined)
+  &&access&&!access.owner&&!access.permissions.includes('rewards'))throw new Failure('Reward permission is required to save lesson points.',403);
  if(path==='/staff'&&request.method==='GET'){
  if(!access?.owner)throw new Failure('Owner access required.',403);
  const rows=await env.DB.prepare("SELECT s.id,s.name,s.username,s.role,s.permissions,s.groups_json,s.active,s.password_hash,COALESCE(sc.campus_id,'main') AS campus_id FROM staff_accounts s LEFT JOIN staff_campuses sc ON sc.staff_id=s.id ORDER BY s.created_at").all<{id:string;name:string;username:string;role:string;permissions:string;groups_json:string;active:number;password_hash:string;campus_id:string}>();
@@ -161,6 +166,68 @@ export async function handle(request:Request,env:Env){
 
  if(['/calendar','/schedule','/update-meeting','/attendance','/delete-meeting','/rename-group','/delete-student','/delete-group'].includes(path)){teacher();try{const result=await teacherTools(env.DB,path,request.method,data,new URL(request.url));if(result){if(path==='/calendar'){let scope=access!;const campus=new URL(request.url).searchParams.get('campus');if(scope.owner&&campus&&campus!=='all'){const classes=await env.DB.prepare("SELECT g.id FROM groups g LEFT JOIN group_campuses gc ON gc.group_id=g.id WHERE COALESCE(gc.campus_id,'main')=?").bind(campus).all<{id:string}>();scope={...scope,owner:false,groups:classes.results.map(g=>g.id)}}const filtered=filterCalendar(result,scope);if(!scope.owner){const students=await env.DB.prepare('SELECT id,group_id FROM children').all<{id:string;group_id:string}>();const visible=new Set(students.results.filter(c=>scope.groups.includes(c.group_id)).map(c=>c.id));filtered.marks=filtered.marks.filter((m:any)=>visible.has(m.child_id))}return respond(filtered)}return respond(result)}}catch(e){if(e instanceof Error&&'status' in e)throw new Failure(e.message,Number(e.status));throw e}}
  const childAccess=async(id:unknown)=>{const c=await env.DB.prepare(scopedChild?'SELECT * FROM children WHERE id=? AND id=?':'SELECT * FROM children WHERE id=? AND parent_id=?').bind(text(id,80),scopedChild||session.account_id).first<{id:string;group_id:string;approved:number}>();if(!c)throw new Failure('Child profile not found.',404);return c};
+ if(path==='/rewards-backup'){
+  teacher();
+  if(!access!.owner)throw new Failure('Only the owner can manage rewards backups.',403);
+  const campus=text(new URL(request.url).searchParams.get('campus'),80);
+  requireValue(await env.DB.prepare('SELECT id FROM campuses WHERE id=?').bind(campus).first(),'Choose a campus.');
+  if(request.method==='GET')return respond(await exportRewardsBackup(env.DB,campus,now));
+  if(request.method==='POST'&&(data.action==='preview'||data.action==='restore')){
+   return respond(await restoreRewardsBackup(env.DB,campus,data.backup,data.action==='preview',now));
+  }
+  throw new Failure('Choose a backup action.',400);
+ }
+ if(path==='/campus-rewards'){
+  teacher();
+  const campus=text(new URL(request.url).searchParams.get('campus'),80);
+  if(!access!.owner&&campus!==access!.campusId)throw new Failure('Choose your own campus.',403);
+  const site=await env.DB.prepare('SELECT id,name FROM campuses WHERE id=?').bind(campus).first<{id:string;name:string}>();
+  requireValue(site,'Choose a campus.');
+  if(request.method==='POST'){
+   if(!access!.owner)throw new Failure('Only the owner can change campus rewards settings.',403);
+   return respond(await updateRewardProgram(env.DB,campus,data,now));
+  }
+  if(request.method!=='GET')throw new Failure('Method not allowed.',405);
+  const query=new URL(request.url).searchParams;
+  if(query.get('activity')==='1'){
+   const from=query.get('from')||'',to=query.get('to')||'';
+   requireValue((!from||validDay(from))&&(!to||validDay(to))&&(!from||!to||from<=to),'Choose a valid date range.');
+   return respond({activity:await campusRewardActivity(env.DB,campus,access!.owner?undefined:access!.groups,from,to,now)});
+  }
+  const [program,roster]=await Promise.all([rewardProgram(env.DB,campus),rewardRosterTotals(env.DB,{campus},now)]);
+  return respond({campus:site,program,today:chinaDay(now),students:roster
+   .filter(s=>access!.owner||access!.groups.includes(s.group_id))
+   .map(s=>({...s,weeklyXP:s.weekly_xp,diamond:!!s.diamond}))});
+ }
+ if(path==='/reward-report'&&request.method==='GET'){
+  teacher();
+  const childId=text(new URL(request.url).searchParams.get('child'),80);
+  const context=await childRewardContext(env.DB,childId);
+  if(!access!.owner&&!access!.groups.includes(context.group_id))throw new Failure('You do not have permission for this student.',403);
+  const [rewards,attendance,student,ht]=await Promise.all([
+   readRewards(env.DB,childId,now,true),
+   env.DB.prepare(`SELECT m.day,m.time,g.name AS class_name,a.status,q.value AS reward
+    FROM attendance a JOIN class_meetings m ON m.id=a.meeting_id JOIN groups g ON g.id=m.group_id
+    LEFT JOIN config q ON q.key=('lesson_reward:' || a.child_id || ':' || m.id)
+    WHERE a.child_id=? AND a.status<>'unmarked' AND m.day<=? ORDER BY m.day DESC,m.time DESC`)
+    .bind(childId,chinaDay(now)).all<{day:string;time:string;class_name:string;status:string;reward:string|null}>(),
+   env.DB.prepare('SELECT name FROM children WHERE id=?').bind(childId).first<{name:string}>(),
+   env.DB.prepare("SELECT key,value FROM config WHERE key>='campus_attendance:' AND key<'campus_attendance;' AND substr(key,length(key)-length(?)+1)=?")
+    .bind(':'+childId,':'+childId).all<{key:string;value:string}>(),
+  ]);
+  return respond({name:student!.name,rewards,semesters:context.program.semesters,
+   attendance:attendance.results.map(row=>({...row,reward:row.reward?JSON.parse(row.reward):null})),
+   ht:ht.results.map(row=>({day:row.key.split(':')[2],...JSON.parse(row.value)})).filter(row=>validDay(row.day))});
+ }
+ if(path==='/diamond-challenge'&&request.method==='POST'){
+  teacher();
+  const childId=text(data.childId,80),context=await childRewardContext(env.DB,childId);
+  if(!access!.owner&&(!access!.permissions.includes('rewards')||!access!.groups.includes(context.group_id)))throw new Failure('You do not have permission to assign this challenge.',403);
+  const title=text(data.title,100),category=text(data.category,40),description=text(data.description,400);
+  requireValue(title&&description&&['Project','Reading','Speaking','Responsibility','Other'].includes(category),'Enter a title, category, and challenge.');
+  await saveSetting(env.DB,challengeKey(childId),{title,category,description,assignedAt:now}).run();
+  return respond(await readRewards(env.DB,childId,now));
+ }
  if(path==='/rewards'&&request.method==='GET'){
  const id=text(new URL(request.url).searchParams.get('child'),80);
  if(session.role==='teacher'){requireValue(await env.DB.prepare('SELECT id FROM children WHERE id=?').bind(id).first(),'Student not found.');}else{const child=await childAccess(id);requireValue(child.approved,'Your teacher needs to approve this profile.');}
@@ -172,8 +239,12 @@ export async function handle(request:Request,env:Env){
  teacher();const childId=text(data.childId,80);requireValue(await env.DB.prepare('SELECT id FROM children WHERE id=?').bind(childId).first(),'Student not found.');
  const kind=text(data.kind,20),eventId=text(data.eventId,80);requireValue(/^[a-zA-Z0-9-]{16,80}$/.test(eventId),'An award identifier is required.');
  let xp=0,label=text(data.reason,200),source='manual:'+eventId;
- if(kind==='badge'){const badge=rewardBadges.find(b=>b.id===data.badgeId);requireValue(badge,'Choose a badge.');xp=badge!.xp;label=badge!.name;source='badge:'+badge!.id;}
- else if(kind==='diamond'){source='diamond';requireValue(label,'Describe the outstanding work.');}
+ if(kind==='badge'){const context=await childRewardContext(env.DB,childId);const badge=badgesForTrack(context.program.tracks[context.group_id]).find(b=>b.id===data.badgeId);requireValue(badge,'Choose a badge.');xp=badge!.xp;label=badge!.name;source='badge:'+badge!.id;}
+ else if(kind==='diamond'){
+  const context=await childRewardContext(env.DB,childId),semester=currentSemester(context.program,chinaDay(now));
+  source=semester?'diamond:'+context.campus_id+':'+semester.start:'diamond';
+  requireValue(label,'Describe the outstanding work.');
+ }
  else if(kind==='manual'){xp=Number(data.xp);requireValue(Number.isInteger(xp)&&xp!==0&&xp>=-100&&xp<=100,'Use whole points from -100 to 100, excluding zero.');requireValue(label,'Enter the reason for this award.');}
  else throw new Failure('Choose a valid reward.');
  await env.DB.prepare(`INSERT INTO reward_events(id,child_id,source,kind,label,xp,created_at,revoked) VALUES(?,?,?,?,?,?,?,0) ON CONFLICT(child_id,source) DO UPDATE SET label=excluded.label,xp=excluded.xp,created_at=excluded.created_at,revoked=0 WHERE reward_events.revoked=1 AND reward_events.kind IN ('badge','diamond')`).bind(crypto.randomUUID(),childId,source,kind,label,xp,now).run();

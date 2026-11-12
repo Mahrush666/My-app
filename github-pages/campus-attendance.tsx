@@ -1,5 +1,6 @@
 import {useEffect,useRef,useState} from 'react';
 import {campusAttendanceStatuses,campusClassNameLimit,campusClassNames,campusLessonsLimit,type CampusAttendanceMark,type CampusAttendanceRow} from '../lib/campus-attendance';
+import {attendanceXP} from '../lib/rewards';
 import {chinaDay} from '../lib/teacher-dashboard';
 import {UiText} from './teacher-language';
 import './campus-attendance.css';
@@ -159,6 +160,7 @@ export default function CampusAttendance({campusId,request,canMark,onDirtyChange
        <summary aria-label={'Classes attended by '+row.name+(value.lessons?', '+value.lessons:'')}>
         {value.lessons||<UiText text="Choose classes 选择课程"/>}
        </summary>
+       {(value.status==='present'||value.status==='late')&&selected.size>0&&<p className="campus-attendance-xp">{selected.size} × {attendanceXP} XP</p>}
        {options.size?<div className="campus-class-options">{[...options].map(([key,name])=>
         <label key={key}><input type="checkbox" checked={selected.has(key)} onChange={event=>toggleClass(key,name,event.target.checked)}/>{name}</label>
        )}</div>:<p><UiText text="Add options under Manage HT classes. 请先在管理 HT 课程中添加课程。"/></p>}

@@ -2,7 +2,9 @@ import type {D1Database} from '@cloudflare/workers-types';
 import {ensureMeetings} from './meeting-series';
 import {deleteCampusAttendanceForStudent} from './campus-attendance';
 import {clearTransferredHomework,hasTransferredHomework} from './transferred-homework';
-import {validDay,addDays} from '../lib/teacher-dashboard';
+import {lessonRewardKey,lessonRates,rewardProgram} from './reward-program';
+import {lessonHomeworkStatuses,lessonParticipation,type LessonReward} from '../lib/reward-program';
+import {chinaDay,validDay,addDays} from '../lib/teacher-dashboard';
 // Called only after the existing teacher authorization check.
 export async function teacherTools(db:D1Database,path:string,method:string,data:Record<string,unknown>,url:URL){
  const check=(ok:unknown,message:string)=>{if(!ok)throw Object.assign(new Error(message),{status:400})};
@@ -11,9 +13,13 @@ export async function teacherTools(db:D1Database,path:string,method:string,data:
  const from=url.searchParams.get('from')||'',to=url.searchParams.get('to')||'';
  check(validDay(from)&&validDay(to)&&to>=from&&to<=addDays(from,62),'Choose a date range of at most 63 days.');
  await ensureMeetings(db,from,to);
- const meetings=await db.prepare('SELECT * FROM class_meetings WHERE day>=? AND day<=? ORDER BY day,time').bind(from,to).all();
- const marks=await db.prepare('SELECT a.*,c.name FROM attendance a JOIN children c ON c.id=a.child_id JOIN class_meetings m ON m.id=a.meeting_id WHERE m.day>=? AND m.day<=?').bind(from,to).all();
- return {meetings:meetings.results,marks:marks.results};
+ const meetings=await db.prepare(`SELECT m.*,COALESCE(gc.campus_id,'main') AS campus_id,f.value AS rate_value FROM class_meetings m
+  LEFT JOIN group_campuses gc ON gc.group_id=m.group_id LEFT JOIN config f ON f.key=('reward_meeting_rate:' || m.id) WHERE m.day>=? AND m.day<=? ORDER BY m.day,m.time`).bind(from,to)
+  .all<{id:string;day:string;campus_id:string;rate_value:string|null}>();
+ const programs=new Map(await Promise.all([...new Set(meetings.results.map(m=>m.campus_id))].map(async id=>[id,await rewardProgram(db,id)] as const)));
+ const marks=await db.prepare(`SELECT a.*,c.name,q.value AS reward_value FROM attendance a JOIN children c ON c.id=a.child_id JOIN class_meetings m ON m.id=a.meeting_id LEFT JOIN config q ON q.key=('lesson_reward:' || a.child_id || ':' || m.id) WHERE m.day>=? AND m.day<=?`).bind(from,to).all<{reward_value:string|null}>();
+ return {meetings:meetings.results.map(({campus_id,rate_value,...m})=>({...m,rates:rate_value?JSON.parse(rate_value):lessonRates(programs.get(campus_id)!,m)})),
+  marks:marks.results.map(({reward_value,...m})=>reward_value?{...m,reward:JSON.parse(reward_value)}:m)};
  }
  if(path==='/schedule'&&method==='POST'){
  const groupId=str(data.groupId),day=str(data.day),time=str(data.time),duration=Number(data.duration),weeks=Number(data.weeks),eventId=str(data.eventId);
@@ -44,15 +50,40 @@ export async function teacherTools(db:D1Database,path:string,method:string,data:
  check(entries.length>0&&entries.length<=500,'Choose 1–500 attendance records.');
  const roster=await db.prepare('SELECT c.id FROM children c JOIN class_meetings m ON m.id=? WHERE ((c.group_id=m.group_id AND c.approved=1) OR EXISTS(SELECT 1 FROM attendance a WHERE a.meeting_id=m.id AND a.child_id=c.id))').bind(id).all<{id:string}>();
  const allowed=new Set(roster.results.map(c=>c.id)),seen=new Set<string>(),statements=[];
+ const attendance:unknown[][]=[],awards:unknown[][]=[];
  for(const entry of entries){
  check(entry&&typeof entry==='object','Choose an attendance record.');
  const row=entry as Record<string,unknown>,childId=str(row.childId),status=str(row.status);
  check(['present','absent','late','excused','unmarked'].includes(status),'Choose an attendance status.');
  check(allowed.has(childId),'This student is not in this class.');
  check(!seen.has(childId),'A student can only appear once.');seen.add(childId);
- statements.push(db.prepare('INSERT INTO attendance(meeting_id,child_id,status) VALUES(?,?,?) ON CONFLICT(meeting_id,child_id) DO UPDATE SET status=excluded.status').bind(id,childId,status));
+ if(row.reward!==undefined){
+  const reward=row.reward as LessonReward;
+  check(reward&&lessonHomeworkStatuses.includes(reward.homework)&&lessonParticipation.includes(reward.participation)
+   &&Number.isSafeInteger(reward.extra)&&Math.abs(reward.extra)<=1000&&typeof reward.note==='string'&&reward.note.length<=240,'Check the lesson points and note.');
+  awards.push([lessonRewardKey(childId,id),JSON.stringify({homework:reward.homework,extra:reward.extra,note:reward.note,
+   participation:status==='present'||status==='late'?reward.participation:'none'})]);
  }
- await db.batch(statements);return {saved:true,count:statements.length};
+ attendance.push([id,childId,status]);
+ }
+ const meeting=await db.prepare(`SELECT m.id,m.day,COALESCE(gc.campus_id,'main') AS campus_id FROM class_meetings m
+  LEFT JOIN group_campuses gc ON gc.group_id=m.group_id WHERE m.id=?`).bind(id).first<{id:string;day:string;campus_id:string}>();
+ if(meeting&&meeting.day<=chinaDay()){
+  const rate=lessonRates(await rewardProgram(db,meeting.campus_id),meeting);
+  statements.push(db.prepare('INSERT INTO config(key,value) VALUES(?,?) ON CONFLICT(key) DO NOTHING')
+   .bind('reward_meeting_rate:'+id,JSON.stringify(rate)));
+ }
+ for(let i=0;i<attendance.length;i+=30){
+  const batch=attendance.slice(i,i+30);
+  statements.push(db.prepare(`INSERT INTO attendance(meeting_id,child_id,status) VALUES ${batch.map(()=>'(?,?,?)').join(',')}
+   ON CONFLICT(meeting_id,child_id) DO UPDATE SET status=excluded.status`).bind(...batch.flat()));
+ }
+ for(let i=0;i<awards.length;i+=40){
+  const batch=awards.slice(i,i+40);
+  statements.push(db.prepare(`INSERT INTO config(key,value) VALUES ${batch.map(()=>'(?,?)').join(',')}
+   ON CONFLICT(key) DO UPDATE SET value=excluded.value`).bind(...batch.flat()));
+ }
+ await db.batch(statements);return {saved:true,count:entries.length};
  }
  if(path==='/delete-meeting'&&method==='POST'){
  const id=str(data.id),row=await db.prepare('SELECT * FROM class_meetings WHERE id=?').bind(id).first<{day:string;group_id:string}>();
@@ -68,6 +99,9 @@ export async function teacherTools(db:D1Database,path:string,method:string,data:
  // Legacy finite schedules already use eventId-weekIndex; keep their earlier dates intact too.
  const where=following&&seriesId!==id?'group_id=? AND id LIKE ? AND day>=?':'id=?';
  const params=following&&seriesId!==id?[row!.group_id,seriesId+'-%',row!.day]:[id];
+ statements.push(db.prepare(`DELETE FROM config WHERE key IN (SELECT 'reward_meeting_rate:' || id FROM class_meetings WHERE ${where})`).bind(...params));
+ statements.push(db.prepare(`DELETE FROM config WHERE key>='lesson_reward:' AND key<'lesson_reward;' AND EXISTS(
+  SELECT 1 FROM (SELECT id FROM class_meetings WHERE ${where}) m WHERE substr(config.key,length(config.key)-length(m.id))=(':' || m.id))`).bind(...params));
  statements.push(db.prepare('DELETE FROM attendance WHERE meeting_id IN (SELECT id FROM class_meetings WHERE '+where+')').bind(...params),db.prepare('DELETE FROM class_meetings WHERE '+where).bind(...params));
  await db.batch(statements);return {saved:true};
  }
@@ -77,7 +111,7 @@ export async function teacherTools(db:D1Database,path:string,method:string,data:
  if(path==='/delete-student'&&method==='POST'){
  const id=str(data.id);check(data.confirm===true,'Confirm student deletion.');
  // All private QR access and dependent records are removed in one transaction.
- const statements=[db.prepare('DELETE FROM student_sessions WHERE child_id=?').bind(id),deleteCampusAttendanceForStudent(db,id),clearTransferredHomework(db,id)];
+ const statements=[db.prepare('DELETE FROM student_sessions WHERE child_id=?').bind(id),deleteCampusAttendanceForStudent(db,id),clearTransferredHomework(db,id),db.prepare('DELETE FROM config WHERE key>=? AND key<? OR key=?').bind('lesson_reward:'+id+':','lesson_reward:'+id+';','diamond_challenge:'+id)];
  for(const table of ['student_links','student_claims','attendance','reward_events','reviews','attempts','completions'])statements.push(db.prepare('DELETE FROM '+table+' WHERE child_id=?').bind(id));
  statements.push(db.prepare('DELETE FROM children WHERE id=?').bind(id));await db.batch(statements);return {saved:true};
  }

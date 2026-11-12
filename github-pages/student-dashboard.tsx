@@ -10,7 +10,7 @@ import {useEffect,useRef,useState} from 'react';
 import {lessons,type Lesson} from './lessons';
 import {bookUnits,lessonLabel} from './lesson-groups';
 import {StudentRewards} from './rewards';
-import {rewardBadges,type RewardState} from '../lib/rewards';
+import {allRewardBadges,type RewardState} from '../lib/rewards';
 import type {StudentDashboardData} from '../lib/student-dashboard';
 import type {Progress} from '../app/words';
 import type {ActivityDraft} from '../lib/classroom-types';
@@ -36,7 +36,7 @@ export default function StudentDashboard({homeworkProgress,lessonSettings,studen
  useEffect(()=>{let pending=false;const refresh=()=>{if(document.visibilityState==='hidden'||pending||!refreshRef.current.data?.today||(refreshRef.current.data.today===chinaDay()&&refreshRef.current.screen!=='class'))return;pending=true;void refreshRef.current.onRefresh().catch(()=>{}).finally(()=>{pending=false})};const timer=setInterval(refresh,60000);window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',refresh);return()=>{clearInterval(timer);window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh)}},[]);
  async function refreshClass(){if(busy)return;setBusy(true);setError('');try{await onRefresh()}catch{setError('Could not refresh. Please try again. 暂时无法刷新，请重试。')}finally{setBusy(false)}}
  useEffect(()=>{if(screen==='class')void refreshClass()},[screen]);
- const earned=rewardBadges.filter(b=>rewards?.badges.includes(b.id));
+ const earned=allRewardBadges.filter(b=>rewards?.badges.includes(b.id));
  let activities:ActivityId[]=selected?enabledActivities(lessonSettings?.[selected.id]?.activities||selected.defaultActivities||['word-choice']).filter(a=>supportsActivity(a,selected)):[];
  if(screen==='review'&&selected)activities=[selected.defaultAge?.startsWith('3')?'picture-listen':'word-choice'];
  return <div className="student-dashboard">
@@ -57,7 +57,7 @@ export default function StudentDashboard({homeworkProgress,lessonSettings,studen
  </>}
  {screen==='daily'&&<DailyAdventure childId={studentId} request={(path,body)=>request(path,body)} onExit={()=>void back()}/>}
  {screen==='leaderboard'&&<ReactorLeaderboard request={()=>request('/reactor-leaderboard',{}) as unknown as Promise<ReactorLeaderboardData>}/>}
- {screen==='rewards'&&<section className="panel"><StudentRewards value={rewards}/><div className="student-earned-badges">{earned.map(b=><span key={b.id}>{b.icon}<small>{b.name}</small></span>)}</div></section>}
+ {screen==='rewards'&&<section className="panel"><StudentRewards key={studentId} value={rewards} studentId={studentId}/><div className="student-earned-badges">{earned.map(b=><span key={b.id}>{b.icon}<small>{b.name}</small></span>)}</div></section>}
  {screen==='class'&&<section className="panel student-class-week"><div className="student-class-heading"><h2>Our class 我的班级</h2><button disabled={busy} aria-label="Refresh class review" onClick={()=>void refreshClass()}><RotateCcw size={17}/>{busy?'Updating… 更新中':'Refresh 更新'}</button></div><p className="small-note">{weekStart} – {addDays(weekStart,6)} · China time 中国时间</p>{data?.classmates.map((c,i)=><article className={'student-weekly'+(c.me?' is-you':'')} key={i}><div className="student-classmate-heading"><span>{c.name}{c.me&&<small>You 你</small>}</span><div className="student-classmate-xp"><strong aria-label={c.xp+' total XP 总积分'}><Sparkles size={15}/>{c.xp} XP</strong><small>This week 本周: {c.weeklyXP??0} XP</small></div></div><WeekReviewTrack compact weekStart={weekStart} today={today} days={c.reviewDays} label={c.name+' · Weekly review 本周复习'}/></article>)}{!data?.classmates.length&&<p>No class progress yet. 暂无班级进度。</p>}</section>}
 
  {screen==='homework'&&<section className="panel"><h2>Homework 作业</h2>{!unfinished.length&&<p className="homework-finished">⭐ All homework is finished! 所有作业已完成！</p>}{unfinished.map(a=><article className="homework-card" key={a.id}><h3>{a.title}</h3><HomeworkMeter value={homeworkProgress?.[a.id]}/>{a.due_date&&<p>Due 截止 {a.due_date}</p>}<button className="primary" onClick={()=>onHomework(a.id)}>Start / continue 开始练习</button></article>)}{!!completed.length&&<details><summary>Finished 已完成 ({completed.length})</summary>{completed.map(a=><div className="student-dash-task" key={a.id}><span><DoneSticker/> {a.title}</span><button onClick={()=>onHomework(a.id)}>Open 打开</button></div>)}</details>}</section>}

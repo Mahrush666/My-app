@@ -12,7 +12,7 @@ const palette=[
  {background:'#e7f4ff',color:'#28618c'},
 ];
 // Mounted only in the authenticated teacher's class XP view.
-export default function TeacherAchievementPyramid({students}:{students:ClassPractice['students']}){
+export default function TeacherAchievementPyramid({students,gains}:{gains?:Record<string,number>;students:Pick<ClassPractice['students'][number],'id'|'name'|'xp'|'diamond'>[]}){
  return <section className="teacher-achievement-pyramid" aria-label="Achievement pyramid">
   <header><h3><UiText text="Our achievement pyramid 成长金字塔"/></h3>
    <p><UiText text="Five levels to explore together. Every learner belongs. 一起探索五个等级，每位学生都有自己的位置。"/></p>
@@ -26,7 +26,7 @@ export default function TeacherAchievementPyramid({students}:{students:ClassPrac
     <p className="tap-range">{tier.min.toLocaleString()}+ XP{tier.name==='Diamond'&&<> · <UiText text="Teacher-approved outstanding work 老师认可的优秀表现"/></>}</p>
     {members.length?<ul>{members.map(student=><li key={student.id}>
      <span className="tap-avatar" aria-hidden="true">{Array.from(student.name.trim())[0]?.toLocaleUpperCase()||'✦'}</span>
-     <strong>{student.name}</strong><small>{student.xp.toLocaleString()} XP</small>
+     <strong>{student.name}</strong><small>{student.xp.toLocaleString()} XP</small>{(gains?.[student.id]??0)>0&&<span className="pyramid-xp-star">★ +{gains?.[student.id]} XP</span>}
      {tier.name==='Gold'&&student.xp>=1100&&!student.diamond&&<small className="tap-approval"><UiText text="Diamond approval needed 待钻石认证"/></small>}
     </li>)}</ul>:<p className="tap-empty"><UiText text="Ready to explore 等待探索"/></p>}
    </section>;

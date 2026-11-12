@@ -1,0 +1,19 @@
+.reward-campus{min-width:0}
+.reward-campus-nav,.reward-report-controls,.reward-settings form{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:12px 0}
+.reward-campus-nav [aria-pressed=true]{background:#eee7ff;color:#5435c6}
+.reward-settings{display:grid;gap:12px}
+.reward-campus label{display:grid;gap:5px;margin:5px 0;max-width:100%}
+.reward-campus :is(input,select){min-width:0;max-width:100%}
+.reward-print-report{overflow:auto}
+.reward-print-report table{border-collapse:collapse;min-width:100%;font-size:.85rem}
+.reward-print-report :is(td,th){text-align:left;padding:6px 8px;border-bottom:1px solid #e6e0ec}
+.reward-presentation{position:fixed;inset:0;overflow:auto;background:#faf8ff;z-index:150;padding:clamp(14px,4vw,48px)}
+.reward-presentation .teacher-achievement-pyramid{max-width:1200px;margin:0 auto}
+.reward-promotion-banner{background:#fff1bb;color:#624700;border-radius:12px;padding:12px;margin:10px 0;animation:reward-banner .5s ease-out}
+@keyframes reward-banner{from{transform:translateY(-15px);opacity:0}to{transform:none;opacity:1}}
+@media(prefers-reduced-motion:reduce){.reward-promotion-banner{animation:none}}
+@media print{
+ body.print-wordquest-rewards *{visibility:hidden}
+ body.print-wordquest-rewards .reward-print-report,body.print-wordquest-rewards .reward-print-report *{visibility:visible}
+ body.print-wordquest-rewards .reward-print-report{position:absolute;left:0;top:0;width:100%;overflow:visible;color:#111;background:white}
+}

@@ -17,3 +17,7 @@
 .tap-empty{font-size:12px;color:var(--tier-color);margin:0}
 .tap-caption{text-align:center;margin:18px 0 0}
 @media(max-width:500px){.teacher-achievement-pyramid{padding:16px 0}.teacher-achievement-pyramid header,.tap-caption{padding:0 12px}.tap-level{width:var(--tier-mobile-width);padding:14px 6% 18px}.tap-level li{flex-basis:70px}.teacher-achievement-pyramid h3{font-size:16px}}
+
+.pyramid-xp-star{color:#8d5800;font-weight:800;animation:pyramid-star 1.8s ease-out both}
+@keyframes pyramid-star{0%{transform:translate(-35px,20px) scale(.5);opacity:0}35%,75%{transform:none;opacity:1}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.pyramid-xp-star{animation:none}}

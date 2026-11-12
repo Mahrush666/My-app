@@ -3,7 +3,7 @@ import type {Lesson} from './lessons';
 const book = 'English Math — My Pals Are Here';
 const unit = {id:'my-pals-basic-numbers',number:1,title:'Basic Numbers'};
 
-function numberLesson(first: number, entries: ReadonlyArray<readonly [string, string]>): Lesson {
+function numberLesson(first: number, entries: ReadonlyArray<readonly [string, string, (readonly string[])?]>): Lesson {
  const last = first + entries.length - 1;
  const id = `${unit.id}-${first}-${last}`;
  const lessonTitle = `${first}–${last}`;
@@ -15,7 +15,7 @@ function numberLesson(first: number, entries: ReadonlyArray<readonly [string, st
   unit,
   title: `${unit.title} · ${lessonTitle}`,
   lessonTitle,
-  words: entries.map(([en,zh],index)=>{
+  words: entries.map(([en,zh,spellingParts],index)=>{
    const number = first + index;
    const highlightedEnding = en.endsWith('teen') ? 'teen' : en === 'twenty' ? 'ty' : undefined;
    return {
@@ -27,6 +27,7 @@ function numberLesson(first: number, entries: ReadonlyArray<readonly [string, st
     category: unit.title,
     sentence: en,
     highlightedEnding,
+    spellingParts,
    };
   }),
   readings: [],
@@ -42,7 +43,14 @@ export const myPalsBasicNumbers = numberLesson(0,[
 ]);
 
 export const myPalsTeenNumbers = numberLesson(11,[
- ['eleven','十一'], ['twelve','十二'], ['thirteen','十三'], ['fourteen','十四'],
- ['fifteen','十五'], ['sixteen','十六'], ['seventeen','十七'], ['eighteen','十八'],
- ['nineteen','十九'], ['twenty','二十'],
+ ['eleven','十一',['el','ev','en']],
+ ['twelve','十二',['tw','elve']],
+ ['thirteen','十三',['th','ir','teen']],
+ ['fourteen','十四',['four','teen']],
+ ['fifteen','十五',['fif','teen']],
+ ['sixteen','十六',['six','teen']],
+ ['seventeen','十七',['seven','teen']],
+ ['eighteen','十八',['eigh','teen']],
+ ['nineteen','十九',['nine','teen']],
+ ['twenty','二十',['twen','ty']],
 ]);

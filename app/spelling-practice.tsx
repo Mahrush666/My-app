@@ -13,16 +13,17 @@ export default function SpellingPractice({persist=true,hideFinalStepNumber=false
  const [chosen,setChosen]=useState<number[]>([]),[correct,setCorrect]=useState(false),[saving,setSaving]=useState(false),[message,setMessage]=useState('');
  const busy=useRef(false),marked=useRef(false);
  const group=round===null?[]:rounds[round]||[],stage=Math.floor(step/(group.length||1)),word=group[step%group.length];
- const order=useMemo(()=>word?spellingOrder(word.en):[],[word]);
- const gaps=useMemo(()=>word?spellingGaps(word.en,stage,order):[],[word,stage,order]);
- const tiles=useMemo(()=>word?spellingTiles(word.en,gaps):[],[word,gaps]);
+ const parts=word?.spellingParts;
+ const order=useMemo(()=>word?spellingOrder(word.en,word.spellingParts):[],[word]);
+ const gaps=useMemo(()=>word?spellingGaps(word.en,stage,order,Boolean(word.spellingParts)):[],[word,stage,order]);
+ const tiles=useMemo(()=>word?spellingTiles(word.en,gaps,word.spellingParts):[],[word,gaps]);
  useEffect(()=>{setChosen([]);setCorrect(false);setMessage('');marked.current=false;stopSpeaking()},[round,step]);
  useEffect(()=>()=>stopSpeaking(),[]);
  function remember(next:number){if(round===null)return;const update:Saved={...saved,[round]:next};setSaved(update);if(rounds.every((words,i)=>(update[i]||0)>=words.length*5))window.dispatchEvent(new CustomEvent('wordquest-exercise-finished',{detail:{kind:'exercise'}}));if(persist)try{localStorage.setItem(key,JSON.stringify(update))}catch{}}
  function open(i:number){setChosen([]);setCorrect(false);setMessage('');const at=saved[i];setStep(Number.isInteger(at)&&at>=0&&at<rounds[i].length*5?at:0);setRound(i);}
  async function check(){
   if(!word||busy.current||correct||chosen.length!==gaps.length)return;
-  const ok=gaps.every((position,i)=>word.en[position].toLowerCase()===tiles[chosen[i]].letter.toLowerCase());
+  const ok=gaps.every((position,i)=>(parts?.[position]??word.en[position]).toLowerCase()===tiles[chosen[i]].letter.toLowerCase());
   busy.current=true;setSaving(true);
   try{
    // All stages are reported; only the independent fifth spelling completes a word.
@@ -39,7 +40,18 @@ export default function SpellingPractice({persist=true,hideFinalStepNumber=false
  {word.picture?<img className="spelling-picture" src={publicAsset(word.picture)} alt=""/>:<div className="word-emoji" aria-hidden="true">{word.icon}</div>}
  <button className="action-listen" onClick={()=>speak(word.en)} aria-label="Listen to the word"><Volume2/> Listen 听一听</button>
  {stage===0&&<h2 className="spelling-model">{word.en}</h2>}
- <div className="spelling-slots" aria-label="Word to complete">{word.en.split(' ').map((part,partIndex)=>{const offset=word.en.split(' ').slice(0,partIndex).join(' ').length+(partIndex?1:0);return <span className="spelling-part" key={partIndex}>{[...part].map((letter,j)=>{const position=offset+j,gap=gaps.indexOf(position);return gap<0?<span className="spelling-fixed" key={j}>{letter}</span>:<button className="spelling-slot" key={j} disabled={saving||correct||chosen[gap]===undefined} aria-label={'Clear from letter '+(position+1)} onClick={()=>{setChosen(c=>c.slice(0,gap));setMessage('')}}>{chosen[gap]===undefined?'_':tiles[chosen[gap]]?.letter||'_' }</button>})}</span>})}</div>
- <div className="spelling-tiles" aria-label="Available letters">{tiles.map((tile,i)=><button key={tile.id} disabled={saving||correct||chosen.includes(i)||chosen.length===gaps.length} onClick={()=>{setChosen(c=>[...c,i]);setMessage('')}}>{tile.letter}</button>)}</div>
+ {parts&&<div className="spelling-slots" aria-label="Word to complete">
+  {parts.map((part,position)=>{
+   const gap=gaps.indexOf(position);
+   if(gap<0)return <span className="spelling-fixed" key={position}>{part}</span>;
+   return <button className="spelling-slot" key={position} disabled={saving||correct||chosen[gap]===undefined}
+    aria-label={'Clear from part '+(position+1)} onClick={()=>{setChosen(c=>c.slice(0,gap));setMessage('')}}>
+    {chosen[gap]===undefined?'___':tiles[chosen[gap]].letter}
+   </button>;
+  })}
+ </div>}
+
+ {!parts&&<div className="spelling-slots" aria-label="Word to complete">{word.en.split(' ').map((part,partIndex)=>{const offset=word.en.split(' ').slice(0,partIndex).join(' ').length+(partIndex?1:0);return <span className="spelling-part" key={partIndex}>{[...part].map((letter,j)=>{const position=offset+j,gap=gaps.indexOf(position);return gap<0?<span className="spelling-fixed" key={j}>{letter}</span>:<button className="spelling-slot" key={j} disabled={saving||correct||chosen[gap]===undefined} aria-label={'Clear from letter '+(position+1)} onClick={()=>{setChosen(c=>c.slice(0,gap));setMessage('')}}>{chosen[gap]===undefined?'_':tiles[chosen[gap]]?.letter||'_' }</button>})}</span>})}</div>}
+ <div className="spelling-tiles" aria-label={parts?"Available word parts":"Available letters"}>{tiles.map((tile,i)=><button key={tile.id} disabled={saving||correct||chosen.includes(i)||chosen.length===gaps.length} onClick={()=>{setChosen(c=>[...c,i]);setMessage('')}}>{tile.letter}</button>)}</div>
  <div className="spelling-actions"><button disabled={saving||correct||!chosen.length} onClick={()=>setChosen(c=>c.slice(0,-1))}>Undo 撤销</button>{correct?<button className="primary" onClick={()=>{stopSpeaking();remember(step+1);setChosen([]);setCorrect(false);setMessage('');setStep(n=>n+1)}}>{step+1===group.length*5?'Finish round 完成本轮':'Next 下一题'}</button>:<button className="primary" disabled={saving||chosen.length!==gaps.length} onClick={()=>void check()}>{saving?'Saving…':'OK 确定'}</button>}</div><p role="status">{message}</p></section>;
 }

@@ -100,7 +100,7 @@ export default function TeacherClassDirectory({groups,children,assignments,repor
  return <section className="class-directory">
   <button type="button" className="class-directory-back" onClick={()=>onSelect('')}><ArrowLeft size={17} aria-hidden="true"/><UiText text="All classes 所有班级"/></button>
   <header className="class-directory-heading"><h2 ref={heading} tabIndex={-1}>{selected.name}</h2><span className="small-note">{students.length} <UiText text="students 名学生"/></span></header>
-  <DailyPracticeSetting key={selected.id} enabled={dailyGroups.includes(selected.id)} canEdit={canSetDailyPractice}
+  <DailyPracticeSetting key={'daily-practice:'+selected.id} enabled={dailyGroups.includes(selected.id)} canEdit={canSetDailyPractice}
    onChange={enabled=>onDailyPracticeChange(selected.id,enabled)}/>
   <div className="class-directory-sections" key={selected.id}>
    <ClassSection label="Students 学生名单" icon={Users} eager showInvitation={hasInvitation}>{roster}</ClassSection>

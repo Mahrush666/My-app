@@ -1,3 +1,4 @@
+import {countsForHomework} from '../lib/teacher-homework';
 import {archivedAssignments} from './assignment-overview';
 import {isListeningSentenceLesson} from '../lib/sentence-lesson';
 import type {D1Database} from '@cloudflare/workers-types';
@@ -147,6 +148,6 @@ export async function answerDaily(db:D1Database,child:Child,now:number,data:{run
 }
 export async function dailyReport(db:D1Database,group:string,now:number){
  const children=await db.prepare('SELECT id,name FROM children WHERE group_id=? AND approved=1 ORDER BY name').bind(group).all<{id:string;name:string}>();const rows=[];
- for(const child of children.results){const run=await db.prepare('SELECT id,tasks,finished_at FROM daily_runs WHERE child_id=? AND group_id=? AND day=?').bind(child.id,group,dailyDay(now)).first<{id:string;tasks:string;finished_at:number;created_at:number}>();const tasks=run?JSON.parse(run.tasks) as DailyTask[]:[],answers=run?(await db.prepare('SELECT task_id,correct,answer FROM daily_answers WHERE run_id=? ORDER BY created_at').bind(run.id).all<{task_id:string;correct:number;answer:string}>()).results:[];rows.push({name:child.name,total:tasks.length||12,done:new Set(answers.filter(a=>Number(a.correct)===1).map(a=>a.task_id)).size,finished:Boolean(run?.finished_at),mistakes:tasks.filter(t=>answers.some(a=>a.task_id===t.id&&!Number(a.correct))).map(t=>({activity:t.activity,prompt:t.prompt,expected:t.expected,answers:answers.filter(a=>a.task_id===t.id&&!Number(a.correct)).map(a=>a.answer)}))})}
+ for(const child of children.results.filter(countsForHomework)){const run=await db.prepare('SELECT id,tasks,finished_at FROM daily_runs WHERE child_id=? AND group_id=? AND day=?').bind(child.id,group,dailyDay(now)).first<{id:string;tasks:string;finished_at:number;created_at:number}>();const tasks=run?JSON.parse(run.tasks) as DailyTask[]:[],answers=run?(await db.prepare('SELECT task_id,correct,answer FROM daily_answers WHERE run_id=? ORDER BY created_at').bind(run.id).all<{task_id:string;correct:number;answer:string}>()).results:[];rows.push({name:child.name,total:tasks.length||12,done:new Set(answers.filter(a=>Number(a.correct)===1).map(a=>a.task_id)).size,finished:Boolean(run?.finished_at),mistakes:tasks.filter(t=>answers.some(a=>a.task_id===t.id&&!Number(a.correct))).map(t=>({activity:t.activity,prompt:t.prompt,expected:t.expected,answers:answers.filter(a=>a.task_id===t.id&&!Number(a.correct)).map(a=>a.answer)}))})}
  return {day:dailyDay(now),enabled:await dailyEnabled(db,group),students:rows};
 }

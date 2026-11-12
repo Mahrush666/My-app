@@ -1,4 +1,5 @@
 import {requiresAnswers} from './homework-completion';
+import {countsForHomework} from './teacher-homework';
 export type SchoolGroup={id:string;name:string};
 export type SchoolChild={id:string;name:string;group_id:string;approved:number};
 export type ClassMeeting={id:string;group_id:string;day:string;time:string;duration:number};
@@ -11,7 +12,7 @@ export function weeklyProgress(groups:SchoolGroup[],children:SchoolChild[],assig
  const end=addDays(week,7);
  return groups.map(group=>{
  const tasks=assignments.filter(a=>{const day=a.due_date||chinaDay(Number(a.updated_at));return a.group_id===group.id&&day>=week&&day<end}).map(a=>({...a,required:(JSON.parse(a.activities) as string[]).filter(requiresAnswers)}));
- const students=children.filter(c=>c.group_id===group.id&&c.approved).map(c=>{let done=0,total=0;for(const task of tasks){const completed=JSON.parse(reports.find(r=>r.child_id===c.id&&r.assignment_id===task.id)?.completed||'[]') as string[];total+=task.required.length;done+=task.required.filter(a=>completed.includes(a)).length;}return {...c,done,total}});
+ const students=children.filter(c=>c.group_id===group.id&&c.approved&&countsForHomework(c)).map(c=>{let done=0,total=0;for(const task of tasks){const completed=JSON.parse(reports.find(r=>r.child_id===c.id&&r.assignment_id===task.id)?.completed||'[]') as string[];total+=task.required.length;done+=task.required.filter(a=>completed.includes(a)).length;}return {...c,done,total}});
  return {...group,students,done:students.reduce((s,c)=>s+c.done,0),total:students.reduce((s,c)=>s+c.total,0)};
  });
 }

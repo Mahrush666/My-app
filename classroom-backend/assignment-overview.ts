@@ -2,6 +2,7 @@ import type {D1Database} from '@cloudflare/workers-types';
 import {lessons} from '../github-pages/lessons';
 import {studentHomeworkProgress,homeworkItems} from '../lib/student-homework-progress';
 import type {TeacherAssignment,AssignmentOverview} from '../lib/teacher-homework';
+import {countsForHomework} from '../lib/teacher-homework';
 import {homeworkBelongsToStudent} from './transferred-homework';
 export async function archivedAssignments(db:D1Database){const r=await db.prepare("SELECT key FROM config WHERE key LIKE 'assignment_archived:%' AND value='1'").all<{key:string}>();return new Set(r.results.map(r=>r.key.slice('assignment_archived:'.length)))}
 export async function assignmentOverview(db:D1Database,group:string):Promise<{assignments:AssignmentOverview[]}>{
@@ -10,7 +11,8 @@ export async function assignmentOverview(db:D1Database,group:string):Promise<{as
  db.prepare('SELECT * FROM assignments WHERE group_id=?').bind(group).all<TeacherAssignment>(),
  db.prepare('SELECT t.* FROM attempts t JOIN children c ON c.id=t.child_id WHERE c.group_id=?').bind(group).all<any>(),
  db.prepare('SELECT x.* FROM completions x JOIN children c ON c.id=x.child_id WHERE c.group_id=?').bind(group).all<any>()]);
- const rows=assignments.results.map(a=>{const students=children.results.map(c=>{const answers=attempts.results.filter(t=>t.child_id===c.id&&t.assignment_id===a.id),last=answers.filter(t=>Number(t.created_at)>=Number(a.updated_at)).map(t=>Number(t.created_at));return {...c,lastSeen:last.length?Math.max(...last):null,progress:studentHomeworkProgress([a],lessons,answers,completed.results.filter(x=>x.child_id===c.id))[a.id]}});return {id:a.id,students,finished:students.filter(s=>s.progress.total>0&&s.progress.percent===100).length,totalStudents:students.length,percent:students.length?Math.floor(students.reduce((n,s)=>n+(s.progress.total?s.progress.percent:0),0)/students.length):0}});
+ const roster=children.results.filter(countsForHomework);
+ const rows=assignments.results.map(a=>{const students=roster.map(c=>{const answers=attempts.results.filter(t=>t.child_id===c.id&&t.assignment_id===a.id),last=answers.filter(t=>Number(t.created_at)>=Number(a.updated_at)).map(t=>Number(t.created_at));return {...c,lastSeen:last.length?Math.max(...last):null,progress:studentHomeworkProgress([a],lessons,answers,completed.results.filter(x=>x.child_id===c.id))[a.id]}});return {id:a.id,students,finished:students.filter(s=>s.progress.total>0&&s.progress.percent===100).length,totalStudents:students.length,percent:students.length?Math.floor(students.reduce((n,s)=>n+(s.progress.total?s.progress.percent:0),0)/students.length):0}});
  return {assignments:rows};
 }
 // Keep this assignment version so matching saved answers and active practice time survive edits.

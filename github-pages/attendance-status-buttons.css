@@ -1,0 +1,47 @@
+.attendance-status-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 100%;
+}
+
+.attendance-status-buttons button[data-status] {
+  --status-ink: #50576a;
+  --status-background: #eff0f5;
+  display: inline-flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 46px;
+  min-height: 44px;
+  padding: 3px 5px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  color: var(--status-ink);
+  background: var(--status-background);
+  font-size: .68rem;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.attendance-status-buttons button[data-status="present"] { --status-ink: #146043; --status-background: #e0f4e8; }
+.attendance-status-buttons button[data-status="late"] { --status-ink: #784900; --status-background: #fff0cb; }
+.attendance-status-buttons button[data-status="absent"] { --status-ink: #a2273b; --status-background: #fce8ec; }
+.attendance-status-buttons button[data-status="excused"] { --status-ink: #244f97; --status-background: #e8f0ff; }
+
+.attendance-status-buttons button[data-status]:hover:not(:disabled) {
+  border-color: var(--status-ink);
+}
+
+.attendance-status-buttons button[data-status][aria-pressed="true"] {
+  background: var(--status-ink);
+  color: white;
+  border-color: var(--status-ink);
+}
+
+.attendance-status-buttons button[data-status]:focus-visible {
+  outline: 2px solid #352163;
+  outline-offset: 1px;
+}

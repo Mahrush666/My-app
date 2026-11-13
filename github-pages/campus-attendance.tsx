@@ -1,17 +1,11 @@
 import {useEffect,useRef,useState} from 'react';
-import {campusAttendanceStatuses,campusClassNameLimit,campusClassNames,campusLessonsLimit,type CampusAttendanceMark,type CampusAttendanceRow} from '../lib/campus-attendance';
+import {campusClassNameLimit,campusClassNames,campusLessonsLimit,type CampusAttendanceMark,type CampusAttendanceRow} from '../lib/campus-attendance';
 import {attendanceXP} from '../lib/rewards';
 import {chinaDay} from '../lib/teacher-dashboard';
 import {UiText} from './teacher-language';
+import AttendanceStatusButtons from './attendance-status-buttons';
 import './campus-attendance.css';
 
-const labels={
- unmarked:'Not marked 未记录',
- present:'Present 出勤',
- late:'Late 迟到',
- absent:'Absent 缺席',
- excused:'Excused 请假',
-};
 type Request=<T>(path:string,data?:unknown)=>Promise<T>;
 
 export default function CampusAttendance({campusId,request,canMark,onDirtyChange}:{
@@ -153,9 +147,7 @@ export default function CampusAttendance({campusId,request,canMark,onDirtyChange
      };
      return <div className="campus-attendance-row" key={row.childId}>
       <div className="campus-attendance-student"><strong>{row.name}</strong><small>{row.groupName}</small></div>
-      <select aria-label={'Attendance for '+row.name} value={value.status} onChange={event=>edit(row,{status:event.target.value as CampusAttendanceMark['status']})}>
-       {campusAttendanceStatuses.map(status=><option key={status} value={status}><UiText text={labels[status]}/></option>)}
-      </select>
+      <AttendanceStatusButtons name={row.name} value={value.status} onChange={status=>edit(row,{status})}/>
       <details className="campus-attendance-lessons">
        <summary aria-label={'Classes attended by '+row.name+(value.lessons?', '+value.lessons:'')}>
         {value.lessons||<UiText text="Choose classes 选择课程"/>}

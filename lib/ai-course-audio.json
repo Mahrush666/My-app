@@ -1,0 +1,23 @@
+{
+  "pattern": "ai-course-lesson1/pattern.mp3",
+  "red, blue, red, blue. i see a ___.": "ai-course-lesson1/pattern-blank.mp3",
+  "red, blue, red, blue. i see a pattern.": "ai-course-lesson1/pattern-full.mp3",
+  "think": "ai-course-lesson1/think.mp3",
+  "shawn can ___ before he answers.": "ai-course-lesson1/think-blank.mp3",
+  "shawn can think before he answers.": "ai-course-lesson1/think-full.mp3",
+  "guess": "ai-course-lesson1/guess.mp3",
+  "ai can ___ what comes next.": "ai-course-lesson1/guess-blank.mp3",
+  "ai can guess what comes next.": "ai-course-lesson1/guess-full.mp3",
+  "clues": "ai-course-lesson1/clues.mp3",
+  "whiskers and a meow are ___ that it is a cat.": "ai-course-lesson1/clues-blank.mp3",
+  "whiskers and a meow are clues that it is a cat.": "ai-course-lesson1/clues-full.mp3",
+  "examples": "ai-course-lesson1/examples.mp3",
+  "red apples and green apples are both ___ of apples.": "ai-course-lesson1/examples-blank.mp3",
+  "red apples and green apples are both examples of apples.": "ai-course-lesson1/examples-full.mp3",
+  "mistake": "ai-course-lesson1/mistake.mp3",
+  "ai called an apple a tomato. it made a ___.": "ai-course-lesson1/mistake-blank.mp3",
+  "ai called an apple a tomato. it made a mistake.": "ai-course-lesson1/mistake-full.mp3",
+  "check": "ai-course-lesson1/check.mp3",
+  "let's ___ the answer in the fact book.": "ai-course-lesson1/check-blank.mp3",
+  "let's check the answer in the fact book.": "ai-course-lesson1/check-full.mp3"
+}

@@ -1,3 +1,4 @@
+import {aiCourseLesson1} from './ai-course-lesson1';
 import {myPalsBasicNumbers,myPalsTeenNumbers} from './my-pals-basic-numbers';
 import {starterUnit9Lesson1} from './pu-starter-u9-lesson1';
 import {starterUnit9Lesson2} from './pu-starter-u9-lesson2';
@@ -51,6 +52,7 @@ const actionWords: Word[] = [
  ['climb','爬','🧗'],['swim','游泳','🏊'],['walk','走','🚶'],['jump','跳','🤸'],['run','跑','🏃'],
 ].map(([en,zh,icon])=>({id:'pu-starter-u7-'+en,en,zh,icon,picture:'lessons/pu-starter-u7-lesson1/'+en+'.webp',category:'Free time',sentence:'I can '+en+'.'}));
 export const lessons: Lesson[] = ([
+ aiCourseLesson1,
  act2Unit8Lesson2,
  act2Unit8Lesson3,
  act3Unit7Lesson3,

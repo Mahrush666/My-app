@@ -1,6 +1,7 @@
 import type {Lesson} from './lessons';
 import type {IllustratedReading} from '../lib/illustrated-reading';
 
+const vocabularyActivities=['look-listen','word-choice','sound-picture','story-quiz'] as const;
 const art='lessons/ai-course-lesson1/';
 const terms=[
  {key:'pattern',en:'pattern',zh:'规律',icon:'🔁',prompt:'Red, blue, red, blue. I see a ___.',options:['pattern','clues','examples']},
@@ -34,6 +35,6 @@ export const aiCourseLesson1:Lesson={
  readings:[],
  readingStory,
  defaultAge:'6–12',
- defaultActivities:['look-listen','story-quiz'],
- allowedActivities:['look-listen','story-quiz'],
+ defaultActivities:[...vocabularyActivities],
+ allowedActivities:[...vocabularyActivities],
 };

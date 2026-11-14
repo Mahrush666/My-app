@@ -1,5 +1,5 @@
 import type {Lesson} from './lessons';
-const catalogBooks=['English Math — My Pals Are Here'];
+const catalogBooks=['English Math — My Pals Are Here','AI course'];
 export const emptyBookMessage='No lessons have been added yet. 暂无课程。';
 export function bookNames(lessons:Lesson[],includeEmpty=false){
  return [...new Set([...lessons.map(lesson=>lesson.book),...(includeEmpty?catalogBooks:[])])];

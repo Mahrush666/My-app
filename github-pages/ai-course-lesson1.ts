@@ -5,12 +5,12 @@ const vocabularyActivities=['look-listen','word-choice','sound-picture','story-q
 const art='lessons/ai-course-lesson1/';
 const terms=[
  {key:'pattern',en:'pattern',zh:'规律',icon:'🔁',prompt:'Red, blue, red, blue. I see a ___.',options:['pattern','clues','examples']},
- {key:'think',en:'think',zh:'思考',icon:'💭',prompt:'Shawn can ___ before he answers.',options:['pattern','think','clues']},
- {key:'guess',en:'guess',zh:'猜',icon:'❓',prompt:'AI can ___ what comes next.',options:['examples','mistake','guess']},
- {key:'clues',en:'clues',zh:'线索',icon:'🔍',prompt:'Whiskers and a meow are ___ that it is a cat.',options:['clues','think','pattern']},
- {key:'examples',en:'examples',zh:'例子',icon:'🍎',prompt:'Red apples and green apples are both ___ of apples.',options:['guess','examples','mistake']},
- {key:'mistake',en:'mistake',zh:'错误',icon:'❌',prompt:'AI called an apple a tomato. It made a ___.',options:['think','check','mistake']},
- {key:'check',en:'check',zh:'核对',icon:'✅',prompt:'Let’s ___ the answer in the fact book.',options:['check','pattern','clues']},
+ {key:'think',en:'think',zh:'思考',icon:'💭',prompt:'Shawn can ___.',options:['pattern','think','clues']},
+ {key:'guess',en:'guess',zh:'猜',icon:'❓',prompt:'AI can ___.',options:['examples','mistake','guess']},
+ {key:'clues',en:'clues',zh:'线索',icon:'🔍',prompt:'There are 2 ___ that it’s a cat.',options:['clues','think','pattern']},
+ {key:'examples',en:'examples',zh:'例子',icon:'🍎',prompt:'Red apples and green apples are ___ of apples.',options:['guess','examples','mistake']},
+ {key:'mistake',en:'mistake',zh:'错误',icon:'❌',prompt:'AI made a ___.',options:['think','check','mistake']},
+ {key:'check',en:'check',zh:'核对',icon:'✅',prompt:'Yes or no? Let’s ___.',options:['check','pattern','clues']},
 ];
 
 const readingStory:IllustratedReading={

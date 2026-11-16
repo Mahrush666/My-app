@@ -3,6 +3,7 @@ import {myPalsBasicNumbers,myPalsTeenNumbers} from './my-pals-basic-numbers';
 import {starterUnit9Lesson1} from './pu-starter-u9-lesson1';
 import {starterUnit9Lesson2} from './pu-starter-u9-lesson2';
 import {play2Unit4Lesson3,play2Unit4MonsterWorkshop} from './play2-u4-lesson3';
+import {act2Unit9Lessons} from './act2-u9';
 import {act2Unit8Lesson3} from './act2-u8-lesson3';
 import {act2Unit8Lesson2} from './act2-u8-lesson2';
 import {powerUp1Unit2Lesson5} from './pu1-u2-lesson5';
@@ -55,6 +56,7 @@ export const lessons: Lesson[] = ([
  aiCourseLesson1,
  act2Unit8Lesson2,
  act2Unit8Lesson3,
+ ...act2Unit9Lessons,
  act3Unit7Lesson3,
  act3Unit7Lesson4,
  act3Unit7Lesson41,

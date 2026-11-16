@@ -1,8 +1,9 @@
 import recordings from './lesson-audio.json';
+import cityTripRecordings from './act2-u9-audio.json';
 import aiCourseRecordings from './ai-course-audio.json';
 import numberRecordings from './number-audio.json';
 import { publicAsset } from './public-runtime';
-const clips: Record<string,string> = {...recordings,...numberRecordings,...aiCourseRecordings};
+const clips: Record<string,string> = {...cityTripRecordings,...recordings,...numberRecordings,...aiCourseRecordings};
 let player: HTMLAudioElement | undefined;
 let utterance: SpeechSynthesisUtterance | undefined;
 let generation = 0;

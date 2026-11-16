@@ -1,7 +1,7 @@
 import type { Lesson } from './lessons';
 
 const unit = { id: 'act2-u9', number: 9, title: 'Unit 9 · City Trip' };
-const art = 'lessons/act2-u9/';
+const art = 'lessons/act2-u9-illustrated/';
 const activities = ['video', 'look-listen', 'sound-picture', 'picture-listen'] as const;
 
 const destinations = [
@@ -33,7 +33,7 @@ function cityTripLesson(
       kind: 'lesson',
       audioOnly: true,
       poster: art + poster + '.webp',
-      src: 'lesson-audio/act2-u9/' + audio + '.mp3',
+      src: 'lesson-audio/act2-u9-slow/' + audio + '.mp3',
     })),
   };
 }

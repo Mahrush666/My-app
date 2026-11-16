@@ -2,6 +2,7 @@ import type { Lesson } from './lessons';
 
 const unit = { id: 'act2-u9', number: 9, title: 'Unit 9 · City Trip' };
 const art = 'lessons/act2-u9-illustrated/';
+const audioRoot = 'lesson-audio/act2-u9-enunciated/';
 const activities = ['video', 'look-listen', 'sound-picture', 'picture-listen'] as const;
 
 const destinations = [
@@ -33,7 +34,7 @@ function cityTripLesson(
       kind: 'lesson',
       audioOnly: true,
       poster: art + poster + '.webp',
-      src: 'lesson-audio/act2-u9-clear/' + audio + '.mp3',
+      src: audioRoot + audio + '.mp3',
     })),
   };
 }
@@ -48,6 +49,7 @@ export const act2Unit9Lessons = [
     return {
       id: 'act2-u9-l1-' + place,
       en: place,
+      recording: audioRoot + place + '.mp3',
       zh: placeZh,
       icon: '',
       category: 'City places',

@@ -24,9 +24,9 @@ export function recordingPath(text:string){const file=clips[audioKey(text)];retu
 export function audioSource(text:string) { const path=recordingPath(text);return path?publicAsset(path):undefined; }
 function report(message:string,src?:string) { window.dispatchEvent(new CustomEvent('wordquest-audio-error',{detail:{message,src}})); }
 export function stopSpeaking() { generation++;player?.pause();if(player)player.currentTime=0;window.speechSynthesis?.cancel();utterance=undefined; }
-export function speak(text:string) {
+export function speak(text:string, recording?:string) {
  if(typeof window==='undefined')return;
- stopSpeaking();const token=generation;const src=audioSource(text);
+ stopSpeaking();const token=generation;const src=recording?publicAsset(recording):audioSource(text);
  window.dispatchEvent(new CustomEvent('wordquest-audio-clear'));
  if(src){
   // A fresh element prevents mobile WebViews from replaying a previous option's buffer.

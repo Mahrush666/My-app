@@ -33,7 +33,7 @@ function cityTripLesson(
       kind: 'lesson',
       audioOnly: true,
       poster: art + poster + '.webp',
-      src: 'lesson-audio/act2-u9-slow/' + audio + '.mp3',
+      src: 'lesson-audio/act2-u9-clear/' + audio + '.mp3',
     })),
   };
 }

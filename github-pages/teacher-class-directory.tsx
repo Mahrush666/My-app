@@ -60,10 +60,10 @@ function DailyPracticeSetting({enabled,canEdit,onChange}:{
 }
 
 export default function TeacherClassDirectory({groups,children,assignments,reports,campuses,showCampus,selectedId,
- onSelect,newClass,roster,hasInvitation,canReward,request,onRefresh,dailyGroups,canSetDailyPractice,onDailyPracticeChange}:HistoryProps&{
+ onSelect,newClass,roster,hasInvitation,canReward,canArchiveHomework,request,onRefresh,dailyGroups,canSetDailyPractice,onDailyPracticeChange}:HistoryProps&{
  groups:Group[];children:Student[];campuses?:{id:string;name:string}[];showCampus:boolean;
  selectedId:string;onSelect:(id:string)=>void;newClass:ReactNode;roster:ReactNode;
- hasInvitation:boolean;canReward:boolean;request:Request;onRefresh:()=>Promise<void>;
+ hasInvitation:boolean;canReward:boolean;canArchiveHomework?:boolean;request:Request;onRefresh:()=>Promise<void>;
  dailyGroups:string[];canSetDailyPractice:boolean;onDailyPracticeChange:(id:string,enabled:boolean)=>Promise<void>;
 }){
  const [rewardRevision,setRewardRevision]=useState(0);
@@ -111,7 +111,7 @@ export default function TeacherClassDirectory({groups,children,assignments,repor
    <ClassSection label="Homework history 作业历史" icon={ClipboardList}>
     <HomeworkManager historyOnly groups={[selected]} campuses={campuses} children={students}
      assignments={history} reports={reports.filter(report=>ids.has(report.assignment_id))} dailyGroups={dailyGroups}
-     canAssign={false} canDelete={false} request={request} onSaved={onRefresh}/>
+     canAssign={false} canDelete={false} canArchive={canArchiveHomework} request={request} onSaved={onRefresh}/>
     {!!transferredReports.length&&<HomeworkReports heading="Homework from previous classes 转班前的作业"
      children={students} assignments={transferredAssignments} reports={transferredReports} request={request}/>}
    </ClassSection>

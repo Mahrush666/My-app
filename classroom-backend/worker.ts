@@ -386,16 +386,18 @@ export async function handle(request:Request,env:Env){
  }
  if(path==='/reactor-leaderboard'&&request.method==='POST'){const child=await childAccess(data.childId);requireValue(child.approved,'Your teacher needs to approve this profile.');return respond(await reactorLeaderboard(env.DB,child,now));}
  if(path==='/homework'&&request.method==='GET'){
- const child=await childAccess(new URL(request.url).searchParams.get('child'));if(!child.approved)return respond({assignments:[],progress:{},completed:[],pending:true});
- const [assignments,reviews,completed]=await Promise.all([env.DB.prepare(`SELECT a.* FROM assignments a JOIN children c ON ${homeworkBelongsToStudent} WHERE c.id=? AND NOT EXISTS(SELECT 1 FROM config f WHERE f.key=('assignment_archived:' || a.id) AND f.value='1') ORDER BY CASE WHEN a.group_id=c.group_id THEN 0 ELSE 1 END,a.due_date,a.updated_at`).bind(child.id).all(),env.DB.prepare('SELECT word_id,step,due FROM reviews WHERE child_id=?').bind(child.id).all(),env.DB.prepare('SELECT assignment_id,activity FROM completions WHERE child_id=?').bind(child.id).all()]);
- const rewardsReady=syncHomeworkRewards(env.DB,child.id,assignments.results as {id:string;activities:string;title:string;updated_at:number}[]);
+ const child=await childAccess(new URL(request.url).searchParams.get('child'));if(!child.approved)return respond({assignments:[],archivedAssignments:[],progress:{},completed:[],pending:true});
+ const [assignments,reviews,completed]=await Promise.all([env.DB.prepare(`SELECT a.*,EXISTS(SELECT 1 FROM config f WHERE f.key=('assignment_archived:' || a.id) AND f.value='1') AS archived FROM assignments a JOIN children c ON ${homeworkBelongsToStudent} WHERE c.id=? ORDER BY CASE WHEN a.group_id=c.group_id THEN 0 ELSE 1 END,a.due_date,a.updated_at`).bind(child.id).all<{id:string;title:string;activities:string;updated_at:number;archived:number}>(),env.DB.prepare('SELECT word_id,step,due FROM reviews WHERE child_id=?').bind(child.id).all(),env.DB.prepare('SELECT assignment_id,activity FROM completions WHERE child_id=?').bind(child.id).all()]);
+ const active=assignments.results.filter(a=>!a.archived).map(({archived,...a})=>a);
+ const archived=assignments.results.filter(a=>a.archived).map(({id,title})=>({id,title}));
+ const rewardsReady=syncHomeworkRewards(env.DB,child.id,active);
  const [homeworkProgress,lessonSettings,dashboard,rewards]=await Promise.all([
   readStudentProgress(env.DB,child.id,assignments.results,completed.results),
   publishedSettings(env.DB,lessons),
   rewardsReady.then(()=>studentDashboard(env.DB,child,now)),
   rewardsReady.then(()=>readRewards(env.DB,child.id,now)),
  ]);
- return respond({homeworkProgress,lessonSettings,dashboard,rewards,assignments:assignments.results,progress:Object.fromEntries(reviews.results.map(r=>[r.word_id,{step:r.step,due:r.due}])),completed:completed.results,pending:false});
+ return respond({homeworkProgress,lessonSettings,dashboard,rewards,assignments:active,archivedAssignments:archived,progress:Object.fromEntries(reviews.results.map(r=>[r.word_id,{step:r.step,due:r.due}])),completed:completed.results,pending:false});
  }
  if(path==='/practice-progress'&&request.method==='POST'){
  const child=await childAccess(data.childId);requireValue(child.approved,'Your teacher needs to approve this profile.');

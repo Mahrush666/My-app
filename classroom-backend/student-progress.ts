@@ -4,8 +4,14 @@ import {studentHomeworkProgress} from '../lib/student-homework-progress';
 import {chinaWeek} from '../lib/student-dashboard';
 export async function readStudentProgress(db:D1Database,childId:string,assignments:any[],completed:any[]){
  if(!assignments.length)return {};
- const attempts=await db.prepare('SELECT assignment_id,activity,word_id,correct,created_at FROM attempts WHERE child_id=? AND assignment_id IN ('+assignments.map(()=>'?').join(',')+')').bind(childId,...assignments.map(a=>a.id)).all<any>();
- return studentHomeworkProgress(assignments,lessons,attempts.results,completed);
+ // Keep below D1's bound parameter limit as the archive grows.
+ const attempts=[];
+ for(let i=0;i<assignments.length;i+=90){
+  const ids=assignments.slice(i,i+90).map(a=>a.id);
+  const batch=await db.prepare('SELECT assignment_id,activity,word_id,correct,created_at FROM attempts WHERE child_id=? AND assignment_id IN ('+ids.map(()=>'?').join(',')+')').bind(childId,...ids).all<any>();
+  for(const attempt of batch.results)attempts.push(attempt);
+ }
+ return studentHomeworkProgress(assignments,lessons,attempts,completed);
 }
 export async function reactorLeaderboard(db:D1Database,child:{id:string;group_id:string},now:number){
  const week=chinaWeek(now);

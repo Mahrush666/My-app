@@ -1,3 +1,4 @@
+import {HomeworkWarning} from './homework-warning';
 import {useEffect,useRef,useState} from 'react';
 import {RefreshCw} from 'lucide-react';
 import {UiText} from './teacher-language';
@@ -19,7 +20,7 @@ export default function TeacherClassPractice({groupId,name,request,embedded=fals
  const ranked=xpView?[...students].sort((a,b)=>b.xp-a.xp||b.weeklyXP-a.weeklyXP||a.name.localeCompare(b.name)):students;
  const title=xpView?'Class XP 班级经验值':'This week’s practice 本周练习';
  return <section className={(embedded?'':'panel ')+'teacher-class-practice'} aria-label={xpView?'Class XP':'Class weekly practice'} aria-busy={loading}>
-  <div className="tcp-heading"><h2><UiText text={title}/>{name&&<small>{name}</small>}</h2><button type="button" disabled={loading} onClick={()=>void load()}><RefreshCw size={14}/><UiText text="Refresh 刷新"/></button></div>
+  <div className="tcp-heading"><h2><UiText text={title}/>{name&&<small>{name}<HomeworkWarning id={groupId} kind="group"/></small>}</h2><button type="button" disabled={loading} onClick={()=>void load()}><RefreshCw size={14}/><UiText text="Refresh 刷新"/></button></div>
   {!xpView&&<p className="small-note"><UiText text="Homework and daily practice count together. Each tick means one day of practice. 作业和每日练习合并统计，每个勾代表一天。"/></p>}
   {current&&!xpView&&<p className="small-note">{current.weekStart} – {addDays(current.weekStart,6)} · <UiText text="China time 中国时间"/> · {current.students.filter(s=>s.reviewDays.length).length}/{current.students.length} <UiText text="students practised 已练习学生"/></p>}
   {error&&<p role="alert">{error} <button type="button" disabled={loading} onClick={()=>void load()}><UiText text="Retry 重试"/></button></p>}
@@ -27,10 +28,10 @@ export default function TeacherClassPractice({groupId,name,request,embedded=fals
   {current&&!current.students.length&&<p><UiText text="No approved students in this class yet. 此班级暂无已加入学生。"/></p>}
   {current&&xpView&&<TeacherAchievementPyramid students={students}/>}
   {current&&xpView&&ranked.length>0&&<ul className="class-xp-list">{ranked.map(student=><li key={student.id}>
-   <strong>{student.name}</strong><span>{student.weeklyXP} <UiText text="XP this week 本周经验"/></span><span><b>{student.xp} XP</b> <UiText text="total 总计"/></span>
+   <strong>{student.name}<HomeworkWarning id={student.id}/></strong><span>{student.weeklyXP} <UiText text="XP this week 本周经验"/></span><span><b>{student.xp} XP</b> <UiText text="total 总计"/></span>
   </li>)}</ul>}
   {current&&!xpView&&<div className="tcp-roster">{ranked.map(s=><article className="tcp-student" key={s.id}>
-   <div className="tcp-student-info"><strong>{s.name}</strong><span><b>{s.reviewDays.length}/7</b> <UiText text="practice days 练习天数"/></span>{showXP&&<small>{s.weeklyXP} <UiText text="XP this week 本周经验"/> · {s.xp} <UiText text="total XP 总经验"/></small>}</div>
+   <div className="tcp-student-info"><strong>{s.name}<HomeworkWarning id={s.id}/></strong><span><b>{s.reviewDays.length}/7</b> <UiText text="practice days 练习天数"/></span>{showXP&&<small>{s.weeklyXP} <UiText text="XP this week 本周经验"/> · {s.xp} <UiText text="total XP 总经验"/></small>}</div>
    <WeekReviewTrack compact weekStart={current.weekStart} today={current.today} days={s.reviewDays} label={s.name+' · weekly practice days'}/>
   </article>)}</div>}
  </section>

@@ -1,0 +1,7 @@
+.homework-warning {
+ display: inline-flex;
+ align-items: center;
+ margin-inline-start: .35em;
+ color: #a4500a;
+ vertical-align: -.14em;
+}

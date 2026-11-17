@@ -1,3 +1,4 @@
+import {HomeworkNameOption,HomeworkWarning} from './homework-warning';
 import {useEffect,useRef,useState} from 'react';
 import {UiText} from './teacher-language';
 import TeacherAchievementPyramid from './teacher-achievement-pyramid';
@@ -151,7 +152,7 @@ function RewardSettings({current,groups,busy,preview,save,request,onRestored}:{c
    </>}
   </section>
   <section className="panel"><h3><UiText text="Class badge goals 班级徽章目标"/></h3>
-   <label><UiText text="Class 班级"/><select value={group} onChange={event=>setGroup(event.target.value)}>{groups.map(g=><option key={g.id} value={g.id}>{g.name}</option>)}</select></label>
+   <label><UiText text="Class 班级"/><select value={group} onChange={event=>setGroup(event.target.value)}>{groups.map(g=><HomeworkNameOption key={g.id} id={g.id} name={g.name}/>)}</select></label>
    <label><UiText text="Badge track 徽章类型"/><select disabled={!group||busy} value={track} onChange={event=>void save({action:'track',groupId:group,track:event.target.value}).catch(()=>{})}>
     <option value="general">General</option><option value="kinders">Kinders</option><option value="achievers">Achievers</option><option value="advancers">Advancers</option>
    </select></label>
@@ -187,7 +188,7 @@ function RewardReports({campus,students,request,today}:{campus:string;students:S
  }
  return <section className="panel reward-reports">
   <div className="reward-report-controls">
-   <label><UiText text="Student 学生"/><select value={child} onChange={event=>setChild(event.target.value)}>{students.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
+   <label><UiText text="Student 学生"/><select value={child} onChange={event=>setChild(event.target.value)}>{students.map(s=><HomeworkNameOption key={s.id} id={s.id} name={s.name} kind="student"/>)}</select></label>
    <label><UiText text="From 开始"/><input type="date" value={from} onChange={event=>setFrom(event.target.value)}/></label>
    <label><UiText text="To 结束"/><input type="date" value={to} onChange={event=>setTo(event.target.value)}/></label>
    {report&&<label><UiText text="Semester 学期"/><select defaultValue="" key={child} onChange={event=>{
@@ -200,7 +201,7 @@ function RewardReports({campus,students,request,today}:{campus:string;students:S
   {error&&<p role="alert">{error}</p>}
   {from&&to&&from>to&&<p role="alert"><UiText text="Choose an end date on or after the start date. 结束日期不能早于开始日期。"/></p>}
   {report&&<article className="reward-print-report">
-   <h3>{report.name} · <UiText text="Progress report 成长报告"/></h3>
+   <h3>{report.name}<HomeworkWarning id={child}/> · <UiText text="Progress report 成长报告"/></h3>
    <p>{from||'Beginning'} – {to||'Latest'} · {history.filter(h=>!h.revoked).reduce((sum,h)=>sum+Number(h.xp),0)} XP</p>
    <p>{attended.filter(r=>r.status==='present'||r.status==='late').length}/{attended.length} <UiText text="scheduled lessons attended 已参加的课次"/>
     {' · '}{homework} <UiText text="online homework completions 完成线上作业"/></p>

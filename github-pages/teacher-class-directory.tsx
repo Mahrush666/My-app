@@ -1,3 +1,4 @@
+import {HomeworkWarning} from './homework-warning';
 import {useEffect,useRef,useState,type ReactNode} from 'react';
 import {ArrowLeft,ChevronDown,ChevronRight,ClipboardList,Star,Users,CalendarDays,Check,Minus} from 'lucide-react';
 import {UiText} from './teacher-language';
@@ -82,7 +83,7 @@ export default function TeacherClassDirectory({groups,children,assignments,repor
    const count=children.filter(child=>child.group_id===group.id).length;
    return <button type="button" className="class-directory-tile" key={group.id} onClick={()=>onSelect(group.id)}>
     <span className="class-directory-icon"><Users size={18} aria-hidden="true"/></span>
-    <span><strong>{group.name}</strong><small>{campus&&campus+' · '}{count} <UiText text="students 名学生"/></small><DailyStatus enabled={dailyGroups.includes(group.id)}/></span>
+    <span><strong>{group.name}<HomeworkWarning id={group.id} kind="group"/></strong><small>{campus&&campus+' · '}{count} <UiText text="students 名学生"/></small><DailyStatus enabled={dailyGroups.includes(group.id)}/></span>
     <ChevronRight size={16} aria-hidden="true"/>
    </button>;
   })}</div>
@@ -99,7 +100,7 @@ export default function TeacherClassDirectory({groups,children,assignments,repor
  }])).values()];
  return <section className="class-directory">
   <button type="button" className="class-directory-back" onClick={()=>onSelect('')}><ArrowLeft size={17} aria-hidden="true"/><UiText text="All classes 所有班级"/></button>
-  <header className="class-directory-heading"><h2 ref={heading} tabIndex={-1}>{selected.name}</h2><span className="small-note">{students.length} <UiText text="students 名学生"/></span></header>
+  <header className="class-directory-heading"><h2 ref={heading} tabIndex={-1}>{selected.name}<HomeworkWarning id={selected.id} kind="group"/></h2><span className="small-note">{students.length} <UiText text="students 名学生"/></span></header>
   <DailyPracticeSetting key={'daily-practice:'+selected.id} enabled={dailyGroups.includes(selected.id)} canEdit={canSetDailyPractice}
    onChange={enabled=>onDailyPracticeChange(selected.id,enabled)}/>
   <div className="class-directory-sections" key={selected.id}>

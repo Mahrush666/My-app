@@ -1,3 +1,4 @@
+import {HomeworkWarning} from './homework-warning';
 import type {CSSProperties} from 'react';
 import {rewardTier,rewardTiers} from '../lib/rewards';
 import type {ClassPractice} from '../lib/class-practice';
@@ -26,7 +27,7 @@ export default function TeacherAchievementPyramid({students,gains}:{gains?:Recor
     <p className="tap-range">{tier.min.toLocaleString()}+ XP{tier.name==='Diamond'&&<> · <UiText text="Teacher-approved outstanding work 老师认可的优秀表现"/></>}</p>
     {members.length?<ul>{members.map(student=><li key={student.id}>
      <span className="tap-avatar" aria-hidden="true">{Array.from(student.name.trim())[0]?.toLocaleUpperCase()||'✦'}</span>
-     <strong>{student.name}</strong><small>{student.xp.toLocaleString()} XP</small>{(gains?.[student.id]??0)>0&&<span className="pyramid-xp-star">★ +{gains?.[student.id]} XP</span>}
+     <strong>{student.name}<HomeworkWarning id={student.id}/></strong><small>{student.xp.toLocaleString()} XP</small>{(gains?.[student.id]??0)>0&&<span className="pyramid-xp-star">★ +{gains?.[student.id]} XP</span>}
      {tier.name==='Gold'&&student.xp>=1100&&!student.diamond&&<small className="tap-approval"><UiText text="Diamond approval needed 待钻石认证"/></small>}
     </li>)}</ul>:<p className="tap-empty"><UiText text="Ready to explore 等待探索"/></p>}
    </section>;

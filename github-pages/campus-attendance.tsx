@@ -1,3 +1,4 @@
+import {HomeworkWarning} from './homework-warning';
 import {useEffect,useRef,useState} from 'react';
 import {campusClassNameLimit,campusClassNames,campusLessonsLimit,type CampusAttendanceMark,type CampusAttendanceRow} from '../lib/campus-attendance';
 import {attendanceXP} from '../lib/rewards';
@@ -146,7 +147,7 @@ export default function CampusAttendance({campusId,request,canMark,onDirtyChange
       edit(row,{lessons});
      };
      return <div className="campus-attendance-row" key={row.childId}>
-      <div className="campus-attendance-student"><strong>{row.name}</strong><small>{row.groupName}</small></div>
+      <div className="campus-attendance-student"><strong>{row.name}<HomeworkWarning id={row.childId}/></strong><small>{row.groupName}</small></div>
       <AttendanceStatusButtons name={row.name} value={value.status} onChange={status=>edit(row,{status})}/>
       <details className="campus-attendance-lessons">
        <summary aria-label={'Classes attended by '+row.name+(value.lessons?', '+value.lessons:'')}>

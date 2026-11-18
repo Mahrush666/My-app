@@ -1,3 +1,6 @@
+import {smartPhonics2Unit4} from './smart-phonics2-u4';
+import {smartPhonics2Unit5} from './smart-phonics2-u5';
+import {smartPhonics2Unit6} from './smart-phonics2-u6';
 import {aiCourseLesson1} from './ai-course-lesson1';
 import {myPalsBasicNumbers,myPalsTeenNumbers} from './my-pals-basic-numbers';
 import {starterUnit9Lesson1} from './pu-starter-u9-lesson1';
@@ -69,6 +72,9 @@ export const lessons: Lesson[] = ([
  smartPhonics2Unit1,
  smartPhonics2Unit2,
  smartPhonics2Unit3,
+ smartPhonics2Unit4,
+ smartPhonics2Unit5,
+ smartPhonics2Unit6,
  myPalsBasicNumbers,
  myPalsTeenNumbers,
  powerUp1Unit2Vocabulary,

@@ -28,7 +28,7 @@ import {lazy,Suspense,useEffect,useState,useMemo,useRef} from 'react';
 import QRCode from 'qrcode';
 import {lessons} from './lessons';
 import type {ActivityId} from '../lib/unit-activities';
-import {classroomRequest,configuredEndpoint,endpointValid,sessionSaved,saveSession,type ClassroomSession} from '../lib/classroom-client';
+import {classroomRequest,configuredEndpoint,endpointValid,sessionSaved,saveSession,onSessionExpired,type ClassroomSession} from '../lib/classroom-client';
 import Practice from '../app/practice';
 import {studentAccess} from '../lib/student-entry';
 import type {Progress} from '../app/words';
@@ -76,7 +76,7 @@ export default function Classroom({onExit}:{onExit:()=>void}){
  const [session,setSession]=useState<ClassroomSession|null>(()=>studentAccess(new URL(location.href))?null:sessionSaved());
  const [configLoading,setConfigLoading]=useState(true);
  const [endpoint,setEndpoint]=useState(session?.endpoint||''),[connecting,setConnecting]=useState(false),[connected,setConnected]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
- const [mode,setMode]=useState<'login'|'register'|'teacher'>('login'),[username,setUsername]=useState(''),[password,setPassword]=useState(''),[consent,setConsent]=useState(false);
+ const [mode,setMode]=useState<'login'|'register'|'teacher'>(()=>session?.role==='teacher'||location.hash.includes('view=teacher')?'teacher':'login'),[username,setUsername]=useState(''),[password,setPassword]=useState(''),[consent,setConsent]=useState(false);
  const [teacher,setTeacher]=useState<TeacherState>(blank),[family,setFamily]=useState<Child[]>([]),[childId,setChildId]=useState(''),[homework,setHomework]=useState<Homework|null>(null),[active,setActive]=useState('');
  const [homeworkLoadError,setHomeworkLoadError]=useState(''),[homeworkRetry,setHomeworkRetry]=useState(0);
  const [groupId,setGroupId]=useState(''),[groupName,setGroupName]=useState(''),[childName,setChildName]=useState(''),[invite,setInvite]=useState(new URLSearchParams(location.search).get('invite')||''),[qr,setQr]=useState(''),[inviteLink,setInviteLink]=useState('');
@@ -91,7 +91,13 @@ export default function Classroom({onExit}:{onExit:()=>void}){
  const can=(permission:StaffPermission)=>owner||Boolean(teacher.access?.permissions.includes(permission));
  async function api<T>(path:string,data?:unknown){return classroomRequest<T>(session?.endpoint||endpoint,path,data,session)}
  async function run(action:()=>Promise<void>){if(busy)return;setBusy(true);setError('');setNotice('');try{await action()}catch(e){setError(e instanceof Error?e.message:'Please try again.')}finally{setBusy(false)}}
- async function load(s=session,selectedCampus=campus){if(!s)return;if(s.role==='teacher'){const seq=++loadSequence.current;const d=await classroomRequest<TeacherState>(s.endpoint,'/teacher?campus='+encodeURIComponent(selectedCampus),undefined,s);if(seq!==loadSequence.current)return;setTeacher(d);setGroupId(id=>d.groups.some(g=>g.id===id)?id:'')}else{const d=await classroomRequest<{children:Child[]}>(s.endpoint,'/family',undefined,s);setFamily(d.children);setChildId(id=>d.children.some(c=>c.id===id)?id:d.children[0]?.id||'')}}
+ async function load(s=session,selectedCampus=campus){if(!s)return;const seq=++loadSequence.current;if(s.role==='teacher'){const d=await classroomRequest<TeacherState>(s.endpoint,'/teacher?campus='+encodeURIComponent(selectedCampus),undefined,s);if(seq!==loadSequence.current)return;setTeacher(d);setGroupId(id=>d.groups.some(g=>g.id===id)?id:'')}else{const d=await classroomRequest<{children:Child[]}>(s.endpoint,'/family',undefined,s);if(seq!==loadSequence.current)return;setFamily(d.children);setChildId(id=>d.children.some(c=>c.id===id)?id:d.children[0]?.id||'')}}
+ useEffect(()=>onSessionExpired(expired=>{
+  if(!session||expired.token!==session.token||expired.endpoint!==session.endpoint)return;
+  const saved=sessionSaved();if(saved?.token===expired.token&&saved.endpoint===expired.endpoint)saveSession(null);
+  loadSequence.current++;setSession(null);setTeacher(blank);setFamily([]);setChildId('');setHomework(null);setActive('');setGroupId('');setQr('');setInviteLink('');setAttendanceDirty(false);setConnected(true);setPassword('');setMode(expired.role==='teacher'?'teacher':'login');
+  setNotice(expired.role==='student'?'Scan your homework QR again. 请重新扫描作业二维码。':'');setError('Your sign-in has expired. Please sign in again. 登录已过期，请重新登录。');
+ }),[session]);
  useEffect(()=>{
   if(session?.role!=='teacher')return;
   const refresh=()=>{if(document.visibilityState==='visible')void load().catch(()=>{})};

@@ -1,3 +1,4 @@
+import {isCvcLesson} from '../lib/cvc-practice';
 import {countsForHomework} from '../lib/teacher-homework';
 import {archivedAssignments} from './assignment-overview';
 import {isListeningSentenceLesson} from '../lib/sentence-lesson';
@@ -56,7 +57,7 @@ export async function dailyPractice(db:D1Database,child:Child,now:number){
    const wordId=word.id!;
    // Freeze one step per word for the day. Both homework and earlier daily answers count.
    const next=spellingCredits.findIndex(credit=>!answered.has(credit+':'+wordId));
-   const stage=complete.has(activity)||next<0?4:next;
+   const stage=isCvcLesson(lesson.id)||complete.has(activity)||next<0?4:next;
    const creditActivity=spellingCredits[stage];
    const prompt=stage===0?'Look and build the word. 看词拼写':stage===4?'Listen and spell the word. 听音拼写':'Fill in the missing letters. 补全单词';
    pool.push({id:a.id+':'+creditActivity+':'+wordId,assignmentId:a.id,assignmentVersion:Number(a.updated_at),

@@ -1,3 +1,4 @@
+import {isCvcLesson} from '../lib/cvc-practice';
 import {exportRewardsBackup,restoreRewardsBackup} from './rewards-backup';
 import {childRewardContext,challengeKey,currentSemester,rewardProgram,saveSetting,updateRewardProgram} from './reward-program';
 import {chinaDay,validDay} from '../lib/teacher-dashboard';
@@ -461,6 +462,11 @@ export async function handle(request:Request,env:Env){
  requireValue(word&&typeof data.answer==='string','A sentence answer is required.');
  data.correct=text(data.answer,1000).trim()===word!.en;
  }
+ if(isCvcLesson(assignment!.unit_id)&&activity==='spell'){
+  const word=lessons.find(l=>l.id===assignment!.unit_id)?.words.find(w=>w.id===data.wordId);
+  requireValue(word&&typeof data.answer==='string'&&!/^step[1-4]$/.test(text(data.stage,20)),'Build the whole CVC word.');
+  data.correct=text(data.answer,100)===word!.en;
+ }
  requireValue(typeof data.correct==='boolean','An answer result is required.');const wordId=text(data.wordId,100);requireValue(JSON.parse(assignment!.word_ids).includes(wordId),'This word is not assigned.');
  const stage=text(data.stage,20);const scaffold=activity==='spell'&&/^step[1-4]$/.test(stage);const reactorStage=activity==='reactor'&&/^reactor:(build|spelling|meaning)$/.test(stage);const attemptActivity=reactorStage?stage:activity==='lesson'||scaffold?activity+':'+stage:activity;
  if(activity==='lesson')requireValue(['listen','spell','sentence'].includes(stage),'Unknown lesson exercise.');
@@ -470,7 +476,7 @@ export async function handle(request:Request,env:Env){
  const inserted=await env.DB.batch([
  env.DB.prepare('INSERT OR IGNORE INTO attempts VALUES(?,?,?,?,?,?,?)').bind(id,child.id,assignment!.id,attemptActivity,wordId,Number(data.correct),answerTime),
  ...(data.correction===true||scaffold?[]:[env.DB.prepare(`INSERT INTO reviews(child_id,word_id,step,due) SELECT ?,?, ?,? WHERE changes()=1 ON CONFLICT(child_id,word_id) DO UPDATE SET step=CASE WHEN ?=0 THEN 0 WHEN reviews.due>? THEN reviews.step ELSE MIN(reviews.step+1,4) END,due=CASE WHEN ?=0 THEN ? WHEN reviews.due>? THEN reviews.due ELSE ?+CASE MIN(reviews.step+1,4) WHEN 1 THEN 86400000 WHEN 2 THEN 259200000 WHEN 3 THEN 604800000 ELSE 1209600000 END END`).bind(child.id,wordId,data.correct?1:0,now+(data.correct?86400000:600000),Number(data.correct),now,Number(data.correct),now+600000,now,now)]),
- ...(requiresAnswers(activity)?[env.DB.prepare(`INSERT OR IGNORE INTO completions(child_id,assignment_id,activity,completed_at) SELECT ?,?,?,? WHERE (SELECT COUNT(DISTINCT ${activity==='reactor'?'word_id':'activity || word_id'}) FROM attempts WHERE child_id=? AND assignment_id=? AND correct=1 AND created_at>=? AND ${activity==='spell'?"activity IN ('spell','spell:step1','spell:step2','spell:step3','spell:step4')":activity==='lesson'?"activity IN ('lesson:listen','lesson:spell','lesson:sentence')":activity==='reactor'?"activity IN ('reactor','reactor:build','reactor:spelling','reactor:meaning')":'activity=?'} )>=?`).bind(child.id,assignment!.id,activity,answerTime,child.id,assignment!.id,assignment!.updated_at,...(['spell','lesson','reactor'].includes(activity)?[]:[activity]),activity==='spell'?JSON.parse(assignment!.word_ids).length*5:activity==='lesson'?JSON.parse(assignment!.word_ids).length*2+Math.min(4,lessons.find(l=>l.id===assignment!.unit_id)!.words.filter(w=>JSON.parse(assignment!.word_ids).includes(w.id)&&w.sentence.trim().split(/\s+/).length>1).length):JSON.parse(assignment!.word_ids).length)]:[]),
+ ...(requiresAnswers(activity)?[env.DB.prepare(`INSERT OR IGNORE INTO completions(child_id,assignment_id,activity,completed_at) SELECT ?,?,?,? WHERE (SELECT COUNT(DISTINCT ${activity==='reactor'?'word_id':'activity || word_id'}) FROM attempts WHERE child_id=? AND assignment_id=? AND correct=1 AND created_at>=? AND ${activity==='spell'?"activity IN ('spell','spell:step1','spell:step2','spell:step3','spell:step4')":activity==='lesson'?"activity IN ('lesson:listen','lesson:spell','lesson:sentence')":activity==='reactor'?"activity IN ('reactor','reactor:build','reactor:spelling','reactor:meaning')":'activity=?'} )>=?`).bind(child.id,assignment!.id,activity,answerTime,child.id,assignment!.id,assignment!.updated_at,...(['spell','lesson','reactor'].includes(activity)?[]:[activity]),activity==='spell'?JSON.parse(assignment!.word_ids).length*(isCvcLesson(assignment!.unit_id)?1:5):activity==='lesson'?JSON.parse(assignment!.word_ids).length*2+Math.min(4,lessons.find(l=>l.id===assignment!.unit_id)!.words.filter(w=>JSON.parse(assignment!.word_ids).includes(w.id)&&w.sentence.trim().split(/\s+/).length>1).length):JSON.parse(assignment!.word_ids).length)]:[]),
  ...homeworkRewardStatement(env.DB,child.id,assignment!)
  ]);
  const rewards=await readRewards(env.DB,child.id,now);

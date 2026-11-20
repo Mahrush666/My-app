@@ -1,3 +1,4 @@
+import {isCvcLesson,cvcLetterTiles} from '../lib/cvc-practice';
 import {useHomeworkTime} from './use-homework-time';
 import {useEffect,useMemo,useRef,useState} from 'react';
 import WordReactor from '../app/word-reactor';
@@ -20,7 +21,7 @@ function Challenge({task,submit}:{task:DailyTask;submit:(answer:string,eventId:s
  const pendingAnswer=useRef<{answer:string;eventId:string}|null>(null);
  const spelling=task.kind==='letters'?task.spelling:undefined;
  const tiles=useMemo(()=>spelling
-  ?spellingTiles(task.expected,spelling.gaps).map(({id,letter})=>({id,text:letter}))
+  ?(isCvcLesson(task.unitId)?cvcLetterTiles(task.expected):spellingTiles(task.expected,spelling.gaps)).map(({id,letter})=>({id,text:letter}))
   :shuffle((task.kind==='letters'?[...task.expected]:task.expected.split(' ')).map((text,id)=>({text,id}))),[task,spelling]);
  const fillWord=()=>{
   const letters=task.expected.split('');

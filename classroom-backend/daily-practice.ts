@@ -67,7 +67,7 @@ export async function dailyPractice(db:D1Database,child:Child,now:number){
   }
   continue;
  }
- if(young&&!['picture-listen','sound-picture','yes-no','reactor','story-quiz'].includes(activity))continue;
+ if(young&&!['picture-listen','sound-picture','yes-no','reactor','story-quiz','dungeon'].includes(activity))continue;
  if(activity==='yes-no')for(const w of words){const truth=Math.random()>=.5;pool.push({id:a.id+':yes-no:'+w.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),creditActivity:activity,unitId:lesson.id,activity,wordId:w.id!,kind:'audio-options',prompt:'Listen and answer. 听一听，选答案。',image:w.picture,listen:yesNoQuestion(w,truth,words),expected:truth?'Yes':'No',options:[{id:'yes',text:'Yes'},{id:'no',text:'No'}]})}
  if(activity==='story-quiz')for(const q of lesson.readingStory?.questions||[]){
   if(young&&!q.listenOnly)continue;
@@ -86,13 +86,13 @@ export async function dailyPractice(db:D1Database,child:Child,now:number){
   });
  }
  if(activity==='sentence-build'&&isListeningSentenceLesson(lesson.id)){for(const s of lesson.sentencePractice||[])pool.push({id:a.id+':sentence-build:'+s.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),creditActivity:activity,unitId:lesson.id,activity,wordId:s.id,kind:'sentence',prompt:'Listen and build the sentence.',listen:s.text,expected:s.text});continue;}
- if(!['word-choice','sound-picture','picture-listen','word-sound','sound-word','sentence-build','reactor'].includes(activity))continue;
+ if(!['word-choice','sound-picture','picture-listen','word-sound','sound-word','sentence-build','reactor','dungeon'].includes(activity))continue;
  for(const w of words){const others=shuffle(words.filter(x=>x.id!==w.id&&(!isSentenceLesson(lesson.id)||x.category===w.category))).slice(0,3),options=(activity==='word-sound'||activity==='sound-word'?wordAudioChoices(w,words):shuffle([w,...others])).map(dailyWord);if(options.length<4)continue;
  let kind:DailyTask['kind']='written',listen:string|undefined,prompt=w.zh||'Choose the correct answer.',image=w.picture;
  if(activity==='sentence-build'){kind='sentence';listen=w.en;prompt='Build the sentence.'}
- else if(activity==='sound-picture'||activity==='reactor'&&(young||lesson.id.startsWith('play2-u4-lesson3'))){kind='pictures';listen=w.en;image=undefined;prompt='Listen and choose a picture.';if(options.some(o=>!o.image))continue}
+ else if(activity==='sound-picture'||activity==='dungeon'&&options.every(o=>o.image)||activity==='reactor'&&(young||lesson.id.startsWith('play2-u4-lesson3'))){kind='pictures';listen=w.en;image=undefined;prompt='Listen and choose a picture.';if(options.some(o=>!o.image))continue}
  else if(activity==='picture-listen'||activity==='word-sound'){kind='audio-options';prompt=activity==='word-sound'?w.en:'Choose the sound.'}
- else if(activity==='sound-word'){listen=w.en;image=undefined;prompt='Listen and choose.'}
+ else if(activity==='sound-word'||activity==='dungeon'){listen=w.en;image=undefined;prompt='Listen and choose.'}
  const expected=activity==='picture-listen'&&w.pictureListening?w.pictureListening.answer:w.en;
  if(activity==='picture-listen'&&w.pictureListening){listen=w.pictureListening.question;prompt='Listen and choose the answer.';image=w.pictureListening.image||w.picture;for(const option of options){const source=words.find(x=>x.id===option.id);option.text=source?.pictureListening?.answer||option.text}}
  pool.push({id:a.id+':'+activity+':'+w.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),creditActivity:activity,unitId:lesson.id,activity,wordId:w.id!,kind,prompt,image,listen,expected,options});

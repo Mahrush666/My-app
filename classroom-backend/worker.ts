@@ -462,6 +462,10 @@ export async function handle(request:Request,env:Env){
  requireValue(word&&typeof data.answer==='string','A sentence answer is required.');
  data.correct=text(data.answer,1000).trim()===word!.en;
  }
+ if(activity==='dungeon'){
+  const word=lessons.find(l=>l.id===assignment!.unit_id)?.words.find(w=>w.id===data.wordId);
+  requireValue(word&&typeof data.answer==='string','Choose a dungeon answer.');data.correct=text(data.answer,1000)===word!.en;
+ }
  if(isCvcLesson(assignment!.unit_id)&&activity==='spell'){
   const word=lessons.find(l=>l.id===assignment!.unit_id)?.words.find(w=>w.id===data.wordId);
   requireValue(word&&typeof data.answer==='string'&&!/^step[1-4]$/.test(text(data.stage,20)),'Build the whole CVC word.');

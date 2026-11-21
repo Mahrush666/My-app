@@ -1,0 +1,38 @@
+import {useEffect,useRef,useState,type ReactNode} from 'react';
+import {DoorOpen,MapPin,RotateCcw} from 'lucide-react';
+import {publicAsset} from '../lib/public-runtime';
+import {prepareAnswerSounds,stopSpeaking} from '../lib/audio';
+import './dungeon-adventure.css';
+type Encounter={title:string;kind:string};
+export default function DungeonAdventure({completed,total,onExit,renderChallenge}:{completed:number;total:number;onExit:()=>void;renderChallenge:(onResult:(correct:boolean)=>void)=>ReactNode}){
+ const frame=useRef<HTMLIFrameElement>(null),token=useRef(crypto.randomUUID()),dialog=useRef<HTMLDivElement>(null);
+ const progress=useRef({completed,total});progress.current={completed,total};
+ const [height,setHeight]=useState<number|undefined>(),[started,setStarted]=useState(false),[ready,setReady]=useState(false),[error,setError]=useState(''),[attempt,setAttempt]=useState(0),[encounter,setEncounter]=useState<Encounter|null>(null);
+ function send(type:string,extra:Record<string,unknown>={}){frame.current?.contentWindow?.postMessage({channel:'wordquest-dungeon',token:token.current,type,...extra},'*')}
+ useEffect(()=>{
+  const receive=(event:MessageEvent)=>{
+   const data=event.data;if(event.source!==frame.current?.contentWindow||!data||data.channel!=='wordquest-dungeon')return;
+   if(data.type==='ready'){send('init',progress.current);return;}
+   if(data.type==='asset-error'){setError('The dungeon pictures could not load. Try again. 地牢图片加载失败，请重试。');return;}
+   if(data.token!==token.current)return;
+   if(data.type==='size'&&Number.isFinite(data.height))setHeight(Math.max(300,Math.min(1000,data.height)));
+   if(data.type==='initialized'){setReady(true);setError('')}
+   if(data.type==='challenge')setEncounter({title:typeof data.title==='string'?data.title:'Dungeon challenge',kind:typeof data.kind==='string'?data.kind:'Challenge'});
+   if(data.type==='restarted')setEncounter(null);
+  };
+  window.addEventListener('message',receive);return()=>{window.removeEventListener('message',receive);stopSpeaking()};
+ },[]);
+ useEffect(()=>{if(ready)send('progress',{completed,total})},[completed,total,ready]);
+ useEffect(()=>{if(encounter)dialog.current?.focus()},[encounter]);
+ useEffect(()=>{if(!started||ready)return;const timer=setTimeout(()=>setError('The dungeon is taking longer to load. Try again. 地牢加载较慢，请重试。'),20000);return()=>clearTimeout(timer)},[started,ready,attempt]);
+ function retry(){setReady(false);setError('');setEncounter(null);setAttempt(n=>n+1)}
+ function result(correct:boolean){send('result',{correct});if(correct)setEncounter(null)}
+ return <section className="dungeon-adventure"><header className="dungeon-header"><div><h3><DoorOpen size={21}/>Word Dungeon 单词地牢</h3><span>{completed} / {total} complete · 已完成</span></div><button onClick={onExit}>Exit 返回</button></header>
+ {!started?<div className="dungeon-welcome"><img src={publicAsset('games/dungeon/cover.webp')} alt="Dungeon guardian"/><h2>Open doors. Meet the guardians.</h2><p>Explore the maze and answer your lesson questions.<br/>探索迷宫，回答本课问题，打开通道。</p><button className="primary" onClick={()=>{prepareAnswerSounds();setStarted(true)}}>Start adventure 开始冒险</button></div>:<>
+ {error?<div className="dungeon-error" role="alert"><p>{error}</p><button onClick={retry}><RotateCcw size={17}/>Try again 重试</button></div>:!ready&&<p className="dungeon-loading" role="status">Opening the dungeon… 正在打开地牢…</p>}
+ <div className="dungeon-world" hidden={Boolean(error)}><iframe key={attempt} ref={frame} src={publicAsset('games/dungeon/world.html')} sandbox="allow-scripts" style={{height}} title="Word Dungeon maze" tabIndex={encounter?-1:0}/>
+ {encounter&&<div className="dungeon-question-overlay"><div ref={dialog} className="dungeon-question" role="dialog" aria-modal="true" aria-label={encounter.title} tabIndex={-1}><div className="dungeon-encounter-heading"><div><small>{encounter.kind}</small><h3>{encounter.title}</h3></div><button onClick={()=>{stopSpeaking();send('cancel');setEncounter(null)}}>Explore 探索</button></div>{renderChallenge(result)}</div></div>}
+ </div><div className="dungeon-tools"><button className="primary" disabled={!ready||Boolean(error)||Boolean(encounter)} onClick={()=>send('find')}><MapPin size={18}/>Find a challenge 寻找挑战</button><button disabled={Boolean(encounter)} onClick={retry}><RotateCcw size={17}/>New maze 新迷宫</button></div><p className="dungeon-instructions">Use the arrow buttons or WASD to explore. Face a guard or door and press E, or tap “Find a challenge”.<br/>用方向键探索，面对守卫或门互动；也可以点击“寻找挑战”。</p>
+ </>}
+ </section>;
+}

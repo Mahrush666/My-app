@@ -4,6 +4,7 @@ import {isSentenceLesson} from './sentence-lesson';
 import type {ActivityId} from './unit-activities';
 import type {Lesson} from '../github-pages/lessons';
 export function supportsActivity(activity:ActivityId,lesson:Pick<Lesson,'words'|'videos'|'story'|'readings'|'readingStory'|'sentencePractice'>&{id?:string;allowedActivities?:ActivityId[]}){
+ if(activity==='dungeon')return lesson.words.length>=4&&beehiveActivityAllowed(lesson.id,'reactor')&&(!lesson.allowedActivities||lesson.allowedActivities.some(a=>['reactor','word-choice','sound-picture','picture-listen','word-sound','sound-word'].includes(a)));
  if(!beehiveActivityAllowed(lesson.id,activity))return false;
  if(lesson.allowedActivities&&!lesson.allowedActivities.includes(activity))return false;
  if(isSentenceLesson(lesson.id))return ['look-listen','word-choice','sound-picture','sentence-build'].includes(activity)&&lesson.words.length>0;

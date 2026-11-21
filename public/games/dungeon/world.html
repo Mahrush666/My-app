@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Word Dungeon</title>
+<meta name="description" content="Explore a dungeon and practise your lesson words.">
+<style>
+:root{color-scheme:dark;--bg:#151613;--panel:#1c1e19;--line:#393b30;--gold:#e5ba72;--muted:#a9aa98;--ink:#f0eadb}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 48% 0,#28281e,transparent 64%),var(--bg);color:var(--ink);font:15px 'Instrument Sans',sans-serif}button,select,input{font:inherit}button,select{cursor:pointer;color:var(--ink);background:#272921;border:1px solid #4a4b3e;border-radius:5px;padding:9px 12px}button:hover{background:#38372a;border-color:var(--gold)}:focus-visible{outline:2px solid var(--gold);outline-offset:3px}button:disabled{opacity:.45;cursor:default}
+main{max-width:1260px;margin:auto;padding:32px 32px 25px}header{display:flex;justify-content:space-between;align-items:center;gap:24px;margin-bottom:25px}.brand{display:flex;align-items:center;gap:16px}.crest{display:grid;place-items:center;width:52px;height:52px;border:1px solid #796040;color:var(--gold);background:#2e281d;font:29px Georgia;border-radius:6px}h1,h2,h3,p{margin:0}h1{font:600 clamp(23px,4vw,37px) Cinzel,Georgia,serif;letter-spacing:.035em}header p{color:var(--muted);margin-top:4px}.setup{display:flex;align-items:center;flex-wrap:wrap;gap:8px}.mono,.label,kbd{font-family:'IBM Plex Mono',monospace}.label{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold)}.layout{display:grid;grid-template-columns:minmax(0,1fr) 295px;gap:18px}.panel{border:1px solid var(--line);border-radius:8px;background:var(--panel);overflow:hidden}.strip{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line)}.room{font-size:13px;color:var(--muted)}.scene{position:relative;background:#111;isolation:isolate}.scene canvas{width:100%;display:block;aspect-ratio:1.77;image-rendering:pixelated}.shade{pointer-events:none;position:absolute;inset:0;box-shadow:inset 0 0 80px 15px #100e09a0}.heading{position:absolute;top:14px;left:50%;transform:translateX(-50%);color:#f1cb8b;background:#161611d9;border:1px solid #685537;border-radius:4px;padding:6px 14px;font-size:12px;letter-spacing:.12em}.caption{position:absolute;bottom:13px;left:50%;transform:translateX(-50%);max-width:90%;width:max-content;text-align:center;background:#161611e8;border:1px solid #685537;border-radius:5px;padding:9px 15px;color:#f2d5a7;font-size:13px}.controls{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-top:1px solid var(--line);flex-wrap:wrap}.controls div{display:flex;gap:5px}.controls button{min-width:37px;padding:7px 10px}.primary{background:var(--gold);color:#201a10;border-color:var(--gold);font-weight:700}.primary:hover{background:#f6d397;color:#201a10}.sidebar{display:grid;gap:15px;align-content:start}.card{padding:15px 16px}.card .label{display:block;margin-bottom:11px}.map{display:grid;grid-template-columns:repeat(25,1fr);gap:2px;padding:11px;background:#151712;border:1px solid var(--line);border-radius:5px}.tile{display:grid;place-items:center;aspect-ratio:1;background:#34362b;color:#ffdfa0;font:700 8px monospace;border-radius:2px}.wall{background:#20221c}.gate{background:#64452a}.done{background:#354840}.you{background:#e5ba72;color:#251a0c}.legend{color:var(--muted);font-size:12px;margin-top:9px}.seals{display:grid;gap:8px}.seal{display:flex;align-items:center;gap:10px;font-size:14px}.gem{display:grid;place-items:center;width:25px;height:25px;background:#2c2d23;color:#b2ac91;border-radius:4px}.seal.complete .gem{color:#241a0d;background:var(--gold)}.journal{color:var(--muted);line-height:1.45;min-height:44px}.footer{margin-top:15px;color:var(--muted);font-size:13px}kbd{color:#e6dcc4}.overlay{position:absolute;inset:0;background:#11110cc9;display:grid;place-items:center;padding:14px;overflow:auto}.overlay[hidden]{display:none}.enemy-portrait{float:right;width:95px;height:95px;background-repeat:no-repeat;background-size:500% 300%;image-rendering:pixelated;margin:0 0 8px 10px}.encounter{width:min(620px,100%);max-height:100%;overflow:auto;background:#23231b;border:1px solid #82653d;border-radius:8px;padding:clamp(13px,3vw,25px);box-shadow:0 10px 45px #0008}.encounter h2{font:600 24px Cinzel,Georgia,serif;margin:7px 0}.encounter p{line-height:1.4}.question{font-size:19px;margin:10px 0;color:#ffe3b0}.answer{clear:both;align-items:center;display:flex;gap:7px}.answer input{width:100%;min-width:0;background:#141610;border:1px solid #6b6046;border-radius:5px;padding:9px;color:white}.actions{display:flex;gap:7px;margin-top:10px}.feedback{margin-top:8px;color:#e7c58f;font-size:14px}.player-stats{display:flex;justify-content:space-between;gap:14px;padding:10px 16px;background:#24251c;border-bottom:1px solid var(--line);font:500 13px "IBM Plex Mono",monospace}#hp{color:#ec9b90}#xp{color:var(--gold)}.feedback:empty{display:none}
+.math-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0 15px;table-layout:fixed}.math-table caption{color:var(--gold);text-align:left;padding-bottom:6px}.math-table th,.math-table td{border:1px solid #666247;padding:6px 3px;text-align:center;overflow-wrap:anywhere}.math-table th{background:#333528;font-weight:500}.math-graph{clear:both;margin:12px 0 0}.math-graph figcaption{color:var(--gold);font-size:14px}.math-graph svg{display:block;width:100%;max-height:205px;font:11px 'Instrument Sans',sans-serif;fill:#eee7d5}.answer-unit{color:var(--gold);font-size:13px}.scene .overlay{z-index:3}.encounter #problem-data{clear:both}
+
+@media(max-width:870px){main{padding:18px}.layout{grid-template-columns:minmax(0,1fr)}.sidebar{grid-template-columns:repeat(2,minmax(0,1fr))}.sidebar .panel:last-child{grid-column:1/-1}}
+@media(max-width:560px){main{padding:12px}header{align-items:flex-start;flex-direction:column;gap:13px;margin-bottom:15px}.crest{width:42px;height:42px}.scene canvas{aspect-ratio:1.15}.overlay{position:fixed;z-index:5;isolation:auto}.scene{isolation:auto}.sidebar{grid-template-columns:1fr}.caption{font-size:12px}}
+
+.tile.rubble{background:#65533e;color:#f2cf93}.tile.unexplored{background:#10120f;color:transparent}
+.victory[hidden]{display:none}.victory{position:fixed;inset:0;z-index:20;display:grid;place-items:center;overflow:auto;padding:25px;background:radial-gradient(ellipse at center,#314b39 0,#18261deF 45%,#0c100cfA 90%);text-align:center}.victory-content{position:relative;z-index:1;max-width:700px;animation:win-arrive .65s ease-out both}.victory h2{font:700 clamp(90px,22vw,190px)/1 Cinzel,Georgia,serif;color:#ffdc8b;text-shadow:0 5px 0 #684a22,0 0 45px #ecc16d65;letter-spacing:.035em;margin:10px 0 20px}.victory #win-message{font:500 clamp(20px,4vw,30px) Cinzel,Georgia,serif;color:#f3ebd3}.victory #victory-stats{color:#bde3c9;line-height:1.7;margin:20px 0 30px}.victory button{font-size:18px;padding:14px 30px}.victory-emblem{color:#ffe9a6;font-size:75px;line-height:1;animation:star-bloom 1.2s ease-out both}.confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none}.confetti i{position:absolute;left:var(--left);top:-25px;width:8px;height:15px;background:var(--color);opacity:0;animation:confetti-fall 4s var(--delay) ease-in both}
+@keyframes confetti-fall{0%{opacity:1;transform:translate(0,-20px) rotate(0)}85%{opacity:1}100%{opacity:0;transform:translate(var(--drift),110vh) rotate(var(--turn))}}
+@keyframes win-arrive{from{opacity:0;transform:translateY(20px) scale(.85)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes star-bloom{from{opacity:0;transform:scale(.2) rotate(-60deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+@media(prefers-reduced-motion:reduce){.victory-content,.victory-emblem,.confetti i{animation:none}.confetti i{opacity:0}}
+
+.listen{font-size:32px;min-width:74px;min-height:64px;background:#354e3d}.picture-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}.picture-choices button{padding:3px;border:2px solid #b58d53}.vocab-picture{display:block;width:100%;aspect-ratio:1;background-size:500% 200%;image-rendering:pixelated;border-radius:4px}.want-scene{position:relative;width:180px;margin:10px auto}.want-sign{position:absolute;right:-18px;top:0;color:#ff8a91;background:#211b19;border:2px solid #f0cc87;border-radius:50%;width:62px;height:62px;text-align:center;font-size:46px;line-height:56px}.yes-no{display:flex;gap:15px;justify-content:center;margin:15px 0}.yes-no button{font-size:46px;min-width:125px}.yes-no button:first-child{color:#9ae4aa}.yes-no button:last-child{color:#f59b95}.yes-no small{display:block;font-size:14px;color:var(--ink)}
+
+.review-picture{display:block;width:100%;aspect-ratio:1;background-size:400% 400%;image-rendering:pixelated;border-radius:5px}.review-scene{width:min(225px,65%);margin:12px auto}.review-answers{display:grid;gap:8px;margin-top:12px}.review-answers button{padding:11px 14px;text-align:left;font-size:19px;line-height:1.35}.spoken-transcript{font-size:14px;color:var(--gold);margin:6px 0}.picture-choices button{min-width:0}.question{font-size:22px}
+
+/* Embedded app layout: artwork and movement only. The app owns all learning questions. */
+main{padding:0;max-width:none}header,.sidebar,.footer,#victory,#overlay{display:none!important}.layout{display:block}.panel{border:0;border-radius:0}.strip{padding:8px 12px}.player-stats{padding:8px 12px}.controls{padding:10px 12px}.controls button{min-height:44px;min-width:44px}.scene canvas{aspect-ratio:16/9}.heading{font-size:10px;top:8px}.caption{font-size:11px;padding:5px 8px;bottom:8px}
+@media(max-width:500px){.controls{gap:7px}.controls button{padding:8px}.controls div{gap:5px}.controls kbd{display:none}.room{font-size:11px}.strip .label{font-size:10px}}
+</style>
+<main id="game">
+<header><div class="brand"><div class="crest" aria-hidden="true">◇</div><div><h1>The Number Keep</h1><p>Sports & actions · Look after your body!</p></div></div><div class="setup"><label class="label" for="topic">Practice</label><select id="topic"><option value="sports">Sports &amp; actions review</option></select><button id="restart" type="button">New run</button></div></header>
+<div class="layout">
+<section class="panel" aria-label="Dungeon">
+<div class="strip"><span class="label">Dungeon view</span><span id="room" class="room"></span></div><div class="player-stats" role="status" aria-live="polite"><span id="hp"></span><span id="xp"></span></div>
+<div class="scene">
+<canvas id="view" width="448" height="252" aria-label="First-person view of the dungeon"></canvas><div class="shade"></div><div id="heading" class="heading mono"></div><div id="caption" class="caption"></div>
+<div id="overlay" class="overlay" hidden><div class="encounter" role="dialog" aria-modal="true" aria-labelledby="title"><span id="kind" class="label"></span><h2 id="title"></h2><div id="enemy-portrait" class="enemy-portrait" aria-hidden="true"></div><p id="story"></p><button id="listen" class="listen" type="button" aria-label="Listen again">🔊</button><p id="question" class="question"></p><div id="problem-data"></div><form id="answer" class="answer"><input id="value" aria-label="Your answer" autocomplete="off" placeholder="Your answer" inputmode="decimal" required><span id="answer-unit" class="answer-unit"></span><button class="primary">Submit</button></form><p id="feedback" class="feedback" aria-live="polite"></p><div class="actions"><button id="hint" type="button">Help</button><button id="close" type="button">Back</button></div></div></div>
+</div>
+<div class="controls"><div><button data-move="left" aria-label="Turn left">↶</button><button data-move="forward" aria-label="Step forward">↑</button><button data-move="back" aria-label="Step back">↓</button><button data-move="right" aria-label="Turn right">↷</button></div><button id="interact" class="primary" type="button">Interact <kbd>E</kbd></button></div>
+</section>
+<aside class="sidebar">
+<section class="panel card"><h2 class="label">Explored map</h2><div id="map" class="map" aria-hidden="true"></div><p class="legend">▲ You &nbsp; ◆ Enemy &nbsp; ▥ Door &nbsp; ✓ Cleared &nbsp; ▣ Exit</p></section>
+<section class="panel card"><h2 class="label">Enemies <span id="count"></span></h2><div id="seals" class="seals"></div></section>
+<section class="panel card"><h2 class="label">Journal</h2><p id="journal" class="journal" aria-live="polite"></p></section>
+</aside>
+</div><p class="footer"><kbd>↑ ↓</kbd> Step forward or back &nbsp;·&nbsp; <kbd>← →</kbd> Turn &nbsp;·&nbsp; <kbd>E</kbd> Interact</p>
+</main>
+<section id="victory" class="victory" role="dialog" aria-modal="true" aria-labelledby="win-title" aria-describedby="win-message" hidden>
+<div id="confetti" class="confetti" aria-hidden="true"></div>
+<div class="victory-content"><div class="victory-emblem" aria-hidden="true">✦</div><h2 id="win-title">WIN!</h2><p id="win-message">Congratulations! You escaped The Number Keep!</p><p id="victory-stats"></p><button id="play-again" class="primary" type="button">Play again</button></div>
+</section>
+<script>
+const byId = id => document.getElementById(id);
+const canvas = byId('view'), ctx = canvas.getContext('2d');
+const map = ['#########################',
+  '#.H...................DX#',
+  '#.#####.#####.#####P###.#',
+  '#.#####.#####R#####.###.#',
+  '#.####...####.#####I###.#',
+  '#......G..R.....N.......#',
+  '#.####...####.#####.###.#',
+  '#M#####.#####.#####.###R#',
+  '#.#####.####...####.###.#',
+  '#..E.........C..R.......#',
+  '#.#####.####...####.###.#',
+  '#.#####R#####.#####.###O#',
+  '#.#####.#####.####...##.#',
+  '#........J..............#',
+  '#.#####.#####.####...##.#',
+  '#.#####L#####B#####.###.#',
+  '#.#####.#####.#####.###.#',
+  '#..K.A....R..........F..#',
+  '#########################'];
+const encounters = {
+  A: { name:'Troll', story:'A mossy troll thumps its club against the floor. Solve its challenge to earn passage.', atlas:0, column:0 },
+  B: { name:'Dark Wizard', story:'A wizard weaves a magical barrier. Your answer can break the spell.', atlas:0, column:1 },
+  C: { name:'Passage Slime', story:'A giant slime stretches from wall to wall. Solve the puzzle to shrink it.', atlas:0, column:2 },
+  D: { name:'Ember Dragon', story:'The dragon guards the final approach. Prove your skill to calm its flames.', atlas:0, column:3 },
+  E: { name:'Skeleton Knight', story:'An ancient knight rattles its shield and challenges you to a test.', atlas:0, column:4 },
+  F: { name:'Mimic Chest', story:'The treasure chest opens its eyes. Answer its riddle to escape its trick.', atlas:1, column:0 },
+  G: { name:'Stone Golem', story:'Jade runes glow across this towering golem. A correct answer will quiet it.', atlas:1, column:1 },
+  H: { name:'Giant Spider', story:'A spider has woven a web across the passage. Solve its challenge to clear the threads.', atlas:1, column:2 },
+  I: { name:'Frost Wraith', story:'A cold mist swirls into a wraith. Your answer can lift the icy spell.', atlas:1, column:3 },
+  J: { name:'Goblin Alchemist', story:'The goblin offers a bubbling potion and a tricky calculation.', atlas:1, column:4 }
+};
+const doors = {
+  K:{ name:'Sharing Gate', story:'A bronze door opens when the supplies are shared fairly.', lesson:0 },
+  L:{ name:'Treasury Door', story:'A number lock protects the treasury passage.', lesson:3 },
+  M:{ name:'Rain Gate', story:'A rainfall chart is carved into this stone door.', lesson:6 },
+  N:{ name:'Hall of Records', story:'The keeper of records has left a graph beside the lock.', lesson:5 },
+  O:{ name:'Counting Gate', story:'The missing number will release this heavy gate.', lesson:4 },
+  P:{ name:'Dragon Nursery Door', story:'A growth chart holds the key to the nursery passage.', lesson:7 }
+};
+const challenges={...encounters,...doors};
+const enemyCount=()=>Object.keys(encounters).filter(key=>solved.has(key)).length;
+const doorCount=()=>Object.keys(doors).filter(key=>solved.has(key)).length;
+const directions = [[0,-1],[1,0],[0,1],[-1,0]];
+const random = (low, high) => low + Math.floor(Math.random() * (high-low+1));
+function shuffled(values){const result=[...values];for(let i=result.length-1;i>0;i--){const j=random(0,i);[result[i],result[j]]=[result[j],result[i]];}return result;}
+const dungeonTemplate=map.map(row=>row.replace(/[A-PXR]/g,'.'));
+function dungeonConnected(grid){
+ const queue=[[1,17]],seen=new Set(['1,17']);
+ for(let i=0;i<queue.length;i++){
+  const [cx,cy]=queue[i];
+  for(const [dx,dy]of directions){const nx=cx+dx,ny=cy+dy,key=nx+','+ny;if(grid[ny]?.[nx]!=='.'||seen.has(key))continue;seen.add(key);queue.push([nx,ny]);}
+ }
+ return seen.size===grid.flat().filter(cell=>cell==='.').length;
+}
+function randomizeDungeon(){
+ const grid=dungeonTemplate.map(row=>[...row]);const positions=[];
+ for(let y=1;y<grid.length-1;y++)for(let x=1;x<grid[y].length-1;x++)if(grid[y][x]==='.'&&Math.abs(x-1)+Math.abs(y-17)>2)positions.push({x,y});
+ let closures=0;
+ for(const {x,y}of shuffled(positions)){if(closures===6)break;grid[y][x]='R';if(dungeonConnected(grid))closures++;else grid[y][x]='.';}
+ for(const {x,y}of shuffled(positions.filter(point=>grid[point.y][point.x]==='.'&&point.x+17-point.y>20))){grid[y][x]='X';if(dungeonConnected(grid))break;grid[y][x]='.';}
+ const available=shuffled(positions.filter(point=>grid[point.y][point.x]==='.'));
+ for(const key of Object.keys(challenges)){const point=available.pop();grid[point.y][point.x]=key;}
+ map.splice(0,map.length,...grid.map(row=>row.join('')));
+ enemyLocations.splice(0,enemyLocations.length,...map.flatMap((row,y)=>[...row].flatMap((cell,x)=>cell in encounters?[{key:cell,x:x+.5,y:y+.5}]:[])));
+ rebuildDungeonDecorations();
+}
+
+let x, y, facing, solved, questions, active;
+let hp=5, xp=0;
+let pendingDoor=null,doorAnimation=null;
+let explored=new Set(), discovered=new Set();
+let enemyStates={};
+let cameraX, cameraY, cameraAngle, cameraFrame = null;
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const tile = (column,row) => map[row]?.[column] ?? '#';
+const blocked = cell => cell === '#' || cell === 'R' || (cell in challenges && !solved.has(cell)) || cell === 'X';
+function front(step = 1) {
+  const [dx, dy] = directions[facing];
+  return [x+dx*step,y+dy*step];
+}
+function reset() {
+  if (cameraFrame !== null) cancelAnimationFrame(cameraFrame);
+  cameraFrame=null;
+  pendingDoor=null;doorAnimation=null;
+  x=1; y=17; facing=1; solved=new Set(); active=null;
+  cameraX=x+.5; cameraY=y+.5; cameraAngle=0;
+  enemyStates={};
+  hp=5;xp=0;
+  randomizeDungeon();
+  explored=new Set();discovered=new Set();
+  byId('victory').hidden=true;
+  byId('confetti').innerHTML='';
+  byId('game').inert=false;
+
+  byId('overlay').hidden=true;
+  log('Explore the dungeon. Meet a guard or open a door to practise.');
+  render();
+}
+function log(message){ byId('journal').textContent=message; }
+function move(action) {
+  if (hp===0 || active || cameraFrame !== null) return;
+  if (action==='left' || action==='right') {
+    facing=(facing+(action==='left'?3:1))%4;
+  } else {
+    const [nx,ny]=front(action==='back'?-1:1), next=tile(nx,ny);
+    if (blocked(next)) {
+      if(next==='R') log('The ceiling has collapsed here. Find another passage around the rubble.');
+      else if (action==='forward' && next!=='#') interact();
+      else log('The way is blocked. Turn to find another passage.');
+      return;
+    }
+    x=nx; y=ny;
+  }
+  animateCamera(action);
+}
+function animateCamera(action) {
+  const turning=action==='left' || action==='right';
+  const startX=cameraX, startY=cameraY, startAngle=cameraAngle;
+  const endX=x+.5, endY=y+.5;
+  const endAngle=startAngle + (turning ? (action==='left' ? -1 : 1)*Math.PI/2 : 0);
+  if (reducedMotion.matches) {
+    cameraX=endX; cameraY=endY; cameraAngle=endAngle;
+    render();
+    return;
+  }
+  const duration=turning?220:160, start=performance.now();
+  function tick(now) {
+    const progress=Math.max(0,Math.min(1,(now-start)/duration));
+    const ease=progress*progress*(3-2*progress);
+    cameraX=startX+(endX-startX)*ease;
+    cameraY=startY+(endY-startY)*ease;
+    cameraAngle=startAngle+(endAngle-startAngle)*ease;
+    if (progress<1) {
+      draw();
+      cameraFrame=requestAnimationFrame(tick);
+    } else {
+      cameraAngle=(facing-1)*Math.PI/2;
+      cameraFrame=null;
+      render();
+    }
+  }
+  cameraFrame=requestAnimationFrame(tick);
+}
+function interact() {
+  if(hp===0 || active || cameraFrame!==null) return;
+  const cell=tile(...front());
+  if(cell==='X'){log('Answer the remaining questions to clear the dungeon.');send('challenge',{key:'exit',title:'Exit guardian',kind:'Final passage'});active='exit';return;}
+  if(!(cell in challenges)||solved.has(cell)){log('Face a guard or door, or use Find a challenge.');return;}
+  active=cell;send('challenge',{key:cell,title:challenges[cell].name,kind:cell in doors?'Locked door':'Guard challenge'});
+}
+function openDoorAndEnter(key) {
+  const [dx,dy]=directions[facing];
+  const startX=x,startY=y;
+  let endX=x+dx,endY=y+dy;
+  if(!blocked(tile(endX+dx,endY+dy))) {endX+=dx;endY+=dy;}
+  pendingDoor=null;
+  byId('overlay').hidden=true;
+  active=null;
+  byId('interact').focus();
+  if(reducedMotion.matches) {
+    x=endX;y=endY;cameraX=x+.5;cameraY=y+.5;
+    render();return;
+  }
+  doorAnimation={key,progress:0};
+  const started=performance.now(),openingDuration=750,walkingDuration=650;
+  byId('caption').textContent='The door opens…';
+  function tick(now) {
+    const elapsed=Math.max(0,now-started);
+    const opening=Math.min(1,elapsed/openingDuration);
+    doorAnimation.progress=opening*opening*(3-2*opening);
+    const walking=Math.max(0,Math.min(1,(elapsed-openingDuration)/walkingDuration));
+    const ease=walking*walking*(3-2*walking);
+    cameraX=startX+.5+(endX-startX)*ease;
+    cameraY=startY+.5+(endY-startY)*ease;
+    if(walking>0) byId('caption').textContent='Entering the passage…';
+    draw();
+    if(walking<1) {
+      cameraFrame=requestAnimationFrame(tick);
+    } else {
+      x=endX;y=endY;
+      doorAnimation=null;cameraFrame=null;
+      log('You passed through the '+doors[key].name+'. +10 XP earned.');
+      render();
+    }
+  }
+  cameraFrame=requestAnimationFrame(tick);
+}
+
+let bridgeToken='',parentOrigin='*',practiceDone=0,practiceTotal=0;
+function send(type,detail={}){window.parent.postMessage({channel:'wordquest-dungeon',token:bridgeToken,type,...detail},parentOrigin);}
+function sendSize(){if(bridgeToken)send('size',{height:Math.ceil(byId('game').getBoundingClientRect().height)});}
+new ResizeObserver(sendSize).observe(byId('game'));
+function findChallenge(){
+ if(active||cameraFrame!==null)return;
+ if(Object.keys(challenges).every(key=>solved.has(key))){solved.clear();randomizeDungeon();}
+ const queue=[[x,y]],seen=new Set([x+','+y]);
+ for(let i=0;i<queue.length;i++){
+  const [cx,cy]=queue[i];
+  for(let direction=0;direction<4;direction++){
+   const [dx,dy]=directions[direction],nx=cx+dx,ny=cy+dy,cell=tile(nx,ny);
+   if(cell in challenges&&!solved.has(cell)){
+    x=cx;y=cy;facing=direction;cameraX=x+.5;cameraY=y+.5;cameraAngle=(facing-1)*Math.PI/2;render();interact();return;
+   }
+   const key=nx+','+ny;
+   if(!blocked(cell)&&!seen.has(key)){seen.add(key);queue.push([nx,ny]);}
+  }
+ }
+ log('Try another passage or start a new maze.');
+}
+window.addEventListener('message',event=>{
+ const d=event.data;if(event.source!==window.parent||!d||d.channel!=='wordquest-dungeon')return;
+ if(d.type==='init'&&typeof d.token==='string'){
+  bridgeToken=d.token;parentOrigin=event.origin;practiceDone=Number(d.completed)||0;practiceTotal=Number(d.total)||0;render();send('initialized');sendSize();return;
+ }
+ if(!bridgeToken||d.token!==bridgeToken)return;
+ if(d.type==='find')findChallenge();
+ if(d.type==='cancel'){active=null;render();}
+ if(d.type==='progress'){practiceDone=Number(d.completed)||0;practiceTotal=Number(d.total)||0;render();}
+ if(d.type==='result'&&active){
+  if(d.correct){if(active in challenges){solved.add(active);enemyStates[active]=1;}active=null;log('Correct! The passage is clear.');}
+  else{hp=Math.max(0,hp-1);log('Try again. You can do it!');if(!hp){reset();send('restarted');}}
+  render();
+ }
+});
+byId('interact').onclick=interact;byId('restart').onclick=()=>{reset();send('restarted');};
+byId('topic').onchange=reset;
+document.querySelectorAll('[data-move]').forEach(button=>button.onclick=()=>move(button.dataset.move));
+document.addEventListener('keydown',event=>{
+ if(active||['INPUT','SELECT'].includes(event.target.tagName)||event.ctrlKey||event.metaKey||event.altKey)return;
+ const key=event.key.toLowerCase(),moves={arrowup:'forward',w:'forward',arrowdown:'back',s:'back',arrowleft:'left',a:'left',arrowright:'right',d:'right'};
+ if(moves[key]){event.preventDefault();move(moves[key]);}if(key==='e'){event.preventDefault();interact();}
+});
+function render() {
+  revealMap();
+  byId('hp').textContent='HP '+hp+'/5 '+ '♥'.repeat(hp)+'♡'.repeat(5-hp);
+  byId('xp').textContent=practiceDone+' / '+practiceTotal+' complete';
+  const next=tile(...front());
+  byId('heading').textContent=['NORTH','EAST','SOUTH','WEST'][facing];
+  byId('room').textContent=next==='X'?'Exit passage':x===1&&y===17?'Entrance corridor':y<5?'The dragon galleries':y<10?'The ancient halls':y<14?'The tangled passages':'The lower keep';
+  byId('caption').textContent=next==='X'?'Exit • Press E to interact':
+    next in challenges && !solved.has(next)?challenges[next].name+' • Press E to interact':
+    next==='R'?'Collapsed ceiling • Find another passage':
+    next==='#'?'Stone wall ahead':'Passage ahead';
+  byId('count').textContent=enemyCount()+' / 10 · Doors '+doorCount()+' / 6';
+  byId('map').setAttribute('aria-label',explored.size+' dungeon tiles discovered');
+  byId('map').innerHTML=map.flatMap((row,ry)=>[...row].map((cell,rx)=>{
+    if(!explored.has(rx+','+ry)) return '<span class="tile unexplored"></span>';
+    if(rx===x&&ry===y) return '<span class="tile you">'+['▲','▶','▼','◀'][facing]+'</span>';
+    if(cell==='R') return '<span class="tile rubble">▧</span>';
+    if(cell==='#') return '<span class="tile wall"></span>';
+    if(cell==='X') return '<span class="tile gate">▣</span>';
+    if(cell in challenges) return solved.has(cell)?'<span class="tile done">✓</span>':'<span class="tile gate">'+(cell in doors?'▥':'◆')+'</span>';
+    return '<span class="tile"></span>';
+  })).join('');
+  byId('seals').innerHTML=Object.entries(challenges).filter(([key])=>discovered.has(key)).map(([key,entry])=>
+    `<div class="seal ${solved.has(key)?'complete':''}"><span class="gem">${solved.has(key)?'◆':'◇'}</span>${entry.name}${key in doors?' · door':''}</div>`).join('');
+  draw();
+}
+function canSeeTile(targetX,targetY) {
+  const dx=targetX-x,dy=targetY-y,steps=Math.max(Math.abs(dx),Math.abs(dy))*12;
+  let lastX=x,lastY=y;
+  for(let step=1;step<=steps;step++) {
+    const column=Math.floor(x+.5+dx*step/steps),row=Math.floor(y+.5+dy*step/steps);
+    if(column!==lastX && row!==lastY &&
+      (blocked(tile(column,lastY)) || blocked(tile(lastX,row)))) return false;
+    if(column===targetX && row===targetY) return true;
+    if(blocked(tile(column,row))) return false;
+    lastX=column;lastY=row;
+  }
+  return true;
+}
+function revealMap() {
+  for(let row=Math.max(0,y-3);row<=Math.min(map.length-1,y+3);row++) {
+    for(let column=Math.max(0,x-3);column<=Math.min(map[row].length-1,x+3);column++) {
+      if(Math.hypot(column-x,row-y)>3 || !canSeeTile(column,row)) continue;
+      explored.add(column+','+row);
+      if(tile(column,row) in challenges) discovered.add(tile(column,row));
+    }
+  }
+}
+function celebrate() {
+  active='X';
+  byId('overlay').hidden=true;
+  byId('victory').hidden=false;
+  byId('game').inert=true;
+  byId('victory-stats').textContent=xp+' XP · '+hp+'/5 HP · '+enemyCount()+' enemies defeated · '+doorCount()+' doors opened';
+  byId('confetti').innerHTML=Array.from({length:72},(_,index)=>
+    '<i style="--left:'+((index*37)%100)+'%;--delay:'+((index%12)*.12)+'s;--drift:'+((index%7-3)*36)+'px;--color:'+['#e5ba72','#80d5b2','#ead5f3','#ef9076'][index%4]+';--turn:'+(index*47)+'deg"></i>'
+  ).join('');
+  log('You found the exit and escaped! '+xp+' XP earned.');
+  byId('play-again').focus();
+}
+byId('play-again').onclick=()=>{reset();byId('interact').focus();};
+
+const textureSize=64;
+const noise=(x,y)=>((Math.imul(x+421,1597334677)^Math.imul(y+211,3812015801))>>>0)%31-15;
+function texture(type) {
+  return Array.from({length:textureSize*textureSize},(_,index)=>{
+    const x=index%64, y=index>>6;
+    const grain=noise(x,y);
+    if(type==='#'){
+      const row=y>>4, u=(x+(row%2)*16)%32, v=y%16;
+      const tone=v===0||u===0?29:v===1||u===1?112:v===15||u===31?47:81;
+      const shade=tone+grain*.55+noise((x+(row%2)*16)>>5,row)*.65;
+      return [shade*1.12,shade*1.02,shade*.84];
+    }
+    const palette={A:[120,75,41],B:[74,102,86],C:[91,77,113],X:[125,105,63]};
+    const base=palette[type];
+    const edge=x<4||x>59||y<4||y>59;
+    const border=x===6||x===57||y===6||y===57;
+    const arch=y>13&&y<49&&Math.abs(x-32)+Math.abs(y-31)<22;
+    const rune=(Math.abs(x-32)+Math.abs(y-31)>=13&&Math.abs(x-32)+Math.abs(y-31)<=15) ||
+      (Math.abs(x-32)<2&&Math.abs(y-31)<8) ||
+      (type==='X'&&Math.abs(y-31)<2&&Math.abs(x-32)<9);
+    if(rune) return [244+grain*.4,183+grain*.4,91+grain*.4];
+    const factor=edge?.42:border?1.55:arch?.72:1+(x%8===0?-.19:0);
+    return base.map(value=>value*factor+grain*.65);
+  });
+}
+const wallCell=cell=>cell==='#' || cell==='R' || cell==='X' || (cell in doors && (!solved.has(cell) || cell===pendingDoor));
+const textures=Object.fromEntries(['#','A','B','C','X'].map(type=>[type,texture(type)]));
+// Fallen stone blocks and snapped support beams form a solid obstruction.
+const rubbleStones=[
+  [5,55,12,10],[20,58,11,8],[37,55,13,10],[55,57,13,10],
+  [9,43,11,9],[28,44,13,10],[49,42,14,11],[61,40,9,10],
+  [18,29,12,10],[39,29,12,10],[55,26,10,9],
+  [7,15,10,10],[31,15,12,9],[47,10,9,10],[61,12,10,10]
+];
+textures.R=Array.from({length:64*64},(_,index)=>{
+  const x=index%64,y=index>>6,grain=noise(x,y)*.5;
+  let color=[27+grain,26+grain,23+grain];
+  for(const [cx,cy,rx,ry] of rubbleStones) {
+    const radius=Math.abs((x-cx)/rx)+Math.abs((y-cy)/ry);
+    if(radius>1.35 || Math.abs(x-cx)>rx || Math.abs(y-cy)>ry) continue;
+    const edge=radius>1.15 || Math.abs(x-cx)>rx-2 || Math.abs(y-cy)>ry-2;
+    const shade=edge?39:82+(cx%4)*7+(cy-y)*2+grain;
+    color=[shade*1.08,shade,shade*.84];
+  }
+  // Jagged timber crossing the rubble, with a narrow lit edge.
+  if((Math.abs(y-(x*.7+12))<3 && x>5 && x<55) ||
+     (Math.abs(y-(-x*.55+44))<3 && x>17 && x<61)) {
+    const shade=45+(x%4)*6+grain;
+    color=[shade*1.4,shade,shade*.6];
+  }
+  return color;
+});
+const exitLetters=['1110101010111','1000101010010','1100010010010','1000101010010','1110101010010'];
+textures.portal=textures.X.map((color,index)=>{
+  const x=index%64,y=index>>6;
+  if(x>=12&&x<51&&y>=10&&y<25) {
+    const letter=exitLetters[Math.floor((y-10)/3)][Math.floor((x-12)/3)];
+    return letter==='1'?[255,235,162]:[25,36,27];
+  }
+  if(x>13&&x<51&&y>28&&y<59) {
+    const edge=x<17||x>47||y<31||y>55;
+    return edge?[199,167,91]:[48+(y%4)*4,131+(y%4)*5,109+(y%4)*4];
+  }
+  return color;
+});
+function draw(){
+  const w=canvas.width, h=canvas.height;
+  const frame=frameBuffer, pixels=frame.data;
+  const depths=new Float32Array(w);
+  const dx=Math.cos(cameraAngle),dy=Math.sin(cameraAngle),px=cameraX,py=cameraY;
+  const light=(value,min,max)=>Math.max(min,Math.min(max,value));
+  for(let col=0;col<w;col++){
+    const ray=(2*col/w-1)*.85, rx=dx-dy*ray, ry=dy+dx*ray;
+    let gx=Math.floor(px),gy=Math.floor(py), side=0, hit='.', depth=0;
+    const deltaX=Math.abs(1/rx),deltaY=Math.abs(1/ry), sx=rx<0?-1:1, sy=ry<0?-1:1;
+    let nextX=rx===0?Infinity:(sx<0?px-gx:gx+1-px)*deltaX;
+    let nextY=ry===0?Infinity:(sy<0?py-gy:gy+1-py)*deltaY;
+    while(true){
+      if(nextX<nextY){gx+=sx;depth=nextX;nextX+=deltaX;side=0;}
+      else{gy+=sy;depth=nextY;nextY+=deltaY;side=1;}
+      hit=tile(gx,gy);
+      if(doorAnimation && hit===doorAnimation.key) {
+        const edge=side===0?py+depth*ry:px+depth*rx;
+        const local=edge-Math.floor(edge);
+        if(doorAnimation.progress<1 && Math.abs(local-.5)>=doorAnimation.progress*.5) break;
+        continue;
+      }
+      if(wallCell(hit)) break;
+    }
+    depths[col]=depth;
+    const top=h/2-h/(2*depth), bottom=h-top;
+    const edge=side===0?py+depth*ry:px+depth*rx;
+    let local=edge-Math.floor(edge);
+    if(doorAnimation && hit===doorAnimation.key) {
+      local+=local<.5?doorAnimation.progress*.5:-doorAnimation.progress*.5;
+    }
+    const u=Math.max(0,Math.min(63,Math.floor(local*64)));
+    const wallTex=textures[hit==='X'?'portal':hit in doors?'X':hit];
+    const falloff=1/(1+depth*.29+depth*depth*.075);
+    const torch=light(1.3-Math.abs(ray)*.48,.5,1.3);
+    for(let row=0;row<h;row++){
+      let rgb, brightness, tone;
+      if(row>=top&&row<bottom){
+        const v=Math.floor((row-top)/(bottom-top)*64);
+        rgb=wallTex[v*64+u];
+        brightness=falloff*torch*(side===0?1:.88);
+      }else{
+        const floor=row>h/2, distance=h*.5/Math.abs(row-h/2);
+        const fx=(px+distance*rx)*32, fy=(py+distance*ry)*32;
+        const ix=Math.floor(fx),iy=Math.floor(fy);
+        const mortar=ix%32===0||iy%32===0;
+        tone=(mortar?30:floor?65:47)+noise(ix,iy)*.65;
+        brightness=Math.max(.16,1/(1+distance*.37+distance*distance*.062))*torch;
+      }
+      const i=4*(row*w+col);
+      pixels[i]=(rgb?rgb[0]:tone*1.15)*brightness;
+      pixels[i+1]=(rgb?rgb[1]:tone)*brightness;
+      pixels[i+2]=(rgb?rgb[2]:tone*.78)*brightness;
+      pixels[i+3]=255;
+    }
+  }
+  ctx.putImageData(frame,0,0);
+  drawWorldSprites(depths);
+  if (sword.complete && sword.naturalWidth>0) {
+    const height=190;
+    const width=Math.round(height*sword.naturalWidth/sword.naturalHeight);
+    ctx.drawImage(sword,canvas.width-width,canvas.height-height,width,height);
+  }
+}
+const enemyLocations=map.flatMap((row,y)=>[...row].flatMap((cell,x)=>
+  cell in encounters?[{key:cell,x:x+.5,y:y+.5}]:[]));
+function showEnemy(key,state) {
+  const portrait=byId('enemy-portrait');
+  const enemy=encounters[key];
+  portrait.hidden=!enemy;
+  if (!enemy) return;
+  portrait.style.backgroundImage='url("'+enemyAtlases[enemy.atlas].src+'")';
+  portrait.style.backgroundPosition=(enemy.column*25)+'% '+(state*50)+'%';
+}
+// Keep props against corridor edges so the center of each passage stays readable.
+const decorations=[];
+function rebuildDungeonDecorations(){
+ decorations.length=0;
+ const places=[];
+ for(let row=1;row<map.length-1;row++)for(let column=1;column<map[row].length-1;column++){
+  if(tile(column,row)!=='.'||(column===1&&row===17))continue;
+  const sides=directions.filter(([dx,dy])=>tile(column+dx,row+dy)==='#');
+  if(sides.length)places.push({column,row,sides});
+ }
+ for(const {column,row,sides}of shuffled(places).slice(0,22)){
+  const [dx,dy]=sides[random(0,sides.length-1)],type=random(0,5);
+  decorations.push({type,x:column+.5+dx*.36,y:row+.5+dy*.36,worldHeight:[.52,.7,.32,.28,.2,.14][type],elevation:type===0?.43:type===1?.24:0});
+ }
+}
+function drawWorldSprites(depths) {
+  const dx=Math.cos(cameraAngle),dy=Math.sin(cameraAngle);
+  const sprites=decorations.map(prop=>({
+    ...prop, image:decorationAtlas,
+    columns:3,rows:2,column:prop.type%3,row:Math.floor(prop.type/3)
+  }));
+  for(const enemy of enemyLocations) {
+    const entry=encounters[enemy.key];
+    sprites.push({
+      ...enemy,image:enemyAtlases[entry.atlas],columns:5,rows:3,
+      column:entry.column,row:enemyStates[enemy.key]??0,
+      worldHeight:enemy.key==='C'||enemy.key==='D'?1.6:1.15,elevation:0
+    });
+  }
+  const visible=sprites.map(sprite=>{
+    const relativeX=sprite.x-cameraX,relativeY=sprite.y-cameraY;
+    return {...sprite,depth:relativeX*dx+relativeY*dy,side:-relativeX*dy+relativeY*dx};
+  }).filter(sprite=>sprite.depth>.15).sort((a,b)=>b.depth-a.depth);
+  for(const sprite of visible) {
+    const atlas=sprite.image;
+    if (!atlas.complete || !atlas.naturalWidth) continue;
+    const cellWidth=atlas.naturalWidth/sprite.columns,cellHeight=atlas.naturalHeight/sprite.rows;
+    const height=canvas.height*sprite.worldHeight/sprite.depth;
+    const width=height*cellWidth/cellHeight;
+    const center=canvas.width/2*(1+sprite.side/(sprite.depth*.85));
+    const left=center-width/2;
+    const bottom=canvas.height/2+canvas.height*(.5-sprite.elevation)/sprite.depth;
+    const top=bottom-height;
+    const from=Math.max(0,Math.floor(left)),to=Math.min(canvas.width,Math.ceil(left+width));
+    for(let column=from;column<to;column++) {
+      if(sprite.depth>=depths[column]) continue;
+      const sourceX=sprite.column*cellWidth+(column-left)/width*cellWidth;
+      ctx.drawImage(atlas,sourceX,sprite.row*cellHeight,cellWidth/width,cellHeight,
+        column,top,1,height);
+    }
+  }
+}
+
+const decorationAtlas=new Image();
+decorationAtlas.onload=()=>draw();
+decorationAtlas.src='decorations.webp';
+const enemyAtlases=['monsters-a.webp', 'monsters-b.webp'].map(source=>{
+  const atlas=new Image();
+  atlas.onload=()=>draw();
+  atlas.src=source;
+  return atlas;
+});
+const sword=new Image();
+sword.onload=()=>draw();
+sword.src='sword.webp';
+ctx.imageSmoothingEnabled=false;
+const frameBuffer=ctx.createImageData(canvas.width,canvas.height);
+reset();
+Promise.all([decorationAtlas,...enemyAtlases,sword].map(image=>image.decode())).then(()=>window.parent.postMessage({channel:'wordquest-dungeon',type:'ready'},'*')).catch(()=>window.parent.postMessage({channel:'wordquest-dungeon',type:'asset-error'},'*'));
+</script>
+</html>

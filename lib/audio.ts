@@ -1,3 +1,4 @@
+import dungeonRecordings from './dungeon-sports-audio.json';
 import play1Recordings from './play1-u5-audio.json';
 import cvcRecordings from './act3-cvc-audio.json';
 import phonicsRecordings from './smart-phonics2-u4-u6-audio.json';
@@ -6,7 +7,7 @@ import cityTripRecordings from './act2-u9-audio.json';
 import aiCourseRecordings from './ai-course-audio.json';
 import numberRecordings from './number-audio.json';
 import { publicAsset } from './public-runtime';
-const clips: Record<string,string> = {...cityTripRecordings,...recordings,...numberRecordings,...aiCourseRecordings,...phonicsRecordings,...cvcRecordings,...play1Recordings};
+const clips: Record<string,string> = {...cityTripRecordings,...recordings,...numberRecordings,...aiCourseRecordings,...phonicsRecordings,...cvcRecordings,...play1Recordings,...dungeonRecordings};
 let player: HTMLAudioElement | undefined;
 let utterance: SpeechSynthesisUtterance | undefined;
 let generation = 0;

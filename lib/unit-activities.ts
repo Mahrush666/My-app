@@ -17,6 +17,7 @@ const definedActivityOptions = [
  ['story-quiz','❓','Story · Questions','Choose answers about the illustrated story.'],
  ['story-order','🖼️','Story · Picture order','Put the story pictures in order.'],
  ['reading','📖','Read & listen','Read illustrated paragraphs and listen to the story.'],
+ ['dungeon','🏰','Word Dungeon · 单词地牢','Explore a dungeon and answer questions using the selected lesson words.'],
  ['reactor','🏹','Word Reactor','Action game with written word questions.'],
  ['match','🧩','Word Match','Match English and Chinese words.'],
  ['spell','🔤','Spelling · Build the word','Five steps: copy, fill gaps, then spell independently. Three words per round.'],

@@ -27,20 +27,21 @@ main{max-width:1260px;margin:auto;padding:32px 32px 25px}header{display:flex;jus
 /* Embedded app layout: artwork and movement only. The app owns all learning questions. */
 main{padding:0;max-width:none}header,.sidebar,.footer,#victory,#overlay{display:none!important}.layout{display:block}.panel{border:0;border-radius:0}.strip{padding:8px 12px}.player-stats{padding:8px 12px}.controls{padding:10px 12px}.controls button{min-height:44px;min-width:44px}.scene{touch-action:none;user-select:none;-webkit-user-select:none}.scene canvas{aspect-ratio:16/9}.heading{font-size:10px;top:8px}.caption{font-size:11px;padding:5px 8px;bottom:8px}
 @media(max-width:500px){.controls{gap:7px}.controls button{padding:8px}.controls div{gap:5px}.controls kbd{display:none}.room{font-size:11px}.strip .label{font-size:10px}}
+.panel[aria-label="Dungeon"]{position:relative}#toggle-map{padding:5px 9px;font-size:12px;white-space:nowrap}.map-panel{position:absolute;z-index:4;inset:43px 0 0;background:#1b2019f7;padding:12px;overflow:auto;overscroll-behavior:contain;touch-action:pan-y}.map-panel[hidden]{display:none}.map-title{display:flex;justify-content:space-between;align-items:center;gap:8px;max-width:470px;margin:auto}.map-title button{padding:7px 12px}.map-title h2{margin:0}.map-panel .map{width:min(100%,440px);margin:10px auto;gap:1px;padding:7px}.map-panel .tile{font-size:10px}.map-help,.map-panel .legend{max-width:440px;margin:8px auto;font-size:12px;line-height:1.5}.map-help{color:var(--muted)}html.expanded,html.expanded body,html.expanded main,html.expanded .layout{height:100%;overflow:hidden}html.expanded .panel[aria-label="Dungeon"]{height:100%;display:flex;flex-direction:column}html.expanded .scene{flex:1;min-height:0}html.expanded .scene canvas{width:100%;height:100%;aspect-ratio:auto;object-fit:contain}html.expanded .strip,html.expanded .player-stats,html.expanded .controls{flex:none}@media(max-height:350px){html.expanded .strip,html.expanded .player-stats{padding:4px 10px}html.expanded .controls{padding:4px 10px}html.expanded .controls button{min-height:34px}}
 </style>
 <main id="game">
 <header><div class="brand"><div class="crest" aria-hidden="true">◇</div><div><h1>The Number Keep</h1><p>Sports & actions · Look after your body!</p></div></div><div class="setup"><label class="label" for="topic">Practice</label><select id="topic"><option value="sports">Sports &amp; actions review</option></select><button id="restart" type="button">New run</button></div></header>
 <div class="layout">
 <section class="panel" aria-label="Dungeon">
-<div class="strip"><span class="label">Dungeon view</span><span id="room" class="room"></span></div><div class="player-stats" role="status" aria-live="polite"><span id="hp"></span><span id="xp"></span></div>
+<div class="strip"><span class="label">Dungeon view</span><button id="toggle-map" type="button" aria-expanded="false" aria-controls="map-panel">▦ Map 地图</button><span id="room" class="room"></span></div><div class="player-stats" role="status" aria-live="polite"><span id="hp"></span><span id="xp"></span></div>
 <div class="scene">
 <canvas id="view" width="448" height="252" aria-label="First-person view of the dungeon"></canvas><div class="shade"></div><div id="heading" class="heading mono"></div><div id="caption" class="caption"></div>
 <div id="overlay" class="overlay" hidden><div class="encounter" role="dialog" aria-modal="true" aria-labelledby="title"><span id="kind" class="label"></span><h2 id="title"></h2><div id="enemy-portrait" class="enemy-portrait" aria-hidden="true"></div><p id="story"></p><button id="listen" class="listen" type="button" aria-label="Listen again">🔊</button><p id="question" class="question"></p><div id="problem-data"></div><form id="answer" class="answer"><input id="value" aria-label="Your answer" autocomplete="off" placeholder="Your answer" inputmode="decimal" required><span id="answer-unit" class="answer-unit"></span><button class="primary">Submit</button></form><p id="feedback" class="feedback" aria-live="polite"></p><div class="actions"><button id="hint" type="button">Help</button><button id="close" type="button">Back</button></div></div></div>
 </div>
 <div class="controls"><div><button data-move="left" aria-label="Turn left">↶</button><button data-move="forward" aria-label="Step forward">↑</button><button data-move="back" aria-label="Step back">↓</button><button data-move="right" aria-label="Turn right">↷</button></div><button id="interact" class="primary" type="button">Interact <kbd>E</kbd></button></div>
+<section id="map-panel" class="map-panel" aria-label="Explored map" hidden><div class="map-title"><h2 class="label">Explored map 探索地图</h2><button id="close-map" type="button">Close 关闭</button></div><p class="map-help">Explore to reveal the maze. 探索后点亮地图。</p><div id="map" class="map" role="img" aria-label="Explored dungeon map"></div><p class="legend">▲ You 你 &nbsp; ◆ Guard 守卫 &nbsp; ▥ Door 门 &nbsp; ✓ Cleared 已通过 &nbsp; ▣ Exit 出口</p></section>
 </section>
 <aside class="sidebar">
-<section class="panel card"><h2 class="label">Explored map</h2><div id="map" class="map" aria-hidden="true"></div><p class="legend">▲ You &nbsp; ◆ Enemy &nbsp; ▥ Door &nbsp; ✓ Cleared &nbsp; ▣ Exit</p></section>
 <section class="panel card"><h2 class="label">Enemies <span id="count"></span></h2><div id="seals" class="seals"></div></section>
 <section class="panel card"><h2 class="label">Journal</h2><p id="journal" class="journal" aria-live="polite"></p></section>
 </aside>
@@ -153,7 +154,7 @@ function reset() {
 }
 function log(message){ byId('journal').textContent=message; }
 function move(action) {
-  if (hp===0 || active || cameraFrame !== null) return;
+  if (hp===0 || active || mapOpen || cameraFrame !== null) return;
   if (action==='left' || action==='right') {
     facing=(facing+(action==='left'?3:1))%4;
   } else {
@@ -197,6 +198,7 @@ function animateCamera(action) {
   cameraFrame=requestAnimationFrame(tick);
 }
 function interact() {
+  if(mapOpen)return;
   if(hp===0 || active || cameraFrame!==null) return;
   const cell=tile(...front());
   if(cell==='X'){log('Answer the remaining questions to clear the dungeon.');send('challenge',{key:'exit',title:'Exit guardian',kind:'Final passage'});active='exit';return;}
@@ -241,7 +243,9 @@ function openDoorAndEnter(key) {
   cameraFrame=requestAnimationFrame(tick);
 }
 
-let bridgeToken='',parentOrigin='*',practiceDone=0,practiceTotal=0;
+let bridgeToken='',parentOrigin='*',practiceDone=0,practiceTotal=0,mapOpen=false;
+function showMap(open){mapOpen=open;byId('map-panel').hidden=!open;byId('toggle-map').setAttribute('aria-expanded',String(open));if(open)byId('close-map').focus();else byId('toggle-map').focus();}
+byId('toggle-map').onclick=()=>showMap(!mapOpen);byId('close-map').onclick=()=>showMap(false);
 function send(type,detail={}){window.parent.postMessage({channel:'wordquest-dungeon',token:bridgeToken,type,...detail},parentOrigin);}
 function sendSize(){if(bridgeToken)send('size',{height:Math.ceil(byId('game').getBoundingClientRect().height)});}
 new ResizeObserver(sendSize).observe(byId('game'));
@@ -268,7 +272,8 @@ window.addEventListener('message',event=>{
   bridgeToken=d.token;parentOrigin=event.origin;practiceDone=Number(d.completed)||0;practiceTotal=Number(d.total)||0;render();send('initialized');sendSize();return;
  }
  if(!bridgeToken||d.token!==bridgeToken)return;
- if(d.type==='find')findChallenge();
+ if(d.type==='viewport'){document.documentElement.classList.toggle('expanded',Boolean(d.expanded));sendSize();}
+ if(d.type==='find'){if(mapOpen)showMap(false);findChallenge();}
  if(d.type==='cancel'){active=null;render();}
  if(d.type==='progress'){practiceDone=Number(d.completed)||0;practiceTotal=Number(d.total)||0;render();}
  if(d.type==='result'&&active){
@@ -299,6 +304,8 @@ scene.addEventListener('pointerup',event=>{
 scene.addEventListener('pointercancel',()=>{swipe=null;});
 scene.addEventListener('lostpointercapture',()=>{swipe=null;});
 document.addEventListener('keydown',event=>{
+ if(event.key==='Escape'){if(mapOpen)showMap(false);else send('exit-fullscreen');return;}
+ if(event.key.toLowerCase()==='m'&&!active&&!event.ctrlKey&&!event.metaKey&&!event.altKey){event.preventDefault();showMap(!mapOpen);return;}
  if(active||['INPUT','SELECT'].includes(event.target.tagName)||event.ctrlKey||event.metaKey||event.altKey)return;
  const key=event.key.toLowerCase(),moves={arrowup:'forward',w:'forward',arrowdown:'back',s:'back',arrowleft:'left',a:'left',arrowright:'right',d:'right'};
  if(moves[key]){event.preventDefault();move(moves[key]);}if(key==='e'){event.preventDefault();interact();}

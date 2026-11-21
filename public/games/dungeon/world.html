@@ -25,7 +25,7 @@ main{max-width:1260px;margin:auto;padding:32px 32px 25px}header{display:flex;jus
 .review-picture{display:block;width:100%;aspect-ratio:1;background-size:400% 400%;image-rendering:pixelated;border-radius:5px}.review-scene{width:min(225px,65%);margin:12px auto}.review-answers{display:grid;gap:8px;margin-top:12px}.review-answers button{padding:11px 14px;text-align:left;font-size:19px;line-height:1.35}.spoken-transcript{font-size:14px;color:var(--gold);margin:6px 0}.picture-choices button{min-width:0}.question{font-size:22px}
 
 /* Embedded app layout: artwork and movement only. The app owns all learning questions. */
-main{padding:0;max-width:none}header,.sidebar,.footer,#victory,#overlay{display:none!important}.layout{display:block}.panel{border:0;border-radius:0}.strip{padding:8px 12px}.player-stats{padding:8px 12px}.controls{padding:10px 12px}.controls button{min-height:44px;min-width:44px}.scene canvas{aspect-ratio:16/9}.heading{font-size:10px;top:8px}.caption{font-size:11px;padding:5px 8px;bottom:8px}
+main{padding:0;max-width:none}header,.sidebar,.footer,#victory,#overlay{display:none!important}.layout{display:block}.panel{border:0;border-radius:0}.strip{padding:8px 12px}.player-stats{padding:8px 12px}.controls{padding:10px 12px}.controls button{min-height:44px;min-width:44px}.scene{touch-action:none;user-select:none;-webkit-user-select:none}.scene canvas{aspect-ratio:16/9}.heading{font-size:10px;top:8px}.caption{font-size:11px;padding:5px 8px;bottom:8px}
 @media(max-width:500px){.controls{gap:7px}.controls button{padding:8px}.controls div{gap:5px}.controls kbd{display:none}.room{font-size:11px}.strip .label{font-size:10px}}
 </style>
 <main id="game">
@@ -280,6 +280,24 @@ window.addEventListener('message',event=>{
 byId('interact').onclick=interact;byId('restart').onclick=()=>{reset();send('restarted');};
 byId('topic').onchange=reset;
 document.querySelectorAll('[data-move]').forEach(button=>button.onclick=()=>move(button.dataset.move));
+// One deliberate swipe makes one move; the rest of the page stays scrollable.
+const scene=canvas.closest('.scene');
+let swipe=null;
+scene.addEventListener('pointerdown',event=>{
+ if(!event.isPrimary){swipe=null;return;}
+ if(event.pointerType==='mouse'||active||cameraFrame!==null)return;
+ swipe={id:event.pointerId,x:event.clientX,y:event.clientY,time:performance.now()};
+ scene.setPointerCapture(event.pointerId);
+});
+scene.addEventListener('pointerup',event=>{
+ const start=swipe;if(!start||start.id!==event.pointerId)return;
+ swipe=null;
+ const dx=event.clientX-start.x,dy=event.clientY-start.y,ax=Math.abs(dx),ay=Math.abs(dy);
+ if(performance.now()-start.time>1000||Math.max(ax,ay)<32||Math.max(ax,ay)<Math.min(ax,ay)*1.2)return;
+ move(ax>ay?(dx<0?'left':'right'):(dy<0?'forward':'back'));
+});
+scene.addEventListener('pointercancel',()=>{swipe=null;});
+scene.addEventListener('lostpointercapture',()=>{swipe=null;});
 document.addEventListener('keydown',event=>{
  if(active||['INPUT','SELECT'].includes(event.target.tagName)||event.ctrlKey||event.metaKey||event.altKey)return;
  const key=event.key.toLowerCase(),moves={arrowup:'forward',w:'forward',arrowdown:'back',s:'back',arrowleft:'left',a:'left',arrowright:'right',d:'right'};

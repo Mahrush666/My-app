@@ -21,10 +21,10 @@ function Challenge({task,submit}:{task:DailyTask;submit:(answer:string,eventId:s
  const pendingAnswer=useRef<{answer:string;eventId:string}|null>(null);
  const spelling=task.kind==='letters'?task.spelling:undefined;
  const tiles=useMemo(()=>spelling
-  ?(isCvcLesson(task.unitId)?cvcLetterTiles(task.expected):spellingTiles(task.expected,spelling.gaps)).map(({id,letter})=>({id,text:letter}))
+  ?(isCvcLesson(task.unitId)?cvcLetterTiles(task.expected):spellingTiles(task.expected,spelling.gaps,spelling.parts)).map(({id,letter})=>({id,text:letter}))
   :shuffle((task.kind==='letters'?[...task.expected]:task.expected.split(' ')).map((text,id)=>({text,id}))),[task,spelling]);
  const fillWord=()=>{
-  const letters=task.expected.split('');
+  const letters=spelling!.parts?[...spelling!.parts]:task.expected.split('');
   spelling!.gaps.forEach((position,index)=>{letters[position]=tiles[chosen[index]].text});
   return letters.join('');
  };
@@ -42,16 +42,16 @@ function Challenge({task,submit}:{task:DailyTask;submit:(answer:string,eventId:s
  }
  return <div className="daily-challenge"><h3>{task.prompt}</h3>{task.image&&<GogoImage className="daily-prompt" src={publicAsset(task.image)} alt=""/>}{task.listen&&<button aria-label="Listen to the question" onClick={()=>speak(task.listen!)}>🔊 Listen 听一听</button>}{build?<>{spelling?<>{spelling.stage===0&&<p className="spelling-model">{task.expected}</p>}
  <div className="spelling-slots" aria-label="Word to complete">
-  {task.expected.split('').map((letter,position)=>{
+  {(spelling.parts||task.expected.split('')).map((letter,position)=>{
    const gap=spelling.gaps.indexOf(position);
    if(letter===' ')return <span key={position} aria-hidden="true">&nbsp;</span>;
    if(gap<0)return <span className="spelling-fixed" key={position}>{letter}</span>;
    return <button className="spelling-slot" key={position} disabled={busy||chosen[gap]===undefined}
-    aria-label={'Clear from letter '+(position+1)} onClick={()=>setChosen(c=>c.slice(0,gap))}>
+    aria-label={'Clear from '+(spelling.parts?'part ':'letter ')+(position+1)} onClick={()=>setChosen(c=>c.slice(0,gap))}>
     {tiles[chosen[gap]]?.text||'_'}
    </button>;
   })}
- </div></>:<div className="sentence-slots">{chosen.map((n,i)=><button disabled={busy} key={i} onClick={()=>setChosen(c=>c.slice(0,i))}>{tiles[n].text===' '?'␣':tiles[n].text}</button>)}{!chosen.length&&<span>___ ___ ___</span>}</div>}<div className="spelling-tiles sentence-tiles">{tiles.map((t,i)=><button key={t.id} disabled={busy||chosen.includes(i)} onClick={()=>setChosen(c=>[...c,i])}>{t.text===' '?'␣':t.text}</button>)}</div><button disabled={busy||!chosen.length} onClick={()=>setChosen(c=>c.slice(0,-1))}>Undo 撤销</button></>:<div className={'daily-options '+(task.kind==='pictures'?'daily-pictures':'')}>{task.options?.map(o=><button key={o.id} disabled={busy} aria-label={task.kind==='audio-options'?'Listen to option '+(task.options!.indexOf(o)+1):task.kind==='pictures'?'Choose picture '+(task.options!.indexOf(o)+1):undefined} aria-pressed={selected===o.text} onClick={()=>{setSelected(o.text);setMessage('');if(task.kind!=='pictures')speak(o.text)}}>{task.kind==='pictures'?<GogoImage src={publicAsset(o.image!)} alt=""/>:task.kind==='audio-options'?'🔊 '+(task.options!.indexOf(o)+1):o.text}</button>)}</div>}<p role="status">{message}</p><button className="primary" disabled={busy||(build?chosen.length!==tiles.length:!selected)} onClick={()=>void check()}>{busy?'Saving…':'OK ✓'}</button></div>
+ </div></>:<div className="sentence-slots">{chosen.map((n,i)=><button disabled={busy} key={i} onClick={()=>setChosen(c=>c.slice(0,i))}>{tiles[n].text===' '?'␣':tiles[n].text}</button>)}{!chosen.length&&<span>___ ___ ___</span>}</div>}<div className="spelling-tiles sentence-tiles">{tiles.map((t,i)=><button key={t.id} disabled={busy||chosen.includes(i)||chosen.length>=(spelling?spelling.gaps.length:tiles.length)} onClick={()=>setChosen(c=>[...c,i])}>{t.text===' '?'␣':t.text}</button>)}</div><button disabled={busy||!chosen.length} onClick={()=>setChosen(c=>c.slice(0,-1))}>Undo 撤销</button></>:<div className={'daily-options '+(task.kind==='pictures'?'daily-pictures':'')}>{task.options?.map(o=><button key={o.id} disabled={busy} aria-label={task.kind==='audio-options'?'Listen to option '+(task.options!.indexOf(o)+1):task.kind==='pictures'?'Choose picture '+(task.options!.indexOf(o)+1):undefined} aria-pressed={selected===o.text} onClick={()=>{setSelected(o.text);setMessage('');if(task.kind!=='pictures')speak(o.text)}}>{task.kind==='pictures'?<GogoImage src={publicAsset(o.image!)} alt=""/>:task.kind==='audio-options'?'🔊 '+(task.options!.indexOf(o)+1):o.text}</button>)}</div>}<p role="status">{message}</p><button className="primary" disabled={busy||(build?chosen.length!==(spelling?spelling.gaps.length:tiles.length):!selected)} onClick={()=>void check()}>{busy?'Saving…':'OK ✓'}</button></div>
 }
 export default function DailyAdventure({request,onExit,childId}:{childId?:string;request:(path:string,data:object)=>Promise<any>;onExit:()=>void}){
  const [run,setRun]=useState<DailyRun|null>(null),[error,setError]=useState(''),[retry,setRetry]=useState(0),[replay,setReplay]=useState(false),[replayDone,setReplayDone]=useState<string[]>([]);

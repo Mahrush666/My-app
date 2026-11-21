@@ -52,17 +52,18 @@ export async function dailyPractice(db:D1Database,child:Child,now:number){
  for(const activity of activities){
  if(activity==='spell'){
   for(const word of words){
-   const order=spellingOrder(word.en);
+   const parts=lesson.id.startsWith('play1-')&&word.spellingParts?[...word.spellingParts]:undefined;
+   const order=spellingOrder(word.en,parts);
    if(!order.length)continue;
    const wordId=word.id!;
    // Freeze one step per word for the day. Both homework and earlier daily answers count.
    const next=spellingCredits.findIndex(credit=>!answered.has(credit+':'+wordId));
    const stage=isCvcLesson(lesson.id)||complete.has(activity)||next<0?4:next;
    const creditActivity=spellingCredits[stage];
-   const prompt=stage===0?'Look and build the word. 看词拼写':stage===4?'Listen and spell the word. 听音拼写':'Fill in the missing letters. 补全单词';
+   const prompt=stage===0?'Look and build the word. 看词拼写':stage===4?'Listen and spell the word. 听音拼写':parts?'Fill in the missing syllables. 补全音节':'Fill in the missing letters. 补全单词';
    pool.push({id:a.id+':'+creditActivity+':'+wordId,assignmentId:a.id,assignmentVersion:Number(a.updated_at),
     unitId:lesson.id,activity,creditActivity,wordId,kind:'letters',prompt,image:word.picture,
-    listen:word.en,expected:word.en,spelling:{stage,gaps:spellingGaps(word.en,stage,order)}});
+    listen:word.en,expected:word.en,spelling:{stage,gaps:spellingGaps(word.en,stage,order,Boolean(parts)),...(parts?{parts}:{})}});
   }
   continue;
  }

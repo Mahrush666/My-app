@@ -1,3 +1,4 @@
+import {act2Unit9Lesson4} from './act2-u9-lesson4';
 import type { Lesson } from './lessons';
 
 const unit = { id: 'act2-u9', number: 9, title: 'Unit 9 · City Trip' };
@@ -102,3 +103,5 @@ act2Unit9Lessons.push({
   readings:[],
   videos:newDestinations.map(({place,person})=>({title:place[0].toUpperCase()+place.slice(1)+' · '+person,kind:'lesson' as const,audioOnly:true,poster:lesson3Art+citySlug(place)+'.webp',src:lesson3Audio+'dialogue-'+citySlug(place)+'.mp3'})),
 });
+
+act2Unit9Lessons.push(act2Unit9Lesson4);

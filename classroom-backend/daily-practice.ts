@@ -87,7 +87,10 @@ export async function dailyPractice(db:D1Database,child:Child,now:number){
  }
  if(activity==='sentence-build'&&isListeningSentenceLesson(lesson.id)){for(const s of lesson.sentencePractice||[])pool.push({id:a.id+':sentence-build:'+s.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),creditActivity:activity,unitId:lesson.id,activity,wordId:s.id,kind:'sentence',prompt:'Listen and build the sentence.',listen:s.text,expected:s.text});continue;}
  if(!['word-choice','sound-picture','picture-listen','word-sound','sound-word','sentence-build','reactor','dungeon'].includes(activity))continue;
- for(const w of words){const others=shuffle(words.filter(x=>x.id!==w.id&&(!isSentenceLesson(lesson.id)||x.category===w.category))).slice(0,3),options=(activity==='word-sound'||activity==='sound-word'?wordAudioChoices(w,words):shuffle([w,...others])).map(dailyWord);if(options.length<4)continue;
+ for(const w of words){const alternatives=words.filter(x=>x.id!==w.id&&(!isSentenceLesson(lesson.id)||x.category===w.category));
+ const matching=alternatives.filter(x=>x.pictureListening?.question===w.pictureListening?.question);
+ const choicePool=activity==='picture-listen'&&w.pictureListening&&matching.length>=3?matching:alternatives;
+ const others=shuffle(choicePool).slice(0,3),options=(activity==='word-sound'||activity==='sound-word'?wordAudioChoices(w,words):shuffle([w,...others])).map(dailyWord);if(options.length<4)continue;
  let kind:DailyTask['kind']='written',listen:string|undefined,prompt=w.zh||'Choose the correct answer.',image=w.picture;
  if(activity==='sentence-build'){kind='sentence';listen=w.en;prompt='Build the sentence.'}
  else if(activity==='sound-picture'||activity==='dungeon'&&options.every(o=>o.image)||activity==='reactor'&&(young||lesson.id.startsWith('play2-u4-lesson3'))){kind='pictures';listen=w.en;image=undefined;prompt='Listen and choose a picture.';if(options.some(o=>!o.image))continue}

@@ -23,7 +23,10 @@ export default function PicturePractice({mode,vocabulary,progress,allCards=false
  useEffect(()=>{generation.current++;request.current?.abort();
  stopSpeaking();marked.current=false;if(!w)return;
  // eslint-disable-next-line react-hooks/set-state-in-effect
- setChoices(shuffle([w,...shuffle(vocabulary.filter(x=>x.en!==w.en)).slice(0,3)]));setSelected(-1);setResult(null);setMessage('');setTranscript('');setUrl('')},[w,vocabulary]);
+ const alternatives=vocabulary.filter(x=>x.en!==w.en);
+ const matching=alternatives.filter(x=>x.pictureListening?.question===w.pictureListening?.question);
+ const pool=mode==='picture-listen'&&w.pictureListening&&matching.length>=3?matching:alternatives;
+ setChoices(shuffle([w,...shuffle(pool).slice(0,3)]));setSelected(-1);setResult(null);setMessage('');setTranscript('');setUrl('')},[w,vocabulary]);
  useEffect(()=>()=>{if(url)URL.revokeObjectURL(url)},[url]);
  function stop(){if(timer.current)clearTimeout(timer.current);if(recorder.current?.state==='recording')recorder.current.stop();stream.current?.getTracks().forEach(t=>t.stop());setRecording(false)}
  async function mark(correct:boolean){if(writing.current||result===true)return;writing.current=true;setBusy(true);playAnswerSound(correct);setResult(correct);setMessage(correct?'⭐ Well done! 答对了！':'💛 Listen and try again. 听一听，再试试。');try{if(!marked.current||correct){const correction=marked.current;await onAnswer(w,correct,mode,correction);marked.current=true;}}catch{marked.current=false;setResult(null);setMessage('Your answer could not be saved. Please try again.')}finally{writing.current=false;setBusy(false)}}

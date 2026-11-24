@@ -1,3 +1,4 @@
+import {LessonCourseInfo} from '../github-pages/course-info';
 import CvcWordBuilder from './cvc-word-builder';
 import {isCvcLesson} from '../lib/cvc-practice';
 import LessonAssets from './lesson-assets';
@@ -41,7 +42,7 @@ const SentenceSpeaking=lazy(()=>import('../github-pages/local-speech-trial'));
 type PracticeProps={preview?:boolean;completedActivities?:string[];completedQuestions?:string[];spellingScope?:string;sentencePractice?:SentencePractice[];readingStory?:IllustratedReading;story?:PictureStory;videos?:LessonVideo[];activities?:ActivityId[];vocabulary?:typeof words;readings?:import("@/lib/classroom-types").ReadingPassage[];unitId?:string;initialProgress?:Progress;onActivity?:(event:import("@/lib/classroom-types").ActivityDraft)=>Promise<void>;age?:string;onlyDue?:boolean;homework?:boolean;homeworkSequence?:boolean;mediaLesson?:LessonMedia;onMediaReady?:(ready:boolean)=>void};
 export default function Practice(props:PracticeProps){
  const media=props.mediaLesson||{words:props.vocabulary||words,readings:props.readings||passages,story:props.story,readingStory:props.readingStory,videos:props.videos,sentencePractice:props.sentencePractice};
- return <LessonAssets lesson={media} onReady={props.onMediaReady}><PracticeContent {...props}/></LessonAssets>;
+ return <LessonAssets lesson={media} onReady={props.onMediaReady}><LessonCourseInfo lessonId={props.unitId}/><PracticeContent {...props}/></LessonAssets>;
 }
 function PracticeContent({preview=false,completedActivities=[],completedQuestions,spellingScope,vocabulary=words,readings=passages,unitId,initialProgress,onActivity,homework=false,homeworkSequence=true,age,onlyDue=false,sentencePractice,story,readingStory,videos,activities:requestedActivities=allActivities}:PracticeProps){
  useEffect(()=>{prepareAnswerSounds();prepareCelebration();return stopAnswerSounds},[]);

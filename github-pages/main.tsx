@@ -1,3 +1,4 @@
+import CourseInfo from './course-info';
 import {usePublishedLessons} from '../lib/published-lessons';
 import {classroomRequest,configuredEndpoint,sessionSaved} from '../lib/classroom-client';
 import { lazy, Suspense, useState, useEffect } from 'react';
@@ -27,7 +28,7 @@ function App() {
  const [settings,setSettings]=useState<Settings>(()=>{try{return validateSettings(JSON.parse(localStorage.getItem('wordquest-unit-settings-v1')||'{}'),lessons.map(l=>l.id))}catch{return {}}});
  const [shared]=useState<Settings>(()=>{try{return validateSettings(JSON.parse(query.get('settings')||params.get('settings')||'{}'),lessons.map(l=>l.id))}catch{return {}}});
  const initialLesson=lessons.find(l=>l.id===(query.get('unit')||params.get('unit')));
- const [book,setBook]=useState(initialLesson?.book||''),[chapter,setChapter]=useState(initialLesson?.unit?.id||''),[lessonId,setLessonId]=useState(initialLesson?.id||'');
+ const [book,setBook]=useState(initialLesson?.book||(!student&&bookNames(lessons,true).includes(query.get('book')||'')?query.get('book')!:'')),[chapter,setChapter]=useState(initialLesson?.unit?.id||''),[lessonId,setLessonId]=useState(initialLesson?.id||'');
  const published=usePublishedLessons(lessons.map(l=>l.id),!online,!teacher);
  const latestSettings={...settings,...published.settings};
  const latestShared=Object.fromEntries(Object.entries(shared).map(([id,value])=>[id,published.settings[id]||value]));
@@ -50,6 +51,7 @@ function App() {
  {published.error&&<p className="notice" role="status">{published.error} <button onClick={published.retry}>Retry 重试</button></p>}
  {published.loading?<p>Loading the latest lesson… 正在加载最新课程…</p>:teacher&&!student?<TeacherGate><Teacher settings={latestSettings} onSave={save} onExit={()=>{setTeacher(false);history.replaceState(null,'',location.pathname)}}/></TeacherGate>:selected?<><div className="section-heading practice-heading"><div><p className="eyebrow">{selected.book}{selected.unit?' · Unit '+selected.unit.number:''}</p><h2>{lessonLabel(selected)}</h2></div>{visibleLessons.length>1&&<button onClick={()=>setLessonId('')}>Choose lesson 选课程</button>}</div><Practice unitId={selected.id} sentencePractice={selected.sentencePractice} age={(student?latestShared[selected.id]:latestSettings[selected.id])?.age||selected.defaultAge} key={selected.id} vocabulary={selected.words} readings={selected.readings} readingStory={selected.readingStory} story={selected.story} videos={selected.videos} activities={configuredActivities(selected.id,latestShared,latestSettings,student,selected.defaultActivities)}/></>:<>
  <div className="section-heading"><div>{book&&!emptyBook&&<p className="eyebrow">{currentUnit?.title||book}</p>}<h1>{!book?'Choose your book 选课本':emptyBook?book:units.length&&!chapter?'Choose a unit 选单元':'Choose a lesson 选课程'}</h1></div>{book&&<button onClick={chapter?()=>setChapter(''):allBooks}>{chapter?'All units 所有单元':'All books 所有课本'}</button>}</div>
+ {book&&<CourseInfo book={book} unitNumber={currentUnit?.number}/>}
  {emptyBook&&<p className="notice">{emptyBookMessage}</p>}{student&&!visibleLessons.length&&<p className="notice">This student link has no valid lesson settings. Ask your teacher for a new QR code. 请老师重新生成课程二维码。</p>}<div className="lesson-menu">{!book?books.map(b=>{const grouped=bookUnits(visibleLessons,b);return <button key={b} className="lesson-tile" onClick={()=>openBook(b)}><BookOpen size={32}/><strong>{b}</strong><span>{grouped.length?grouped.length+' units 单元':visibleLessons.some(l=>l.book===b)?visibleLessons.filter(l=>l.book===b).length+' lessons 课程':'No lessons yet 暂无课程'}</span></button>}):units.length&&!chapter?units.map(u=><button key={u.id} className="lesson-tile" onClick={()=>setChapter(u.id)}><BookOpen size={32}/><strong>{u.title}</strong><span>{visibleLessons.filter(l=>l.book===book&&l.unit?.id===u.id).length} lessons 课程</span></button>):menuLessons.map(l=><button key={l.id} className="lesson-tile" onClick={()=>setLessonId(l.id)}><BookOpen size={32}/><strong>{lessonLabel(l)}</strong><span>{l.story?l.story.scenes.length+' story pictures':''}{l.words.length>0?l.words.length+' flashcards':''}</span></button>)}</div></>}
  <footer><details className="practice-info"><summary>Progress info 进度说明</summary><p>Practice progress stays on this browser. 练习进度保存在此设备。</p></details></footer></main></TeacherLanguageScope>
 }

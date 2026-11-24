@@ -21,6 +21,8 @@ export function similarReadingWords(first:string,second:string):boolean{
 export function wordAudioPool(vocabulary:Word[]):Word[]{return vocabulary.some(w=>w.id?.startsWith('sp2-u'))?[...vocabulary,...smartPhonics2Unit1.words,...smartPhonics2Unit2.words,...smartPhonics2Unit3.words]:vocabulary}
 
 export function wordAudioChoices(word:Word,vocabulary:Word[]):Word[]{
+ // Pair practice deliberately contrasts nearby blends (am/an, ed/en, ib/id).
+ if(word.id?.startsWith('phonics-basics-'))return shuffle([word,...shuffle(vocabulary.filter(w=>w.en!==word.en)).slice(0,3)]);
  // Extra choices only: the review queue and credit still belong to the current unit.
  const pool=word.id?.startsWith('sp2-u')?wordAudioPool(vocabulary):vocabulary;
  const labels=new Set([audioKey(word.en)]),sounds=new Set([audioSource(word.en)||audioKey(word.en)]);

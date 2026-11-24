@@ -1,5 +1,5 @@
 import {shuffle} from './random';
-export const isCvcLesson=(id?:string)=>id==='act3-u7-lesson5';
+export const isCvcLesson=(id?:string)=>id==='act3-u7-lesson5'||id==='phonics-basics-pairs';
 // Include every target letter (with repeats) plus unique distractors.
 export function cvcLetterTiles(word:string){
  const count=6+Math.floor(Math.random()*4);

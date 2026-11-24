@@ -63,7 +63,7 @@ export async function dailyPractice(db:D1Database,child:Child,now:number){
    const prompt=stage===0?'Look and build the word. 看词拼写':stage===4?'Listen and spell the word. 听音拼写':parts?'Fill in the missing syllables. 补全音节':'Fill in the missing letters. 补全单词';
    pool.push({id:a.id+':'+creditActivity+':'+wordId,assignmentId:a.id,assignmentVersion:Number(a.updated_at),
     unitId:lesson.id,activity,creditActivity,wordId,kind:'letters',prompt,image:word.picture,
-    listen:word.en,expected:word.en,spelling:{stage,gaps:spellingGaps(word.en,stage,order,Boolean(parts)),...(parts?{parts}:{})}});
+    listen:word.en,recording:word.recording,expected:word.en,spelling:{stage,gaps:spellingGaps(word.en,stage,order,Boolean(parts)),...(parts?{parts}:{})}});
   }
   continue;
  }
@@ -98,7 +98,7 @@ export async function dailyPractice(db:D1Database,child:Child,now:number){
  else if(activity==='sound-word'||activity==='dungeon'){listen=w.en;image=undefined;prompt='Listen and choose.'}
  const expected=activity==='picture-listen'&&w.pictureListening?w.pictureListening.answer:w.en;
  if(activity==='picture-listen'&&w.pictureListening){listen=w.pictureListening.question;prompt='Listen and choose the answer.';image=w.pictureListening.image||w.picture;for(const option of options){const source=words.find(x=>x.id===option.id);option.text=source?.pictureListening?.answer||option.text}}
- pool.push({id:a.id+':'+activity+':'+w.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),creditActivity:activity,unitId:lesson.id,activity,wordId:w.id!,kind,prompt,image,listen,expected,options});
+ pool.push({id:a.id+':'+activity+':'+w.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),creditActivity:activity,unitId:lesson.id,activity,wordId:w.id!,kind,prompt,image,listen,recording:listen===w.en?w.recording:undefined,expected,options});
  }}
  const unfinished=pool.filter(t=>!complete.has(t.activity)&&!answered.has((t.creditActivity||t.activity)+':'+t.wordId));
  if(pool.length)pools.push(unfinished.length?unfinished:pool);if(pools.length===2)break;

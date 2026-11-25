@@ -1,3 +1,4 @@
+import starterFriendsRecordings from './pu-starter-u9-lesson4-audio.json';
 import starterFarmRecordings from './pu-starter-u9-lesson3-audio.json';
 import cityTripStoryRecordings from './act2-u9-lesson4-audio.json';
 import cityTripLesson3Recordings from './act2-u9-lesson3-audio.json';
@@ -10,7 +11,7 @@ import cityTripRecordings from './act2-u9-audio.json';
 import aiCourseRecordings from './ai-course-audio.json';
 import numberRecordings from './number-audio.json';
 import { publicAsset } from './public-runtime';
-const clips: Record<string,string> = {...starterFarmRecordings,...cityTripRecordings,...recordings,...numberRecordings,...aiCourseRecordings,...phonicsRecordings,...cvcRecordings,...play1Recordings,...dungeonRecordings,...cityTripLesson3Recordings,...cityTripStoryRecordings};
+const clips: Record<string,string> = {...starterFriendsRecordings,...starterFarmRecordings,...cityTripRecordings,...recordings,...numberRecordings,...aiCourseRecordings,...phonicsRecordings,...cvcRecordings,...play1Recordings,...dungeonRecordings,...cityTripLesson3Recordings,...cityTripStoryRecordings};
 let player: HTMLAudioElement | undefined;
 let utterance: SpeechSynthesisUtterance | undefined;
 let generation = 0;

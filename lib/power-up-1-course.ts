@@ -1,7 +1,8 @@
 // Transcribed from the two supplied “Map of the book” contents pages.
 // This reference outline is independent of which practice lessons are available.
 export type CourseUnitInfo={
- number:number;title:string;page:number;mission?:string;vocabulary:string[];
+ number:number;title:string;page?:number;mission?:string;vocabulary:string[];
+ unitLabel?:string;context?:string;outcomes?:string;language?:string;
  sounds?:string[];grammar:{topic:string;examples:string[]}[];
  crossCurricular?:{title:string;focus:string};
  literature?:{title:string;genre:string;socialSkill:string};assessment?:string[];

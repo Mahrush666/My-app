@@ -14,7 +14,7 @@ export function AttendanceLessonProvider({request,children}:{request:Request;chi
  },[retry]);
  return <Context.Provider value={{lessons,loading,error,retry:()=>setRetry(n=>n+1)}}>{children}</Context.Provider>;
 }
-export function AttendanceLessonStatus(){const {error,retry}=useContext(Context);return error?<p className="attendance-topic-error" role="status"><UiText text="Current topics could not load. Attendance is still available. 无法加载当前主题，仍可记录出勤。"/> <button type="button" onClick={retry}><UiText text="Retry 重试"/></button></p>:null}
+export function AttendanceLessonStatus({context='attendance'}:{context?:'attendance'|'dashboard'}={}){const {error,retry}=useContext(Context);return error?<p className="attendance-topic-error" role="status"><UiText text={context==='dashboard'?"Current topics could not load. The class list is still available. 无法加载当前主题，仍可查看课程列表。":"Current topics could not load. Attendance is still available. 无法加载当前主题，仍可记录出勤。"}/> <button type="button" onClick={retry}><UiText text="Retry 重试"/></button></p>:null}
 export default function AttendanceCurrentLesson({groupId}:{groupId:string}){
  const {lessons,loading,error}=useContext(Context),{language,t}=useTeacherText(),lesson=lessons.find(l=>l.groupId===groupId);
  if(error)return null;

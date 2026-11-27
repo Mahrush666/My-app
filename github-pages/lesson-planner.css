@@ -22,3 +22,5 @@
 .lp-official-stages>li>div{display:flex;justify-content:space-between;gap:1rem;align-items:baseline}
 .lp-official-stages>li>div>span{font-size:.875rem;color:#746c80;white-space:nowrap}
 .lp-official-stages p{margin:.25rem 0 0;font-size:1rem}
+
+.lp-official-stages p{white-space:pre-line}

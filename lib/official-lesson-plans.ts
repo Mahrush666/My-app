@@ -1,7 +1,8 @@
 import type {PlannerBlock,PlannerPlan} from './lesson-planner';
+import {officialAct2Unit9Plans} from './official-act2-unit9-plans';
 
 // Published teacher-book summaries are distinct from editable group plans.
-export type OfficialPlannerPlan=PlannerPlan&{source:{book:string;pages:string;materials:string;support:string}};
+export type OfficialPlannerPlan=PlannerPlan&{source:{book:string;pages:string;materials:string;support:string;timings?:'source'}};
 type Stage=[string,number,PlannerBlock['kind'],string];
 function plan(id:string,lessonId:string,title:string,pages:string,objectives:string,materials:string,support:string,stages:Stage[]):OfficialPlannerPlan{
  return {kind:'plan',id:'official-pu1-u8-'+id,groupId:'',book:'Power Up 1',unit:8,lessonId,title,date:'',duration:stages.reduce((n,s)=>n+s[1],0),status:'ready',objectives,comments:'',revision:0,updatedAt:0,
@@ -9,6 +10,7 @@ function plan(id:string,lessonId:string,title:string,pages:string,objectives:str
  blocks:stages.map(([stage,minutes,kind,instructions],i)=>({id:'official-pu1-u8-'+id+'-'+i,stage,minutes,kind,instructions,title:'',resourceId:'',comments:'',url:''}))};
 }
 export const officialLessonPlans:OfficialPlannerPlan[]=[
+ ...officialAct2Unit9Plans,
  plan('1','pu1-u8-vocabulary1','Lesson 1 · Rooms and objects','TB/PB 94–95; AB 94–95; AB notes TB130',
  'Name rooms and objects. Describe home. Begin the “Invite a friend” mission.',
  'Home/room flashcards; audio 3.13–3.16; unit video; paper.',
@@ -93,6 +95,6 @@ export function isOfficialPlan(plan:PlannerPlan):plan is OfficialPlannerPlan{
 export function copyPlannerPlan(source:PlannerPlan,groupId:string):PlannerPlan{
  // Explicit fields prevent a copy retaining the Official label or source identity.
  return {kind:'plan',id:crypto.randomUUID(),groupId,lessonId:source.lessonId,book:source.book,unit:source.unit,title:source.title,date:'',duration:source.duration,status:'draft',objectives:source.objectives,
- comments:isOfficialPlan(source)?`Based on ${source.source.book}, ${source.source.pages}. Timings are suggested.\nMaterials: ${source.source.materials}\n${source.source.support}`:source.comments,
+ comments:isOfficialPlan(source)?`Based on ${source.source.book}, ${source.source.pages}. ${source.source.timings==='source'?'Timings follow the source.':'Timings are suggested.'}\nMaterials: ${source.source.materials}\n${source.source.support}`:source.comments,
  blocks:source.blocks.map(b=>({...b,id:crypto.randomUUID()})),revision:0,updatedAt:0};
 }

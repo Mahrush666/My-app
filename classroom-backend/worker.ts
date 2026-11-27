@@ -1,4 +1,4 @@
-import {lessonPlanner,PlannerError} from './lesson-planner';
+import {lessonPlanner,currentGroupLessons,PlannerError} from './lesson-planner';
 import {isCvcLesson} from '../lib/cvc-practice';
 import {exportRewardsBackup,restoreRewardsBackup} from './rewards-backup';
 import {childRewardContext,challengeKey,currentSemester,rewardProgram,saveSetting,updateRewardProgram} from './reward-program';
@@ -114,6 +114,7 @@ export async function handle(request:Request,env:Env){
  if(session.role==='student'){const access=await env.DB.prepare('SELECT ss.child_id FROM student_sessions ss JOIN student_links sl ON sl.child_id=ss.child_id AND sl.access_hash=ss.access_hash WHERE ss.session_hash=?').bind(await hash(raw)).first<{child_id:string}>();if(!access)throw new Failure('This homework QR was replaced or disabled. Ask your teacher for a new QR.',401);scopedChild=access.child_id;}
  if(path==='/logout'&&request.method==='POST'){await env.DB.batch([env.DB.prepare('DELETE FROM student_sessions WHERE session_hash=?').bind(await hash(raw)),env.DB.prepare('DELETE FROM sessions WHERE hash=?').bind(await hash(raw))]);return respond({saved:true})}
  const access=session.role==='teacher'?await staffAccess(env.DB,session.account_id):null;
+ if(path==='/current-lessons'){try{if(request.method!=='GET')return respond({error:'Method not allowed.'},405);return respond(await currentGroupLessons(env.DB,access))}catch(e){if(e instanceof PlannerError)return respond({error:e.message},e.status);throw e}}
  if(path==='/lesson-planner'){try{return respond(await lessonPlanner(env.DB,access,request.method,data,now))}catch(e){if(e instanceof PlannerError)return respond({error:e.message},e.status);throw e}}
  if(path==='/campus-attendance'){
   if(!access)throw new Failure('Teacher access required.',403);

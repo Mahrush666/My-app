@@ -47,7 +47,7 @@ export async function campusAttendance(db:D1Database,access:StaffAccess,url:URL,
  const visible=roster.results.filter(row=>access.owner||access.groups.includes(row.group_id));
  if(method==='GET')return {day,classes:await listClasses(),students:visible.map(row=>{
   const mark=row.value?JSON.parse(row.value) as Omit<CampusAttendanceMark,'childId'>:null;
-  return {childId:row.id,name:row.name,groupName:row.group_name,status:mark?.status??'unmarked',lessons:mark?.lessons??''};
+  return {childId:row.id,name:row.name,groupName:row.group_name,groupId:row.group_id,status:mark?.status??'unmarked',lessons:mark?.lessons??''};
  })};
 
  const marks=data.marks;

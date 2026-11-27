@@ -1,3 +1,4 @@
+import AttendanceCurrentLesson from './attendance-current-lesson';
 import {HomeworkWarning} from './homework-warning';
 import {useEffect,useRef,useState} from 'react';
 import {campusClassNameLimit,campusClassNames,campusLessonsLimit,type CampusAttendanceMark,type CampusAttendanceRow} from '../lib/campus-attendance';
@@ -126,6 +127,7 @@ export default function CampusAttendance({campusId,request,canMark,onDirtyChange
   {error&&<p role="alert" className="notice">{error}{!rows&&<> <button type="button" onClick={()=>setRetry(value=>value+1)}><UiText text="Retry 重试"/></button></>}</p>}
   {rows&&!rows.length&&<p><UiText text="No students on your HT roster yet. HT 名单中暂无学生。"/></p>}
   {rows?.length&&!visible?.length?<p><UiText text="No students match your search. 未找到匹配的学生。"/></p>:null}
+  {!!visible?.some(row=>row.groupId)&&<details className="attendance-group-topics" open><summary><UiText text="Current group lessons 班级当前课程"/></summary>{[...new Map(visible.filter(row=>row.groupId).map(row=>[row.groupId!,row.groupName])).entries()].map(([id,name])=><div key={id}><strong>{name}</strong><AttendanceCurrentLesson groupId={id}/></div>)}</details>}
   {!!rows?.length&&<form onSubmit={event=>{event.preventDefault();void save()}}>
    <fieldset disabled={!canMark||saving}>
     <div className="campus-attendance-columns" aria-hidden="true"><span><UiText text="Student 学生"/></span><span><UiText text="Attendance 出勤"/></span><span><UiText text="Classes attended 参加的课程"/></span></div>

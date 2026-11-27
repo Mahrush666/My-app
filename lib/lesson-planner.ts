@@ -6,7 +6,7 @@ export type PlannerKind='plan'|'progress'|'unit'|'lesson'|'resource'|'profile';
 export type PlannerBase={id:string;revision:number;updatedAt:number};
 export type PlannerBlock={id:string;stage:string;kind:'song'|'game'|'activity'|'notes';resourceId:string;title:string;minutes:number;instructions:string;comments:string;url:string};
 export type PlannerPlan=PlannerBase&{kind:'plan';groupId:string;lessonId:string;book:string;unit:number;title:string;date:string;duration:number;status:'draft'|'ready';objectives:string;comments:string;blocks:PlannerBlock[]};
-export type PlannerProgress=PlannerBase&{kind:'progress';groupId:string;book:string;unit:number;lessonId:string;profileId:string;age:string;level:string;difficulty:string;notes:string};
+export type PlannerProgress=PlannerBase&{kind:'progress';topicUpdatedAt?:number;groupId:string;book:string;unit:number;lessonId:string;profileId:string;age:string;level:string;difficulty:string;notes:string};
 export type PlannerUnit=PlannerBase&{kind:'unit';book:string;unit:number;title:string;notes:string};
 export type PlannerLesson=PlannerBase&{kind:'lesson';groupId:string;book:string;unit:number;title:string;afterId:string;focus:string};
 export type PlannerResource=PlannerBase&{kind:'resource';resourceKind:'song'|'game'|'activity';title:string;skills:string;levels:string;minutes:number;materials:string;instructions:string;url:string};
@@ -44,3 +44,5 @@ export function plannerCurriculum(book:string,unit:number,groupId:string,lessons
  return result;
 }
 export function plannerSuggestion(book:string,unit:number){if(!['ACT2','ACT3'].includes(book))return '';return `${book} Unit ${unit}: optional phonics / CVC practice. Choose only letter sounds already taught; add a short review lesson if this group needs more practice.`}
+
+export type CurrentGroupLesson={groupId:string;book:string;unit:number;lessonId:string;title:string;changedAt:number};

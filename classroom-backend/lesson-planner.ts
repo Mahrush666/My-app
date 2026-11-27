@@ -2,7 +2,7 @@ import {plannerUnits} from '../lib/lesson-planner';
 import {lessons} from '../github-pages/lessons';
 import type {D1Database} from '@cloudflare/workers-types';
 import type {StaffAccess} from '../lib/staff';
-import type {PlannerRecord,PlannerKind} from '../lib/lesson-planner';
+import type {PlannerRecord,PlannerKind,CurrentGroupLesson} from '../lib/lesson-planner';
 export class PlannerError extends Error{constructor(message:string,public status=400){super(message)}}
 function fail(message:string,status=400):never{throw new PlannerError(message,status)}
 function str(value:unknown,max:number,required=false){if(typeof value!=='string'||value.length>max||(required&&!value.trim()))return fail('Check the required text fields and their length.');return value.trim()}
@@ -64,8 +64,22 @@ export async function lessonPlanner(db:D1Database,access:StaffAccess|null,method
  if(previous&&'groupId' in previous&&previous.groupId)await groupAccess(db,access,previous.groupId);
  if(previous&&('groupId' in previous)&&('groupId' in record)&&previous.groupId!==record.groupId)fail('Duplicate this record to move it to another class.');
  if((previous?.revision||0)!==record.revision)fail('This record was changed in another window. Reload the planner before saving.',409);
- const saved={...record,revision:record.revision+1,updatedAt:now};const value=JSON.stringify(saved);if(value.length>100000)fail('This record is too large. Split the plan into shorter lessons.',413);
+ const topicDate=record.kind==='progress'?{topicUpdatedAt:previous?.kind==='progress'&&previous.book===record.book&&previous.unit===record.unit&&previous.lessonId===record.lessonId?previous.topicUpdatedAt??previous.updatedAt:now}:{};
+ const saved={...record,...topicDate,revision:record.revision+1,updatedAt:now};const value=JSON.stringify(saved);if(value.length>100000)fail('This record is too large. Split the plan into shorter lessons.',413);
  const result=old?await db.prepare('UPDATE config SET value=? WHERE key=? AND value=? RETURNING key').bind(value,key,old.value).first():await db.prepare('INSERT INTO config(key,value) VALUES(?,?) ON CONFLICT(key) DO NOTHING RETURNING key').bind(key,value).first();
  if(!result)fail('This record was changed in another window. Reload before saving.',409);
  return {record:saved};
+}
+
+// Attendance readers receive only group topic summaries, not private plans or profile notes.
+export async function currentGroupLessons(db:D1Database,access:StaffAccess|null):Promise<{lessons:CurrentGroupLesson[]}>{
+ if(!access||(!access.owner&&!access.permissions.some(p=>['attendance','schedule','materials'].includes(p))))fail('Attendance or lesson planning permission is required.',403);
+ const rows=await db.prepare("SELECT key,value FROM config WHERE key LIKE 'lesson_planner:progress:%' OR key LIKE 'lesson_planner:lesson:%'").all<{key:string;value:string}>();
+ const records=rows.results.map(row=>JSON.parse(row.value) as PlannerRecord);
+ return {lessons:records.filter(r=>r.kind==='progress'&&(access.owner||access.groups.includes(r.groupId))).map(r=>{
+  if(r.kind!=='progress')throw new Error('Invalid progress record');
+  const builtIn=lessons.find(l=>l.id===r.lessonId&&l.book===r.book&&(l.unit?.number||0)===r.unit);
+  const custom=records.find(l=>l.kind==='lesson'&&l.id===r.lessonId&&l.book===r.book&&l.unit===r.unit&&(!l.groupId||l.groupId===r.groupId));
+  return {groupId:r.groupId,book:r.book,unit:r.unit,lessonId:r.lessonId,title:builtIn?.lessonTitle||builtIn?.title||(custom?.kind==='lesson'?custom.title:''),changedAt:r.topicUpdatedAt??r.updatedAt};
+ })};
 }

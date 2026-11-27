@@ -79,10 +79,10 @@ export async function dailyPractice(db:D1Database,child:Child,now:number){
    id:a.id+':'+q.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),unitId:lesson.id,
    activity,wordId:q.id,kind:pictures?'pictures':listening?'audio-options':'written',
    prompt:listening?'Listen and choose. 听一听，选一选。':q.text,
-   listen:listening?q.text:undefined,
+   listen:listening?q.text:undefined,recording:lesson.readingStory?.recordings?.[q.text],
    image:q.listenOnly?q.picture:volcano?.object||scene?.image,
    expected:q.options[q.answer],
-   options:shuffle(q.options.map((text,i)=>({id:String(i),text,image:pictures?.[i]}))),
+   options:shuffle(q.options.map((text,i)=>({id:String(i),text,image:pictures?.[i],recording:lesson.readingStory?.recordings?.[text]}))),
   });
  }
  if(activity==='sentence-build'&&isListeningSentenceLesson(lesson.id)){for(const s of lesson.sentencePractice||[])pool.push({id:a.id+':sentence-build:'+s.id,assignmentId:a.id,assignmentVersion:Number(a.updated_at),creditActivity:activity,unitId:lesson.id,activity,wordId:s.id,kind:'sentence',prompt:'Listen and build the sentence.',listen:s.text,expected:s.text});continue;}
@@ -124,7 +124,7 @@ export async function dailyPractice(db:D1Database,child:Child,now:number){
  const tasks=shuffle(selected.slice(0,12));const id=crypto.randomUUID();await db.prepare('INSERT OR IGNORE INTO daily_runs VALUES(?,?,?,?,?,?,0)').bind(id,child.id,child.group_id,day,JSON.stringify(tasks),now).run();
  run=await findRun();
  }
- const answers=await db.prepare('SELECT DISTINCT task_id FROM daily_answers WHERE run_id=? AND correct=1').bind(run!.id).all<{task_id:string}>();return {enabled:true,day,id:run!.id,tasks:JSON.parse(run!.tasks) as DailyTask[],done:answers.results.map(a=>a.task_id),finished:Number(run!.finished_at)>0};
+ const answers=await db.prepare('SELECT DISTINCT task_id FROM daily_answers WHERE run_id=? AND correct=1').bind(run!.id).all<{task_id:string}>();return {enabled:true,day,id:run!.id,tasks:(JSON.parse(run!.tasks) as DailyTask[]).map(task=>{const recordings=lessons.find(l=>l.id===task.unitId)?.readingStory?.recordings;return recordings?{...task,recording:recordings[task.listen||'']||task.recording,options:task.options?.map(option=>({...option,recording:recordings[option.text]||option.recording}))}:task}),done:answers.results.map(a=>a.task_id),finished:Number(run!.finished_at)>0};
 }
 export async function answerDaily(db:D1Database,child:Child,now:number,data:{runId?:unknown;taskId?:unknown;answer?:unknown;eventId?:unknown}){
  const [enabled,run,archived]=await Promise.all([

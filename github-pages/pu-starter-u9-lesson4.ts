@@ -1,3 +1,4 @@
+import originalRecordings from '../lib/pu-starter-u9-lesson4-original-audio.json';
 import type {Lesson} from './lessons';
 import type {IllustratedReading} from '../lib/illustrated-reading';
 
@@ -22,8 +23,8 @@ const feelings=(number:number,scene:number,text:string,answer:number,explanation
  text,options:['Happy.','Scared.','Sad.'],optionImages:faces.map(face=>base+face+'.svg'),answer,explanation,listenOnly:true,
 });
 const story:IllustratedReading={
- title:'Five good friends',audio:`lesson-audio/${id}/whole-story.mp3`,audioLabel:'Listen to the whole story 听完整故事',
- scenes:dialogue.map(([label,lines],i)=>({id:panel(i+1),label,image:picture(i+1),full:lines,easy:lines})),
+ title:'Five good friends',recordings:originalRecordings,audio:'lesson-audio/pu-starter-u9-lesson4-original/whole-story.mp3',audioLabel:'Original story recording 故事原音',
+ scenes:dialogue.map(([label,lines],i)=>({id:panel(i+1),label,image:picture(i+1),audio:'lesson-audio/pu-starter-u9-lesson4-original/picture-'+String(i+1).padStart(2,'0')+'.mp3',full:lines,easy:lines})),
  questions:[
   {id:'pu-starter-u9-l4-missing',scene:panel(2),text:'Who is missing?',options:['dog','duck','sheep'],optionImages:['dog','duck','sheep'].map(animal),answer:1,explanation:"Where's Duck?",listenOnly:true},
   {id:'pu-starter-u9-l4-forest',scene:panel(3),text:'Where do the friends look for Duck?',options:['At the farm.','In the forest.','At the pond.'],optionImages:[picture(1),picture(3),picture(5)],answer:1,explanation:'Is he in the forest?',listenOnly:true},

@@ -1,3 +1,4 @@
+import {lessonPlanner,PlannerError} from './lesson-planner';
 import {isCvcLesson} from '../lib/cvc-practice';
 import {exportRewardsBackup,restoreRewardsBackup} from './rewards-backup';
 import {childRewardContext,challengeKey,currentSemester,rewardProgram,saveSetting,updateRewardProgram} from './reward-program';
@@ -59,7 +60,7 @@ export async function handle(request:Request,env:Env){
  let data:Record<string,unknown>={};
  if(request.method==='POST'){
  if(!origin)throw new Failure('Open this through the classroom app.',403);
- const body=await request.text();if(body.length>(path==='/rewards-backup'?2000000:path==='/qr-download'?400000:30000))throw new Failure('This request is too large.',413);
+ const body=await request.text();if(body.length>(path==='/lesson-planner'?120000:path==='/rewards-backup'?2000000:path==='/qr-download'?400000:30000))throw new Failure('This request is too large.',413);
  try{data=JSON.parse(body)}catch{throw new Failure('Invalid request.')}
  if(!data||typeof data!=='object'||Array.isArray(data))throw new Failure('Invalid request.');
  }
@@ -113,6 +114,7 @@ export async function handle(request:Request,env:Env){
  if(session.role==='student'){const access=await env.DB.prepare('SELECT ss.child_id FROM student_sessions ss JOIN student_links sl ON sl.child_id=ss.child_id AND sl.access_hash=ss.access_hash WHERE ss.session_hash=?').bind(await hash(raw)).first<{child_id:string}>();if(!access)throw new Failure('This homework QR was replaced or disabled. Ask your teacher for a new QR.',401);scopedChild=access.child_id;}
  if(path==='/logout'&&request.method==='POST'){await env.DB.batch([env.DB.prepare('DELETE FROM student_sessions WHERE session_hash=?').bind(await hash(raw)),env.DB.prepare('DELETE FROM sessions WHERE hash=?').bind(await hash(raw))]);return respond({saved:true})}
  const access=session.role==='teacher'?await staffAccess(env.DB,session.account_id):null;
+ if(path==='/lesson-planner'){try{return respond(await lessonPlanner(env.DB,access,request.method,data,now))}catch(e){if(e instanceof PlannerError)return respond({error:e.message},e.status);throw e}}
  if(path==='/campus-attendance'){
   if(!access)throw new Failure('Teacher access required.',403);
   return respond(await campusAttendance(env.DB,access,new URL(request.url),request.method,data,now));

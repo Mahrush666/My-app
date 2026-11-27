@@ -1,15 +1,17 @@
+import {bookNames} from '../github-pages/lesson-groups';
 import {act2Course,act3Course} from './act-courses';
 import {powerUp1Course} from './power-up-1-course';
 import type {Lesson} from '../github-pages/lessons';
-export type PlannerKind='plan'|'progress'|'lesson'|'resource'|'profile';
+export type PlannerKind='plan'|'progress'|'unit'|'lesson'|'resource'|'profile';
 export type PlannerBase={id:string;revision:number;updatedAt:number};
 export type PlannerBlock={id:string;stage:string;kind:'song'|'game'|'activity'|'notes';resourceId:string;title:string;minutes:number;instructions:string;comments:string;url:string};
 export type PlannerPlan=PlannerBase&{kind:'plan';groupId:string;lessonId:string;book:string;unit:number;title:string;date:string;duration:number;status:'draft'|'ready';objectives:string;comments:string;blocks:PlannerBlock[]};
 export type PlannerProgress=PlannerBase&{kind:'progress';groupId:string;book:string;unit:number;lessonId:string;profileId:string;age:string;level:string;difficulty:string;notes:string};
+export type PlannerUnit=PlannerBase&{kind:'unit';book:string;unit:number;title:string;notes:string};
 export type PlannerLesson=PlannerBase&{kind:'lesson';groupId:string;book:string;unit:number;title:string;afterId:string;focus:string};
 export type PlannerResource=PlannerBase&{kind:'resource';resourceKind:'song'|'game'|'activity';title:string;skills:string;levels:string;minutes:number;materials:string;instructions:string;url:string};
 export type PlannerProfile=PlannerBase&{kind:'profile';title:string;age:string;level:string;difficulty:string;recommendations:string};
-export type PlannerRecord=PlannerPlan|PlannerProgress|PlannerLesson|PlannerResource|PlannerProfile;
+export type PlannerRecord=PlannerPlan|PlannerProgress|PlannerUnit|PlannerLesson|PlannerResource|PlannerProfile;
 export type CurriculumLesson={id:string;book:string;unit:number;title:string;custom?:boolean;focus?:string};
 export const plannerTemplates={
  integrated:[['Warm-up',5],['Introduce and model',10],['Guided practice',10],['Game or song',10],['Review and homework',5]],
@@ -22,12 +24,13 @@ export function templateBlocks(template:keyof typeof plannerTemplates,duration:n
  return items.map(([stage,time],i)=>{const minutes=i===items.length-1?duration-used:Math.round(time/total*duration);used+=minutes;return {id:freshId(),stage,kind:'notes',resourceId:'',title:'',minutes,instructions:'',comments:'',url:''}});
 }
 const outlines=[act2Course,act3Course,powerUp1Course];
-export function plannerBooks(lessons:Lesson[],records:PlannerRecord[]){return [...new Set([...outlines.map(c=>c.book),...lessons.map(l=>l.book),...records.filter(r=>r.kind==='lesson').map(r=>(r as PlannerLesson).book)])].sort()}
+export function plannerBooks(lessons:Lesson[],records:PlannerRecord[]){return [...new Set([...outlines.map(c=>c.book),...bookNames(lessons,true),...records.filter((r):r is PlannerLesson|PlannerUnit=>r.kind==='lesson'||r.kind==='unit').map(r=>r.book)])].sort()}
 export function plannerUnits(book:string,lessons:Lesson[],records:PlannerRecord[]){
  const units=new Map<number,string>();
  for(const course of outlines)if(course.book===book)for(const u of course.units)units.set(u.number,u.title);
  for(const l of lessons)if(l.book===book)units.set(l.unit?.number||0,units.get(l.unit?.number||0)||l.unit?.title||'Lessons');
  for(const r of records)if(r.kind==='lesson'&&r.book===book&&!units.has(r.unit))units.set(r.unit,'Unit '+r.unit);
+ for(const r of records)if(r.kind==='unit'&&r.book===book)units.set(r.unit,r.title);
  return [...units].sort((a,b)=>a[0]-b[0]).map(([number,title])=>({number,title}));
 }
 export function plannerCurriculum(book:string,unit:number,groupId:string,lessons:Lesson[],records:PlannerRecord[]):CurriculumLesson[]{

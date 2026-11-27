@@ -1,3 +1,4 @@
+import {plannerUnits} from '../lib/lesson-planner';
 import {lessons} from '../github-pages/lessons';
 import type {D1Database} from '@cloudflare/workers-types';
 import type {StaffAccess} from '../lib/staff';
@@ -12,6 +13,7 @@ export function validatePlannerRecord(raw:unknown):PlannerRecord{
  if(!raw||typeof raw!=='object'||Array.isArray(raw))return fail('Choose a planner record.');const r=raw as Record<string,unknown>;
  const kind=r.kind as PlannerKind,base={id:id(r.id),revision:num(r.revision,0,100000000),updatedAt:0};
  if(kind==='resource'){const resourceKind=r.resourceKind;if(!['song','game','activity'].includes(String(resourceKind)))fail('Choose a resource type.');return {...base,kind,resourceKind:resourceKind as 'song'|'game'|'activity',title:str(r.title,160,true),skills:str(r.skills,500),levels:str(r.levels,500),minutes:num(r.minutes,0,240),materials:str(r.materials,4000),instructions:str(r.instructions,10000),url:url(r.url)}}
+ if(kind==='unit')return {...base,kind,book:str(r.book,120,true),unit:num(r.unit,0,100),title:str(r.title,160,true),notes:str(r.notes,4000)};
  if(kind==='profile')return {...base,kind,title:str(r.title,160,true),age:str(r.age,100),level:str(r.level,200),difficulty:str(r.difficulty,200),recommendations:str(r.recommendations,10000)};
  const shared={...base,groupId:id(r.groupId,kind==='lesson'),book:str(r.book,120,true),unit:num(r.unit,0,100)};
  if(kind==='progress'){if(base.id!==shared.groupId)fail('Class progress must match its class.');return {...shared,kind,lessonId:id(r.lessonId,true),profileId:id(r.profileId,true),age:str(r.age,100),level:str(r.level,200),difficulty:str(r.difficulty,200),notes:str(r.notes,4000)}}
@@ -49,6 +51,12 @@ export async function lessonPlanner(db:D1Database,access:StaffAccess|null,method
    let anchor=record.afterId;const visited=new Set([record.id]);
    while(anchor){if(visited.has(anchor))fail('A lesson cannot be placed after itself or its descendants.');visited.add(anchor);anchor=(await curriculumEntry(anchor))?.afterId||'';if(visited.size>200)fail('This teaching sequence is too long.');}
   }
+ }
+ if(record.kind==='unit'){
+  if(plannerUnits(record.book,lessons,[]).some(u=>u.number===record.unit))fail('This unit is already listed. Select it from the unit dropdown and add its lessons.');
+  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(record.book));
+  const bookKey=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('').slice(0,24);
+  record.id='unit-'+bookKey+'-'+record.unit;
  }
  const key=prefix+record.kind+':'+record.id;
  const old=await db.prepare('SELECT value FROM config WHERE key=?').bind(key).first<{value:string}>();

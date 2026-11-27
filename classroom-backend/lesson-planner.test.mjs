@@ -15,6 +15,13 @@ test('planner API authenticates, saves and reloads group plans, rejects stale sa
  const base={revision:0,updatedAt:0};
  const extra={...base,kind:'lesson',id:'extra-test',groupId:group,book:'ACT2',unit:9,title:'CVC review',afterId:'act2-u9-lesson3',focus:'Short vowels'};
  assert.equal((await api({record:extra},owner)).status,200);
+ const newUnit={...base,kind:'unit',id:'new-unit-draft',book:'ACT3',unit:11,title:'Extra phonics',notes:'More CVC practice'};
+ const unitSaved=await api({record:newUnit},owner);assert.equal(unitSaved.status,200);assert(unitSaved.body.record.id.startsWith('unit-'));assert.equal(unitSaved.body.record.unit,11);
+ assert.equal((await api({record:{...newUnit,id:'another-draft'}},owner)).status,409,'Duplicate unit numbers cannot create separate records');
+ assert.equal((await api({record:{...newUnit,unit:3}},owner)).status,400,'Built-in units are already available');
+ const addedLesson={...extra,id:'extra-new-unit',book:'ACT3',unit:11,afterId:'',title:'Short vowels'};assert.equal((await api({record:addedLesson},owner)).status,200);
+ assert.equal((await api({record:{...base,kind:'progress',id:group,groupId:group,book:'ACT3',unit:11,lessonId:addedLesson.id,profileId:'',age:'',level:'',difficulty:'',notes:''}},owner)).status,200);
+ const unitReload=(await api(undefined,owner)).body.records;assert(unitReload.some(r=>r.kind==='unit'&&r.unit===11&&r.title==='Extra phonics'));assert(unitReload.some(r=>r.kind==='progress'&&r.lessonId===addedLesson.id));
  const p={...base,kind:'plan',id:'test-plan',groupId:group,book:'ACT2',unit:9,lessonId:extra.id,title:'Friday CVC',date:'2026-11-27',duration:40,status:'draft',objectives:'Blend words',comments:'Bring tiles',blocks:[{id:'block-1',stage:'Warm-up',kind:'game',resourceId:'',title:'Sound game',minutes:5,instructions:'Say and blend',comments:'Pair work',url:'https://example.com/song'}]};
  const saved=await api({record:p},owner);assert.equal(saved.status,200);assert.equal(saved.body.record.revision,1);
  assert.equal((await api({record:p},owner)).status,409);

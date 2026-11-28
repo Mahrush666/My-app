@@ -24,3 +24,7 @@
 .lp-official-stages p{margin:.25rem 0 0;font-size:1rem}
 
 .lp-official-stages p{white-space:pre-line}
+
+.lp-inline-resource{width:min(580px,calc(100vw - 24px));max-height:calc(100dvh - 32px);overflow:auto;border:1px solid #ded8e8;border-radius:10px;padding:1.1rem;color:#242137;background:#fff;box-shadow:0 20px 60px #0003}
+.lp-inline-resource::backdrop{background:#17112680}.lp-inline-resource>p{font-size:.875rem;color:#746c80}.lp-inline-resource fieldset{border:0;margin:0;padding:0;min-width:0}.lp-inline-resource .lp-inline-resource-fields{grid-template-columns:minmax(0,1fr) 95px}.lp-inline-resource .lp-actions{margin-top:.8rem}.lp-inline-resource h2{padding-right:1rem}
+.lp-inline-resource label{margin:.5rem 0}

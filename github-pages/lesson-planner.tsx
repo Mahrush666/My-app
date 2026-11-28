@@ -19,9 +19,28 @@ const seedRecords:PlannerRecord[]=[...profileSeeds,...resourceSeeds];
 function merged(records:PlannerRecord[]){return [...seedRecords.filter(s=>!records.some(r=>r.kind===s.kind&&r.id===s.id)),...records]}
 function blankBlock():PlannerBlock{return {id:freshId(),stage:'Guided practice',kind:'activity',resourceId:'',title:'',minutes:5,instructions:'',comments:'',url:''}}
 function Link({url}:{url:string}){return /^https?:\/\//i.test(url)?<a href={url} target="_blank" rel="noopener noreferrer"><UiText text={"Open resource 打开资源"}/></a>:null}
+function InlineResourceEditor({initial,onSave,onClose}:{initial:PlannerResource;onSave:(resource:PlannerResource)=>Promise<void>;onClose:()=>void}){
+ const {t}=useTeacherText(),dialog=useRef<HTMLDialogElement>(null);
+ const [resource,setResource]=useState(initial),[saving,setSaving]=useState(false),[error,setError]=useState('');
+ useEffect(()=>{const node=dialog.current,previous=document.activeElement as HTMLElement|null;node?.showModal();return()=>{node?.close();previous?.focus()}},[]);
+ const patchResource=(values:Partial<PlannerResource>)=>setResource(old=>({...old,...values}));
+ const title=resource.resourceKind==='game'?t('New game 新建游戏'):resource.resourceKind==='song'?t('New song 新建歌曲'):t('New activity 新建活动');
+ return <dialog ref={dialog} className="lp-inline-resource" aria-labelledby="lp-inline-resource-title" onCancel={e=>{e.preventDefault();if(!saving)onClose()}}>
+  <h2 id="lp-inline-resource-title">{title}</h2><p><UiText text="Save to your library and use in this stage. 保存到资源库并用于当前阶段。"/></p>
+  <form onSubmit={async e=>{e.preventDefault();if(saving)return;setSaving(true);setError('');try{await onSave(resource)}catch(e){setError((e as Error).message);setSaving(false)}}}><fieldset disabled={saving}>
+   <div className="lp-fields lp-inline-resource-fields"><label><UiText text="Name 名称"/><input autoFocus required maxLength={160} value={resource.title} onChange={e=>patchResource({title:e.target.value})}/></label><label><UiText text="Minutes 分钟"/><input type="number" required min={0} max={240} value={resource.minutes} onChange={e=>patchResource({minutes:Number(e.target.value)})}/></label></div>
+   <label><UiText text="Instructions & rules 说明与规则"/><textarea rows={4} maxLength={10000} value={resource.instructions} onChange={e=>patchResource({instructions:e.target.value})}/></label>
+   <label><UiText text="Materials / preparation 材料与准备"/><textarea rows={2} maxLength={4000} value={resource.materials} onChange={e=>patchResource({materials:e.target.value})}/></label>
+   <details className="lp-block-details"><summary><UiText text="Skills, level & link 技能、级别与链接"/></summary><label><UiText text="Skills / topics 技能与主题"/><input maxLength={500} value={resource.skills} onChange={e=>patchResource({skills:e.target.value})}/></label><label><UiText text="Suitable levels / ages 适用级别与年龄"/><input maxLength={500} value={resource.levels} onChange={e=>patchResource({levels:e.target.value})}/></label><label><UiText text="Link 链接"/><input type="url" maxLength={2000} value={resource.url} onChange={e=>patchResource({url:e.target.value})}/></label></details>
+   {error&&<p role="alert" className="lp-error">{error}</p>}
+   <div className="lp-actions"><button type="submit" className="primary">{saving?t('Saving… 保存中…'):t('Save & use 保存并使用')}</button><button type="button" onClick={onClose}><UiText text="Cancel 取消"/></button></div>
+  </fieldset></form>
+ </dialog>;
+}
 export default function LessonPlanner({groups,request,onDirtyChange}:{groups:Group[];request:Request;onDirtyChange?:(dirty:boolean)=>void}){
  const {t}=useTeacherText();
  const [openBlock,setOpenBlock]=useState('');
+ const [inlineResource,setInlineResource]=useState<{planId:string;blockId:string;resource:PlannerResource}|null>(null);
  const [records,setRecords]=useState<PlannerRecord[]>([]),[loaded,setLoaded]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
  const [view,setView]=useState<'curriculum'|'library'|'profiles'>('curriculum'),[groupId,setGroup]=useState(groups[0]?.id||''),[book,setBook]=useState('ACT2'),[unit,setUnit]=useState(1),[lessonId,setLesson]=useState('');
  const [draft,setDraft]=useState<PlannerRecord|null>(null),[dirty,setDirty]=useState(false),[resourceDetail,setResourceDetail]=useState<PlannerResource|null>(null),[search,setSearch]=useState(''),[resourceKind,setResourceKind]=useState('all'),[template,setTemplate]=useState<'integrated'|'phonics'|'review'>('integrated');
@@ -33,7 +52,7 @@ export default function LessonPlanner({groups,request,onDirtyChange}:{groups:Gro
  const profile=profiles.find(p=>p.id===progress?.profileId),units=plannerUnits(book,lessons,all),books=plannerBooks(lessons,all);
  const suggested=plannerSuggestion(book,unit);
  useEffect(()=>{let live=true;requestRef.current<{records:PlannerRecord[]}>('/lesson-planner').then(d=>{if(live){setRecords(d.records);setLoaded(true);const p=d.records.find((r):r is PlannerProgress=>r.kind==='progress'&&r.groupId===groups[0]?.id);if(p){setBook(p.book);setUnit(p.unit);setLesson(p.lessonId)}}}).catch(e=>{if(live)setError(e.message)});return()=>{live=false}},[]);
- useEffect(()=>{dirtyCallback.current?.(dirty);const warn=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue=''};if(dirty)window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn)},[dirty]);
+ useEffect(()=>{dirtyCallback.current?.(dirty||!!inlineResource);const warn=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue=''};if(dirty||inlineResource)window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn)},[dirty,inlineResource]);
  useEffect(()=>()=>dirtyCallback.current?.(false),[]);
  useEffect(()=>{if(!groups.some(g=>g.id===groupId)){setGroup(groups[0]?.id||'');setLesson('')}},[groups,groupId]);
  useEffect(()=>{if(!resourceDetail)return;const previous=document.activeElement as HTMLElement|null;return()=>previous?.focus()},[resourceDetail]);
@@ -55,6 +74,17 @@ export default function LessonPlanner({groups,request,onDirtyChange}:{groups:Gro
  function newLesson(focus=''){create({kind:'lesson',id:'extra-'+freshId(),groupId,book,unit,title:focus?'Extra phonics / CVC practice':'',afterId:lessonId||curriculum.at(-1)?.id||'',focus,revision:0,updatedAt:0})}
  function newPlan(source?:PlannerPlan){if(!groupId||!selected)return;create(source?copyPlannerPlan(source,groupId):{kind:'plan',id:freshId(),groupId,lessonId:selected.id,book,unit,title:selected.title,date:'',duration:40,status:'draft',objectives:selected.focus||'',comments:'',blocks:templateBlocks(template,40),revision:0,updatedAt:0})}
  function setBlock(id:string,values:Partial<PlannerBlock>){if(draft?.kind==='plan')patch({blocks:draft.blocks.map(b=>b.id===id?{...b,...values}:b)})}
+ function newInlineResource(block:PlannerBlock){
+  if(draft?.kind!=='plan'||isOfficialPlan(draft)||block.kind==='notes')return;
+  setInlineResource({planId:draft.id,blockId:block.id,resource:{kind:'resource',id:freshId(),resourceKind:block.kind,title:'',minutes:block.minutes,skills:'',levels:'',materials:'',instructions:'',url:'',revision:0,updatedAt:0}});
+ }
+ async function saveInlineResource(resource:PlannerResource){
+  if(!inlineResource||draft?.kind!=='plan'||draft.id!==inlineResource.planId||!draft.blocks.some(b=>b.id===inlineResource.blockId))throw new Error(t('Reopen the lesson stage before adding a resource. 请重新打开课程阶段后添加资源。'));
+  const {record}=await requestRef.current<{record:PlannerResource}>('/lesson-planner',{record:resource});
+  setRecords(old=>[...old.filter(r=>r.kind!==record.kind||r.id!==record.id),record]);
+  setBlock(inlineResource.blockId,{kind:record.resourceKind,resourceId:record.id,title:record.title,minutes:record.minutes,instructions:record.instructions+(record.materials?'\n\nMaterials: '+record.materials:''),url:record.url});
+  setInlineResource(null);
+ }
  function moveBlock(index:number,offset:number){if(draft?.kind!=='plan')return;const blocks=[...draft.blocks];[blocks[index],blocks[index+offset]]=[blocks[index+offset],blocks[index]];patch({blocks})}
  const formTitle=draft?.kind==='plan'?t("Lesson plan 教案"):draft?.kind==='progress'?t("Group learning position 班级进度"):draft?.kind==='unit'?t("New curriculum unit 新建单元"):draft?.kind==='lesson'?t("Additional curriculum lesson 补充课程"):draft?.kind==='resource'?t("Library resource 资源详情"):t("Teaching profile 教学建议");
  const changeBook=(b:string)=>{if(!leave())return;setBook(b);setUnit(plannerUnits(b,lessons,all)[0]?.number||0);setLesson('')};
@@ -95,7 +125,7 @@ export default function LessonPlanner({groups,request,onDirtyChange}:{groups:Gro
     <div className="lp-stages">{draft.blocks.map((b,i)=><details className="lp-block" data-block-id={b.id} key={b.id} open={openBlock===b.id}><summary onClick={e=>{e.preventDefault();setOpenBlock(current=>current===b.id?'':b.id)}}><span className="lp-stage-number">{i+1}</span><span className="lp-stage-name"><strong>{b.stage}</strong>{b.title&&<small>{b.title}</small>}</span><span className="lp-stage-kind">{b.kind==='notes'?t('Instructions 教学安排'):b.kind==='song'?t('Song 歌曲'):b.kind==='game'?t('Game 游戏'):t('Activity 活动')}</span><span className="lp-stage-minutes">{b.minutes} min</span></summary><div className="lp-stage-body">
      <div className="lp-stage-tools"><button type="button" aria-label={'Move stage '+(i+1)+' earlier'} disabled={i===0} onClick={()=>moveBlock(i,-1)}><UiText text={"Earlier 上移"}/></button><button type="button" aria-label={'Move stage '+(i+1)+' later'} disabled={i===draft.blocks.length-1} onClick={()=>moveBlock(i,1)}><UiText text={"Later 下移"}/></button><button type="button" onClick={()=>{if(confirm(t('Remove this stage? 删除此阶段？')))patch({blocks:draft.blocks.filter(x=>x.id!==b.id)})}}><UiText text={"Remove 删除"}/></button></div>
      <div className="lp-fields lp-stage-fields"><label><UiText text={"Stage 阶段"}/><input list="lp-stages" required maxLength={120} value={b.stage} onChange={e=>setBlock(b.id,{stage:e.target.value})}/></label><label><UiText text={"Minutes 分钟"}/><input type="number" min={0} max={240} value={b.minutes} required onChange={e=>setBlock(b.id,{minutes:Number(e.target.value)})}/></label><label><UiText text={"Type 类型"}/><select aria-label={t("Activity type 活动类型")} value={b.kind} onChange={e=>setBlock(b.id,{kind:e.target.value as PlannerBlock['kind'],resourceId:''})}><option value="notes"><UiText text={"Instructions 教学安排"}/></option><option value="song"><UiText text={"Song 歌曲"}/></option><option value="game"><UiText text={"Game 游戏"}/></option><option value="activity"><UiText text={"Activity 活动"}/></option></select></label></div>
-     {b.kind!=='notes'&&<label><UiText text={"Resource 资源"}/><select aria-label={t("Choose resource 选择资源")} value={b.resourceId} onChange={e=>{const r=resources.find(r=>r.id===e.target.value);setBlock(b.id,r?{resourceId:r.id,title:r.title,instructions:r.instructions+(r.materials?'\n\nMaterials: '+r.materials:''),url:r.url,minutes:r.minutes}:{resourceId:''})}}><option value=""><UiText text={"Custom / choose from library 自定义或选择资源"}/></option>{resources.filter(r=>r.resourceKind===b.kind).map(r=><option key={r.id} value={r.id}>{r.title}{r.levels?' · '+r.levels:''}</option>)}</select></label>}
+     {b.kind!=='notes'&&<label><UiText text={"Resource 资源"}/><select aria-label={t("Choose resource 选择资源")} value={b.resourceId} onChange={e=>{if(e.target.value==='__new-resource__'){newInlineResource(b);return}const r=resources.find(r=>r.id===e.target.value);setBlock(b.id,r?{resourceId:r.id,title:r.title,instructions:r.instructions+(r.materials?'\n\nMaterials: '+r.materials:''),url:r.url,minutes:r.minutes}:{resourceId:''})}}><option value=""><UiText text={"Custom / choose from library 自定义或选择资源"}/></option><option value="__new-resource__">{b.kind==='game'?t('+ Add game… 添加游戏…'):b.kind==='song'?t('+ Add song… 添加歌曲…'):t('+ Add activity… 添加活动…')}</option>{resources.filter(r=>r.resourceKind===b.kind).map(r=><option key={r.id} value={r.id}>{r.title}{r.levels?' · '+r.levels:''}</option>)}</select></label>}
      <label><UiText text={"Instructions 说明"}/><textarea aria-label={t('Stage instructions 活动说明')} rows={3} maxLength={10000} value={b.instructions} onChange={e=>setBlock(b.id,{instructions:e.target.value})}/></label>
      <details className="lp-block-details"><summary><UiText text={"Title, comments & link 名称、备注与链接"}/></summary><label><UiText text={"Activity title 活动名称"}/><input maxLength={160} value={b.title} onChange={e=>setBlock(b.id,{title:e.target.value})}/></label><label><UiText text={"Comments for this group 本班备注"}/><textarea rows={2} maxLength={4000} value={b.comments} onChange={e=>setBlock(b.id,{comments:e.target.value})}/></label><label><UiText text={"Resource link 资源链接"}/><input type="url" maxLength={2000} value={b.url} onChange={e=>setBlock(b.id,{url:e.target.value})}/></label></details>
      <div className="lp-actions"><Link url={b.url}/>{b.resourceId&&resources.some(r=>r.id===b.resourceId)&&<button type="button" onClick={()=>setResourceDetail(resources.find(r=>r.id===b.resourceId)!)}><UiText text={"Library details 资源详情"}/></button>}</div>
@@ -126,6 +156,7 @@ export default function LessonPlanner({groups,request,onDirtyChange}:{groups:Gro
   </section>}
   </div>
   </>}
+  {inlineResource&&<InlineResourceEditor initial={inlineResource.resource} onSave={saveInlineResource} onClose={()=>setInlineResource(null)}/> }
   {resourceDetail&&<div className="lp-modal" role="dialog" aria-modal="true" aria-label="Resource details" onKeyDown={e=>{if(e.key==='Escape')setResourceDetail(null);if(e.key==='Tab'){const items=e.currentTarget.querySelectorAll<HTMLElement>('button,a[href]');const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}}}><section><button autoFocus onClick={()=>setResourceDetail(null)}><UiText text={"Close 关闭"}/></button><h2>{resourceDetail.title}</h2><p>{resourceDetail.skills} · {resourceDetail.levels}</p><h3><UiText text={"Materials 材料"}/></h3><p>{resourceDetail.materials}</p><h3><UiText text={"Instructions 说明"}/></h3><p>{resourceDetail.instructions}</p><Link url={resourceDetail.url}/><p>Edit the instructions in your activity block to adapt this resource for the group.</p></section></div>}
  </section>;
 }
